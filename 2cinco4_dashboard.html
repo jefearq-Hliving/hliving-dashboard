@@ -362,6 +362,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 
 
+<!-- RECUPERAÇÃO DE SENHA -->
+<div class="login-overlay" id="recuperacao-overlay">
+  <div class="login-box">
+    <div class="login-head">
+      <div style="font-size:9px;letter-spacing:3px;color:var(--hl-gold);font-weight:700;text-transform:uppercase">H Living</div>
+      <div style="font-size:16px;font-weight:600;color:#fff;margin-top:3px">Recuperar senha</div>
+    </div>
+    <div class="login-body">
+      <div style="font-size:12px;color:var(--text-3);margin-bottom:14px;line-height:1.6">Digite a senha mestra de recuperação para definir uma nova senha.</div>
+      <div class="field-wrap">
+        <label class="field-label">Senha mestra</label>
+        <input type="password" id="rec-mestra" placeholder="••••••••">
+      </div>
+      <div id="rec-nova-wrap" style="display:none">
+        <div class="field-wrap">
+          <label class="field-label">Nova senha</label>
+          <input type="password" id="rec-nova" placeholder="••••••••">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">Confirmar nova senha</label>
+          <input type="password" id="rec-nova2" placeholder="••••••••">
+        </div>
+      </div>
+      <button class="save-btn" id="rec-btn" onclick="verificarMestra()">
+        <i class="ti ti-shield-check" style="font-size:16px"></i>Verificar
+      </button>
+      <button style="width:100%;padding:10px;background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;margin-top:8px" onclick="fecharRecuperacao()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 <!-- LOGIN ADMIN -->
 <div class="login-overlay" id="login-overlay">
   <div class="login-box">
@@ -375,7 +406,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <input type="password" id="admin-senha" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLogin()">
       </div>
       <button class="save-btn" onclick="checkLogin()"><i class="ti ti-lock-open" style="font-size:16px"></i>Entrar</button>
-      <button style="width:100%;padding:10px;background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;margin-top:8px" onclick="closeLogin()">Cancelar</button>
+      <button style="width:100%;padding:10px;background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;margin-top:4px" onclick="closeLogin()">Cancelar</button>
+      <button style="width:100%;padding:8px;background:none;border:none;color:var(--hl-gold);font-size:12px;cursor:pointer;margin-top:2px;text-decoration:underline" onclick="abrirRecuperacao()">Esqueci a senha</button>
     </div>
   </div>
 </div>
@@ -603,6 +635,27 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </button>
       </div>
 
+          <!-- ABA SENHA -->
+          <div class="admin-section" id="tab-senha">
+            <div style="background:var(--hl-gold-light);border:0.5px solid var(--hl-gold);border-radius:8px;padding:9px 11px;margin-bottom:14px;font-size:11px;color:#633806;line-height:1.5">
+              Altere a senha de acesso ao painel Admin.
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">Senha atual</label>
+              <input type="password" id="senha-atual" placeholder="••••••••">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">Nova senha</label>
+              <input type="password" id="senha-nova" placeholder="••••••••">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">Confirmar nova senha</label>
+              <input type="password" id="senha-nova2" placeholder="••••••••">
+            </div>
+            <button class="save-btn" onclick="alterarSenha()">
+              <i class="ti ti-lock" style="font-size:16px"></i>Alterar senha
+            </button>
+          </div>
           </div><!-- fim admin-emp-content -->
         </div><!-- fim admin-emp-selector-wrapper -->
       </div><!-- fim admin-lancamentos -->
@@ -985,8 +1038,82 @@ function atualizarContadoresHome(){
   document.getElementById('hc-vend').textContent=vs;
   document.getElementById('hc-total').textContent=units.length;
 }
+// ─── GESTÃO DE SENHA ──────────────────────────────────────────────
+const SENHA_MESTRA = 'hliving@recovery2026'; // senha de recuperação — não compartilhe
+let _senhaAtual = localStorage.getItem('hliving_senha') || 'hliving2026';
+
+function checkLogin(){
+  const digitada = document.getElementById('admin-senha').value;
+  if(digitada === _senhaAtual){
+    closeLogin();
+    if(_loginCtx==='prontos') openAdminProntos();
+    else openAdmin();
+  } else {
+    document.getElementById('admin-senha').style.borderColor='var(--status-vend)';
+    setTimeout(()=>document.getElementById('admin-senha').style.borderColor='',1000);
+    toast('Senha incorreta','erro');
+  }
+}
+
+function abrirRecuperacao(){
+  closeLogin();
+  document.getElementById('recuperacao-overlay').classList.add('open');
+  document.getElementById('rec-mestra').value='';
+  document.getElementById('rec-nova').value='';
+  document.getElementById('rec-nova2').value='';
+  document.getElementById('rec-nova-wrap').style.display='none';
+  document.getElementById('rec-btn').textContent='Verificar';
+  document.getElementById('rec-btn').onclick=verificarMestra;
+  setTimeout(()=>document.getElementById('rec-mestra').focus(),100);
+}
+
+function fecharRecuperacao(){
+  document.getElementById('recuperacao-overlay').classList.remove('open');
+}
+
+function verificarMestra(){
+  const mestra = document.getElementById('rec-mestra').value;
+  if(mestra !== SENHA_MESTRA){
+    document.getElementById('rec-mestra').style.borderColor='var(--status-vend)';
+    setTimeout(()=>document.getElementById('rec-mestra').style.borderColor='',1000);
+    toast('Senha mestra incorreta','erro');
+    return;
+  }
+  // Mestra correta — mostrar campos nova senha
+  document.getElementById('rec-nova-wrap').style.display='block';
+  document.getElementById('rec-btn').innerHTML='<i class="ti ti-lock" style="font-size:16px"></i>Salvar nova senha';
+  document.getElementById('rec-btn').onclick=salvarNovaSenhaRecuperacao;
+  document.getElementById('rec-nova').focus();
+}
+
+function salvarNovaSenhaRecuperacao(){
+  const nova = document.getElementById('rec-nova').value;
+  const nova2 = document.getElementById('rec-nova2').value;
+  if(!nova || nova.length < 6){ toast('A senha deve ter ao menos 6 caracteres','erro'); return; }
+  if(nova !== nova2){ toast('As senhas não coincidem','erro'); return; }
+  _senhaAtual = nova;
+  localStorage.setItem('hliving_senha', nova);
+  fecharRecuperacao();
+  toast('✓ Senha redefinida com sucesso','ok');
+}
+
+async function alterarSenha(){
+  const atual = document.getElementById('senha-atual').value;
+  const nova  = document.getElementById('senha-nova').value;
+  const nova2 = document.getElementById('senha-nova2').value;
+  if(atual !== _senhaAtual){ toast('Senha atual incorreta','erro'); return; }
+  if(!nova || nova.length < 6){ toast('A nova senha deve ter ao menos 6 caracteres','erro'); return; }
+  if(nova !== nova2){ toast('As novas senhas não coincidem','erro'); return; }
+  _senhaAtual = nova;
+  localStorage.setItem('hliving_senha', nova);
+  document.getElementById('senha-atual').value='';
+  document.getElementById('senha-nova').value='';
+  document.getElementById('senha-nova2').value='';
+  toast('✓ Senha alterada com sucesso','ok');
+}
+
 // ─── LOGIN ADMIN ──────────────────────────────────────────────────
-const ADMIN_SENHA='hliving2026';
+// Senha gerenciada via _senhaAtual
 let _loginCtx='dash';
 function openLogin(ctx){
   _loginCtx=ctx||'dash';
@@ -997,17 +1124,7 @@ function closeLogin(){
   document.getElementById('login-overlay').classList.remove('open');
   document.getElementById('admin-senha').value='';
 }
-function checkLogin(){
-  if(document.getElementById('admin-senha').value===ADMIN_SENHA){
-    closeLogin();
-    if(_loginCtx==='prontos') openAdminProntos();
-    else openAdmin();
-  } else {
-    document.getElementById('admin-senha').style.borderColor='var(--status-vend)';
-    setTimeout(()=>document.getElementById('admin-senha').style.borderColor='',1000);
-    toast('Senha incorreta','erro');
-  }
-}
+
 
 // ─── PAINEL ADMIN ─────────────────────────────────────────────────
 function openAdmin(){
@@ -1212,20 +1329,29 @@ const IMG_2CINCO4 = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMC
 const API_URL = 'https://script.google.com/macros/s/AKfycbxgFwV1wNbWU7p8FdZNv22t83WoWwQaZjTMr0VjfJxbBkuj-int1cvxzA0EY1qQPv_GhQ/exec';
 
 async function apiGet(action){
-  const url = `${API_URL}?action=${action}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    credentials: 'omit',
-    cache: 'no-cache'
+  return new Promise((resolve, reject) => {
+    const cbName = '_hlcb_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      reject(new Error('timeout'));
+    }, 10000);
+    window[cbName] = (data) => {
+      clearTimeout(timeout);
+      delete window[cbName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      resolve(data);
+    };
+    script.onerror = () => { clearTimeout(timeout); reject(new Error('script error')); };
+    script.src = `${API_URL}?action=${action}&callback=${cbName}`;
+    document.head.appendChild(script);
   });
-  const text = await res.text();
-  try { return JSON.parse(text); } catch(e) { return {}; }
 }
 async function apiPost(action, data){
   try {
-    await fetch(API_URL + '?action=' + action, {
+    await fetch(API_URL, {
       method: 'POST',
-      credentials: 'omit',
       mode: 'no-cors',
       body: JSON.stringify({action, data})
     });
