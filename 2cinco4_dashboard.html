@@ -1351,9 +1351,14 @@ function ocultarLoading(){ document.getElementById('toast').classList.remove('sh
 async function carregarDoSheets(){
   mostrarLoading('⟳ Sincronizando com o servidor...');
   try {
-    const res = await fetch(`${API_URL}?action=getAll`);
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
+   const data = await new Promise((resolve, reject) => {
+  const cb = 'cb_' + Date.now();
+  const s = document.createElement('script');
+  window[cb] = (d) => { delete window[cb]; s.remove(); resolve(d); };
+  s.onerror = reject;
+  s.src = `${API_URL}?action=getAll&callback=${cb}`;
+  document.head.appendChild(s);
+});
 
     if(data.empreendimento){
       const e = data.empreendimento;
