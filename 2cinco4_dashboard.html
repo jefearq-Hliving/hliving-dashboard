@@ -1212,18 +1212,21 @@ const IMG_2CINCO4 = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMC
 const API_URL = 'https://script.google.com/macros/s/AKfycbxgFwV1wNbWU7p8FdZNv22t83WoWwQaZjTMr0VjfJxbBkuj-int1cvxzA0EY1qQPv_GhQ/exec';
 
 async function apiGet(action){
-  const target = encodeURIComponent(`${API_URL}?action=${action}`);
-  const proxy = `https://api.allorigins.win/get?url=${target}`;
-  const res = await fetch(proxy);
-  const data = await res.json();
-  return JSON.parse(data.contents);
+  const url = `${API_URL}?action=${action}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    credentials: 'omit',
+    cache: 'no-cache'
+  });
+  const text = await res.text();
+  try { return JSON.parse(text); } catch(e) { return {}; }
 }
 async function apiPost(action, data){
   try {
-    await fetch(API_URL, {
+    await fetch(API_URL + '?action=' + action, {
       method: 'POST',
+      credentials: 'omit',
       mode: 'no-cors',
-      headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({action, data})
     });
   } catch(e){}
