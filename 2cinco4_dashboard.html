@@ -1212,26 +1212,21 @@ const IMG_2CINCO4 = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMC
 const API_URL = 'https://script.google.com/macros/s/AKfycbxgFwV1wNbWU7p8FdZNv22t83WoWwQaZjTMr0VjfJxbBkuj-int1cvxzA0EY1qQPv_GhQ/exec';
 
 async function apiGet(action){
-  return new Promise((resolve, reject) => {
-    const callbackName = 'cb_' + Date.now();
-    const script = document.createElement('script');
-    script.src = `${API_URL}?action=${action}&callback=${callbackName}`;
-    window[callbackName] = (data) => {
-      delete window[callbackName];
-      document.body.removeChild(script);
-      resolve(data);
-    };
-    script.onerror = reject;
-    document.body.appendChild(script);
-  });
+  const target = encodeURIComponent(`${API_URL}?action=${action}`);
+  const proxy = `https://api.allorigins.win/get?url=${target}`;
+  const res = await fetch(proxy);
+  const data = await res.json();
+  return JSON.parse(data.contents);
 }
 async function apiPost(action, data){
-  const res = await fetch(API_URL, {
-    method:'POST',
-    mode:'no-cors',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({action, data})
-  });
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action, data})
+    });
+  } catch(e){}
   return {ok:true};
 }
 
