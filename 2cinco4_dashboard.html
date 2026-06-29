@@ -1344,10 +1344,14 @@ async function apiPost(action, data){
 
 function mostrarLoading(msg){
   const t=document.getElementById('toast');
+  if(!t) return;
   t.textContent=msg||'Carregando...';
   t.classList.add('show');
 }
-function ocultarLoading(){ document.getElementById('toast').classList.remove('show'); }
+function ocultarLoading(){
+  const t=document.getElementById('toast');
+  if(t) t.classList.remove('show');
+}
 
 async function carregarDoSheets(){
   mostrarLoading('⟳ Sincronizando com o servidor...');
@@ -2710,7 +2714,7 @@ empreendimentos = [ATLANTIA];
 atualizarHeader();
 renderUnits();
 renderHome();
-carregarDoSheets();
+window.addEventListener('load', () => { carregarDoSheets(); });
 </script>
 </body>
 </html>
