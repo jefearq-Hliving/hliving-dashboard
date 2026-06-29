@@ -1354,7 +1354,8 @@ async function carregarDoSheets(){
   try {
     const res = await fetch(`${API_URL}?action=getAll`);
     if(!res.ok) throw new Error('HTTP '+res.status);
-    const data = await res.json();
+    const text = await res.text();
+    const data = JSON.parse(text);
 
     if(data.empreendimento){
       const e = data.empreendimento;
@@ -1393,15 +1394,14 @@ async function carregarDoSheets(){
     atualizarContadoresHome();
     renderHome();
     ocultarLoading();
-    toast('✓ Dados sincronizados');
+    toast('✓ Dados sincronizados','ok');
   } catch(err){
     ocultarLoading();
-    // Arquivo aberto localmente (file://) ou sem conexão — renderiza com dados locais
     renderHome();
     if(location.protocol === 'file:'){
       toast('ⓘ Abra via servidor para sincronizar com o Sheets');
     } else {
-      toast('⚠ Sem conexão — usando dados locais','erro');
+      toast('⚠ Sem conexão: '+err.message,'erro');
     }
   }
 }
