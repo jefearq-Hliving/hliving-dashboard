@@ -801,10 +801,9 @@ function calcP(vgv){
 }
 
 function atualizarHeader(){
-  document.getElementById('hdr-title').textContent = emp.nome;
-  document.getElementById('hdr-sub').textContent =
-    emp.local+' · '+emp.area+' m² privativos · CUB R$ '+emp.cub.toLocaleString('pt-BR',{minimumFractionDigits:2});
-  document.getElementById('hdr-ri').textContent = 'RI: '+emp.ri+' · Matrícula '+emp.matricula+' · CRI Itapema/SC';
+  const t=document.getElementById('hdr-title'); if(t) t.textContent=emp.nome;
+  const s=document.getElementById('hdr-sub'); if(s) s.textContent=emp.local+' · '+emp.area+' m² privativos · CUB R$ '+emp.cub.toLocaleString('pt-BR',{minimumFractionDigits:2});
+  const r=document.getElementById('hdr-ri'); if(r) r.textContent='RI: '+emp.ri+' · Matrícula '+emp.matricula+' · CRI Itapema/SC';
 }
 
 // ─── LISTA COMERCIAL ──────────────────────────────────────────────
@@ -1030,13 +1029,9 @@ function atualizarContadoresHome(){
     else if(u.s==='fase') fs++;
     else if(u.s==='vend') vs++;
   });
-  document.getElementById('hg-total').textContent=units.length;
-  document.getElementById('hg-disp').textContent=ds;
-  document.getElementById('hg-vend').textContent=vs;
-  document.getElementById('hc-disp').textContent=ds;
-  document.getElementById('hc-fase').textContent=fs;
-  document.getElementById('hc-vend').textContent=vs;
-  document.getElementById('hc-total').textContent=units.length;
+  const hgTotal = document.getElementById('hg-total'); if(hgTotal) hgTotal.textContent=units.length;
+  const hgDisp = document.getElementById('hg-disp'); if(hgDisp) hgDisp.textContent=ds;
+  const hgVend = document.getElementById('hg-vend'); if(hgVend) hgVend.textContent=vs;
 }
 // ─── GESTÃO DE SENHA ──────────────────────────────────────────────
 const SENHA_MESTRA = 'hliving@recovery2026'; // senha de recuperação — não compartilhe
@@ -2710,11 +2705,13 @@ function cadastrarEmpPronto(){
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────
-empreendimentos = [ATLANTIA];
-atualizarHeader();
-renderUnits();
-renderHome();
-window.addEventListener('load', () => { carregarDoSheets(); });
+document.addEventListener('DOMContentLoaded', function(){
+  empreendimentos = [ATLANTIA];
+  atualizarHeader();
+  renderUnits();
+  renderHome();
+  carregarDoSheets();
+});
 </script>
 </body>
 </html>
