@@ -177,6 +177,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div style="display:flex;gap:0;background:var(--surface);border-radius:8px;overflow:hidden;border:0.5px solid var(--border)">
       <button id="tab-ativos" onclick="setHomeTab('ativos')" style="flex:1;padding:8px;border:none;background:var(--hl-dark);color:#fff;font-size:12px;font-weight:600;cursor:pointer">Lançamentos</button>
       <button id="tab-prontos" onclick="setHomeTab('prontos')" style="flex:1;padding:8px;border:none;background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer">Prontos</button>
+      <button id="tab-pre" onclick="setHomeTab('pre')" style="flex:1;padding:8px;border:none;background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer">Pré-lançamento</button>
     </div>
   </div>
 
@@ -186,6 +187,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <!-- PRONTOS -->
   <div id="home-prontos" style="display:none">
     <div id="prontos-cards"></div>
+  </div>
+
+  <!-- PRÉ-LANÇAMENTO -->
+  <div id="home-pre" style="display:none">
+    <div id="pre-cards">
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:40px;margin-bottom:12px">🚀</div>
+        <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Em breve</div>
+        <div style="font-size:13px;color:var(--text-3);line-height:1.6">Novos empreendimentos em pré-lançamento serão exibidos aqui.<br>Cadastre via painel Admin.</div>
+      </div>
+    </div>
   </div>
 
   <div style="height:24px"></div>
@@ -283,6 +295,37 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     </button>
   </div>
   <div class="det-body" id="pr-det-body"></div>
+  <div style="height:32px"></div>
+</div>
+
+<!-- DETALHE PRÉ-LANÇAMENTO -->
+<div class="detail-view" id="pre-detail-view">
+  <div class="det-header">
+    <div>
+      <div class="det-title" id="pre-det-nome">Pré-lançamento</div>
+      <div class="det-sub" id="pre-det-sub"></div>
+    </div>
+    <button class="back-btn" onclick="fecharPreDetalhe()">
+      <i class="ti ti-arrow-left" style="font-size:16px"></i>Voltar
+    </button>
+  </div>
+  <div class="det-body">
+    <img id="pre-det-img" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:12px;display:none">
+    <div id="pre-det-desc" style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:16px"></div>
+
+    <div style="background:#f5eef8;border:0.5px solid #9B59B6;border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:11px;color:#6C3483;line-height:1.5">
+      🚀 <strong>Pré-lançamento</strong> — Registre o interesse do cliente e envie para o time comercial via WhatsApp.
+    </div>
+
+    <div class="sec-title">Registrar interesse</div>
+    <div class="field-wrap"><label class="field-label">Corretor responsável</label><input type="text" id="pre-int-corretor" placeholder="Seu nome"></div>
+    <div class="field-wrap"><label class="field-label">Imobiliária / CRECI</label><input type="text" id="pre-int-creci" placeholder="Ex: Imobiliária XYZ · CRECI 12345"></div>
+    <div class="field-wrap"><label class="field-label">Observações</label><input type="text" id="pre-int-obs" placeholder="Ex: tenho clientes interessados em 2 suítes, orçamento até R$ 1,5M"></div>
+
+    <button class="generate-btn" style="background:#25D366;border-color:#25D366" onclick="enviarInteressePreLancamento()">
+      <i class="ti ti-brand-whatsapp" style="font-size:17px"></i>Enviar interesse ao time comercial
+    </button>
+  </div>
   <div style="height:32px"></div>
 </div>
 
@@ -436,6 +479,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <i class="ti ti-home-check" style="font-size:22px"></i>
             Prontos
           </button>
+          <button onclick="setAdminArea('pre')" style="padding:16px 8px;border-radius:10px;border:1.5px solid #9B59B6;background:#f5eef8;color:#9B59B6;font-size:13px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
+            <i class="ti ti-rocket" style="font-size:22px"></i>
+            Pré-lançamento
+          </button>
         </div>
       </div>
 
@@ -500,6 +547,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="field-wrap">
           <label class="field-label">Data referência CUB</label>
           <input type="text" id="adm-cub-data" value="01/06/2026">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">Imagem de capa</label>
+          <input type="file" id="adm-imagem" accept="image/*" onchange="previewAdmImagem(this)" style="padding:8px">
+        </div>
+        <div id="adm-img-preview" style="display:none;margin-bottom:10px">
+          <img id="adm-img-thumb" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)">
         </div>
         <button class="save-btn" onclick="salvarEmpreendimento()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar empreendimento</button>
       </div>
@@ -601,8 +655,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="field-wrap" style="margin:0"><label class="field-label">Andar inicial</label><input type="number" id="new-andar-ini" placeholder="6" min="1"></div>
           <div class="field-wrap" style="margin:0"><label class="field-label">Andar final</label><input type="number" id="new-andar-fim" placeholder="27" min="1"></div>
           <div class="field-wrap" style="margin:0"><label class="field-label">Unidades por andar</label><input type="number" id="new-upa" placeholder="2" min="1" max="10"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Tipologias (ex: 1,2)</label><input type="text" id="new-tipos" placeholder="1,2" value="1,2"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Tipologias (ex: 1,2)</label><input type="text" id="new-tipos" placeholder="1,2" value="1,2" oninput="gerarCamposAreaTipo('new')"></div>
         </div>
+        <div id="new-areas-tipos" style="margin-top:8px"></div>
 
         <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Condições de pagamento</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -673,7 +728,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div class="admin-section active" id="pr-tab-unidades">
           <div style="font-size:11px;color:var(--text-3);margin-bottom:10px">Edite preço e status das unidades prontas.</div>
           <div id="pr-admin-units-list"></div>
-          <button class="save-btn" onclick="salvarUnidadesProntos()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar alterações</button>
+          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Trocar imagem de capa</div>
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px">
+            <select id="pr-img-emp-sel" style="flex:1;padding:10px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:#fff;color:var(--text);font-size:13px"></select>
+          </div>
+          <div class="field-wrap">
+            <input type="file" id="pr-img-upload" accept="image/*" onchange="previewTrocaImgPronto(this)" style="padding:8px">
+          </div>
+          <div id="pr-img-troca-preview" style="display:none;margin-bottom:10px">
+            <img id="pr-img-troca-thumb" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)">
+          </div>
+          <button class="save-btn" style="margin-bottom:14px" onclick="salvarImagemPronto()"><i class="ti ti-photo" style="font-size:16px"></i>Trocar imagem</button>
+          <button class="save-btn" onclick="salvarUnidadesProntos()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar alterações de unidades</button>
         </div>
         <div class="admin-section" id="pr-tab-novo-unidade">
           <div style="background:var(--hl-gold-light);border:0.5px solid var(--hl-gold);border-radius:8px;padding:9px 11px;margin-bottom:14px;font-size:11px;color:#633806;line-height:1.5">Adicione uma nova unidade a um empreendimento pronto já cadastrado.</div>
@@ -717,6 +783,71 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <button class="save-btn" onclick="cadastrarEmpPronto()" style="margin-top:14px"><i class="ti ti-plus" style="font-size:16px"></i>Cadastrar empreendimento</button>
         </div>
       </div><!-- fim admin-prontos-inline -->
+
+      <!-- ÁREA PRÉ-LANÇAMENTO INLINE -->
+      <div id="admin-pre-inline" style="display:none">
+        <button onclick="voltarSelectorAdmin()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--text-3);font-size:12px;cursor:pointer;margin-bottom:12px;padding:0">
+          <i class="ti ti-arrow-left" style="font-size:14px"></i>Voltar
+        </button>
+        <div style="font-size:11px;font-weight:600;color:#9B59B6;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Pré-lançamentos</div>
+
+        <div style="background:var(--hl-gold-light);border:0.5px solid var(--hl-gold);border-radius:8px;padding:9px 11px;margin-bottom:14px;font-size:11px;color:#633806;line-height:1.5">
+          Preencha os dados abaixo para cadastrar um novo pré-lançamento. As unidades serão geradas com status <strong>Pré-lançamento</strong>.
+        </div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Dados gerais</div>
+        <div class="field-wrap"><label class="field-label">Nome do empreendimento</label><input type="text" id="pre-nome" placeholder="Ex: Ocean Towers"></div>
+        <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="pre-local" placeholder="Ex: Itapema, SC"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field-wrap" style="margin:0"><label class="field-label">Área privativa (m²)</label><input type="number" id="pre-area" placeholder="134" min="1"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Previsão de lançamento</label><input type="text" id="pre-previsao" placeholder="Ex: T2 2027"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">CUB referência (R$)</label><input type="number" id="pre-cub" value="3096.25" step="0.01"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Data ref. CUB</label><input type="text" id="pre-cub-data" placeholder="01/06/2026"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Nº RI</label><input type="text" id="pre-ri" placeholder="R-XX-XXXXX"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Matrícula</label><input type="text" id="pre-matricula" placeholder="XXXXX"></div>
+        </div>
+        <div class="field-wrap" style="margin-top:8px"><label class="field-label">Descrição / Pitch</label><input type="text" id="pre-desc" placeholder="Ex: Residencial alto padrão com vista para o mar"></div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Geração de unidades</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field-wrap" style="margin:0"><label class="field-label">Andar inicial</label><input type="number" id="pre-andar-ini" placeholder="6" min="1"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Andar final</label><input type="number" id="pre-andar-fim" placeholder="27" min="1"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Unidades por andar</label><input type="number" id="pre-upa" placeholder="2" min="1" max="10"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Tipologias (ex: 1,2)</label><input type="text" id="pre-tipos" placeholder="1,2" value="1,2" oninput="gerarCamposAreaTipo('pre')"></div>
+        </div>
+        <div id="pre-areas-tipos" style="margin-top:8px"></div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Condições de pagamento</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div class="field-wrap" style="margin:0"><label class="field-label">% Entrada</label><input type="number" id="pre-pct-entrada" value="10" min="0" max="100" step="0.5"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Vencimento entrada</label><input type="text" id="pre-ven-entrada" placeholder="Atos"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">% Obra</label><input type="number" id="pre-pct-obra" value="10" min="0" max="100" step="0.5"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Vencimento obra</label><input type="text" id="pre-ven-obra" placeholder="Mar/2027"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">% Chaves</label><input type="number" id="pre-pct-chave" value="10" min="0" max="100" step="0.5"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Vencimento chaves</label><input type="text" id="pre-ven-chave" placeholder="Mar/2031"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">% Mensais</label><input type="number" id="pre-pct-mensal" value="40" min="0" max="100" step="0.5"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Nº mensais</label><input type="number" id="pre-qt-mensal" value="84" min="1"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">% Reforços anuais</label><input type="number" id="pre-pct-anual" value="30" min="0" max="100" step="0.5"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Nº reforços anuais</label><input type="number" id="pre-qt-anual" value="6" min="1"></div>
+        </div>
+
+        <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Imagem de capa</div>
+        <div class="field-wrap">
+          <label class="field-label">Upload da imagem (JPG/PNG)</label>
+          <input type="file" id="pre-img" accept="image/*" onchange="previewPreImg(this)" style="padding:8px">
+        </div>
+        <div id="pre-img-preview" style="display:none;margin-bottom:10px">
+          <img id="pre-img-thumb" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)">
+        </div>
+        <div id="pre-preview-units" style="display:none;background:var(--surface-1);border-radius:8px;padding:10px;margin-bottom:10px;font-size:11px;color:var(--text-2)"></div>
+        <button class="save-btn" style="background:var(--surface-1);color:var(--text);border:0.5px solid var(--border-strong);margin-bottom:8px" onclick="previewPreLancamento()">
+          <i class="ti ti-eye" style="font-size:16px"></i>Pré-visualizar unidades
+        </button>
+        <button class="save-btn" onclick="cadastrarPreLancamento()" style="margin-top:4px">
+          <i class="ti ti-plus" style="font-size:16px"></i>Cadastrar pré-lançamento
+        </button>
+        <div style="margin-top:14px" id="pre-lista-admin"></div>
+      </div><!-- fim admin-pre-inline -->
 
     </div>
   </div>
@@ -765,20 +896,37 @@ let units = [
 let reajusteHist = [];
 
 // ─── HELPERS ──────────────────────────────────────────────────────
-const statusLabel={disp:'Disponível',fase:'Fase posterior',vend:'Vendida',res:'Reservada'};
+const statusLabel={disp:'Disponível',fase:'Fase posterior',vend:'Vendida',res:'Reservada',pre:'Pré-lançamento'};
 let _homeTab='ativos';
 let _prontoFilter='all';
 
 function setHomeTab(tab){
   _homeTab = tab;
-  const isAtivos = tab==='ativos';
-  document.getElementById('home-emps').style.display    = isAtivos?'block':'none';
-  document.getElementById('home-prontos').style.display = isAtivos?'none':'block';
-  document.getElementById('tab-ativos').style.background  = isAtivos?'var(--hl-dark)':'transparent';
-  document.getElementById('tab-ativos').style.color       = isAtivos?'#fff':'var(--text-2)';
-  document.getElementById('tab-prontos').style.background = isAtivos?'transparent':'var(--hl-dark)';
-  document.getElementById('tab-prontos').style.color      = isAtivos?'var(--text-2)':'#fff';
-  if(!isAtivos) renderProntosCards();
+  // Esconder todas as seções
+  document.getElementById('home-emps').style.display='none';
+  document.getElementById('home-prontos').style.display='none';
+  document.getElementById('home-pre').style.display='none';
+  // Resetar todas as abas
+  ['tab-ativos','tab-prontos','tab-pre'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.style.background='transparent';el.style.color='var(--text-2)';}
+  });
+  // Ativar aba selecionada
+  if(tab==='ativos'){
+    document.getElementById('home-emps').style.display='block';
+    const el=document.getElementById('tab-ativos');
+    if(el){el.style.background='var(--hl-dark)';el.style.color='#fff';}
+  } else if(tab==='prontos'){
+    document.getElementById('home-prontos').style.display='block';
+    const el=document.getElementById('tab-prontos');
+    if(el){el.style.background='var(--hl-dark)';el.style.color='#fff';}
+    renderProntosCards();
+  } else if(tab==='pre'){
+    document.getElementById('home-pre').style.display='block';
+    const el=document.getElementById('tab-pre');
+    if(el){el.style.background='var(--hl-dark)';el.style.color='#fff';}
+    renderPreCards();
+  }
 }
 const fmt=v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
 const fmtK=v=>v?'R$ '+Math.round(v/1000).toLocaleString('pt-BR')+' mil':'A definir';
@@ -1257,8 +1405,9 @@ async function salvarEmpreendimento(){
     _empAtivo.area      = parseFloat(document.getElementById('adm-area').value)||134;
     _empAtivo.cub       = parseFloat(document.getElementById('adm-cub').value)||3096.25;
     _empAtivo.cubData   = document.getElementById('adm-cub-data').value;
+    if(_admImgB64){ _empAtivo.img=_admImgB64; _admImgB64=null; document.getElementById('adm-img-preview').style.display='none'; }
     renderHome();
-    toast('✓ Empreendimento salvo','ok');
+    toast('Empreendimento salvo','ok');
   } else {
     emp.ri        = document.getElementById('adm-ri').value;
     emp.matricula = document.getElementById('adm-matricula').value;
@@ -1267,16 +1416,16 @@ async function salvarEmpreendimento(){
     emp.area      = parseFloat(document.getElementById('adm-area').value)||134;
     emp.cub       = parseFloat(document.getElementById('adm-cub').value)||3096.25;
     emp.cubData   = document.getElementById('adm-cub-data').value;
+    if(_admImgB64){ window.IMG_2CINCO4=_admImgB64; _admImgB64=null; document.getElementById('adm-img-preview').style.display='none'; }
     atualizarHeader();
     renderUnits();
-    toast('Salvando...');
+    renderHome();
     try {
       await apiPost('saveEmpreendimento', emp);
-      toast('✓ Empreendimento salvo','ok');
-    } catch(err){ toast('⚠ Salvo localmente, sem conexão'); }
+      toast('Empreendimento salvo','ok');
+    } catch(err){ toast('Salvo localmente'); }
   }
 }
-
 async function salvarPagamento(){
   pgto.pctEntrada=parseFloat(document.getElementById('adm-pct-entrada').value)||10;
   pgto.venEntrada=document.getElementById('adm-ven-entrada').value;
@@ -1599,7 +1748,24 @@ function abrirDetalhePronto(num,empId){
     <div class="field-wrap"><label class="field-label">Nome do cliente</label><input type="text" id="pr-cli-nome" placeholder="Nome completo" autocomplete="name"></div>
     <div class="field-wrap"><label class="field-label">CPF</label><input type="text" id="pr-cli-cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14" inputmode="numeric"></div>
     <div class="field-wrap"><label class="field-label">Corretor responsável</label><input type="text" id="pr-cli-corretor" placeholder="Seu nome"></div>
-    <button class="generate-btn" onclick="gerarPropostaPronto('${u.n}','${e.id}')"><i class="ti ti-file-text" style="font-size:17px"></i>Gerar proposta</button>
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <button id="pr-btn-padrao" onclick="setModoPronto('padrao')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--hl-dark);background:var(--hl-dark);color:#fff;font-size:12px;font-weight:600;cursor:pointer">Padrão</button>
+      <button id="pr-btn-custom" onclick="setModoPronto('custom')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border-strong);background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer">Personalizada ✦</button>
+    </div>
+    <div id="pr-aviso-custom" style="display:none;background:#fff8e6;border:0.5px solid #e6c96a;border-radius:8px;padding:9px 11px;margin-bottom:12px;font-size:11px;color:#7a5800;line-height:1.5">
+      <strong>Proposta personalizada</strong> — edite os valores. Será enviada para aprovação.
+    </div>
+    <div id="pr-campos-custom" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div class="field-wrap" style="margin:0"><label class="field-label">Entrada R$ <span style="color:var(--text-3);font-weight:400">(padrão: ${fmt2(p.tipo==='fixo'?(p.entrada||0):u.v*(p.pctEntrada/100))})</span></label><input type="number" id="pr-entrada-custom" value="${p.tipo==='fixo'?(p.entrada||0):Math.round(u.v*(p.pctEntrada/100))}" step="1000" inputmode="numeric"></div>
+        <div class="field-wrap" style="margin:0"><label class="field-label">Chaves R$ <span style="color:var(--text-3);font-weight:400">(padrão: ${fmt2(p.tipo==='fixo'?(p.chave||0):u.v*(p.pctChave/100))})</span></label><input type="number" id="pr-chave-custom" value="${p.tipo==='fixo'?(p.chave||0):Math.round(u.v*(p.pctChave/100))}" step="1000" inputmode="numeric"></div>
+        <div class="field-wrap" style="margin:0"><label class="field-label">Mensais nº <span style="color:var(--text-3);font-weight:400">(padrão: ${p.qtMensal||48}x)</span></label><input type="number" id="pr-qt-mensal-custom" value="${p.qtMensal||48}" min="1" max="120" inputmode="numeric"></div>
+        <div class="field-wrap" style="margin:0"><label class="field-label">Reforços nº <span style="color:var(--text-3);font-weight:400">(padrão: ${p.qtAnual||6}x)</span></label><input type="number" id="pr-qt-anual-custom" value="${p.qtAnual||6}" min="1" max="12" inputmode="numeric"></div>
+        <div class="field-wrap" style="margin:0;grid-column:span 2"><label class="field-label">VGV negociado</label><input type="number" id="pr-vgv-custom" value="${u.v||0}" step="1000" inputmode="numeric"></div>
+      </div>
+      <div class="field-wrap"><label class="field-label">Observação para o time comercial</label><input type="text" id="pr-obs-custom" placeholder="Ex: cliente solicita entrada parcelada…"></div>
+    </div>
+    <button class="generate-btn" onclick="gerarPropostaPronto('${u.n}','${e.id}',${u.v})"><i class="ti ti-file-text" style="font-size:17px"></i>Gerar proposta</button>
     <div id="pr-proposta-area"></div>`;
 
   document.getElementById('prontos-view').style.display='none';
@@ -1621,7 +1787,16 @@ function fecharProntos(){
   window.scrollTo(0,0);
 }
 
-function gerarPropostaPronto(num,empId){
+function setModoPronto(modo){
+  const ic=modo==='custom';
+  document.getElementById('pr-campos-custom').style.display=ic?'block':'none';
+  document.getElementById('pr-aviso-custom').style.display=ic?'block':'none';
+  document.getElementById('pr-btn-padrao').style.cssText=`flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${ic?'var(--border-strong)':'var(--hl-dark)'};background:${ic?'transparent':'var(--hl-dark)'};color:${ic?'var(--text-2)':'#fff'}`;
+  document.getElementById('pr-btn-custom').style.cssText=`flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${ic?'var(--hl-dark)':'var(--border-strong)'};background:${ic?'var(--hl-dark)':'transparent'};color:${ic?'#fff':'var(--text-2)'}`;
+  window._modoProntoCustom=ic;
+}
+
+function gerarPropostaPronto(num,empId,vgvPadrao){
   const e=PRONTOS.find(x=>x.id===empId);
   const u=e.unidades.find(x=>x.n===num);
   const p=e.pgto;
@@ -1631,43 +1806,119 @@ function gerarPropostaPronto(num,empId){
   const today=new Date().toLocaleDateString('pt-BR');
   const fmt2=v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
   const s='font-size:10px;padding:4px 0;display:flex;justify-content:space-between;border-bottom:0.5px solid var(--border)';
-  let linhas='';
-  if(p.tipo==='fixo'){
-    const saldo=u.v-(p.entrada||0); const mensal=saldo/(p.qtMensal||48);
-    linhas=`<div style="${s}"><span style="color:var(--text-3)">Entrada · ${p.venEntrada||'Atos'}</span><span style="font-weight:600;color:var(--text)">${fmt2(p.entrada)}</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">${p.qtMensal}x mensais · ${p.reajuste||''}</span><span style="font-weight:600;color:var(--text)">${fmt2(mensal)}/mês</span></div>`;
+  const isCustom=window._modoProntoCustom||false;
+  const vgv     =isCustom?(parseFloat(document.getElementById('pr-vgv-custom').value)||vgvPadrao):vgvPadrao;
+  const qtMensal=isCustom?(parseInt(document.getElementById('pr-qt-mensal-custom').value)||p.qtMensal||48):p.qtMensal||48;
+  const qtAnual =isCustom?(parseInt(document.getElementById('pr-qt-anual-custom').value)||p.qtAnual||6):p.qtAnual||6;
+  const obs     =isCustom?(document.getElementById('pr-obs-custom').value||''):'';
+  let entrada,chave;
+  if(isCustom){
+    entrada=parseFloat(document.getElementById('pr-entrada-custom').value)||0;
+    chave  =parseFloat(document.getElementById('pr-chave-custom').value)||0;
   } else {
-    const entrada=u.v*(p.pctEntrada/100); const saldo=u.v-entrada; const mensal=saldo/(p.qtMensal||48);
-    linhas=`<div style="${s}"><span style="color:var(--text-3)">Entrada ${p.pctEntrada}% · ${p.venEntrada||'Atos'}</span><span style="font-weight:600;color:var(--text)">${fmt2(entrada)}</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">${p.qtMensal}x mensais · ${p.reajuste||''}</span><span style="font-weight:600;color:var(--text)">${fmt2(mensal)}/mês</span></div>`;
+    entrada=p.tipo==='fixo'?(p.entrada||0):vgv*((p.pctEntrada||0)/100);
+    chave  =p.tipo==='fixo'?(p.chave||0):vgv*((p.pctChave||0)/100);
   }
-  document.getElementById('pr-proposta-area').innerHTML=`
-  <div class="pdf-preview" style="padding:12px">
-    <div style="background:#edfaf5;border:0.5px solid #a3dfc7;border-radius:5px;padding:4px 9px;margin-bottom:8px;font-size:9px;font-weight:700;color:var(--status-disp);text-align:center;letter-spacing:.5px">✓ IMÓVEL PRONTO · ENTREGA IMEDIATA</div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:7px;border-bottom:2px solid var(--hl-dark);margin-bottom:7px">
-      <div><div style="font-size:8px;letter-spacing:2px;color:var(--hl-gold);font-weight:700;text-transform:uppercase">H Living · Proposta</div>
-        <div style="font-size:11px;font-weight:700;color:var(--hl-dark)">${e.nome}</div>
-        <div style="font-size:9px;color:var(--text-3)">${today} · ${corretor}</div></div>
-      <div style="text-align:right"><div style="font-size:14px;font-weight:700;color:var(--hl-dark)">Unid. ${u.n}</div>
-        <div style="font-size:9px;color:var(--text-3)">${u.area}m² · ${e.local}</div></div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:0.5px solid var(--border);padding-bottom:6px;margin-bottom:4px">
-      <div><div style="font-size:8px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px">Cliente</div><div style="font-size:11px;font-weight:600;color:var(--text)">${nome}</div></div>
-      <div><div style="font-size:8px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px">CPF</div><div style="font-size:11px;font-weight:600;color:var(--text)">${cpf}</div></div>
-    </div>
-    <div style="font-size:10px;color:var(--text-3);padding:3px 0;border-bottom:0.5px solid var(--border)">${u.desc||''}</div>
-    ${linhas}
-    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px">
-      <span style="font-size:10px;color:var(--text-3)">VGV total</span>
-      <span style="font-size:15px;font-weight:700;color:var(--hl-dark)">${fmt2(u.v)}</span>
-    </div>
-    <div style="font-size:8px;color:var(--text-3);margin-top:5px;line-height:1.4">Imóvel pronto. Entrega imediata. CUB R$ ${e.cub.toLocaleString('pt-BR',{minimumFractionDigits:2})} · Validade 5 dias úteis.</div>
-  </div>
-  <button class="dl-btn" onclick="window.print()"><i class="ti ti-printer" style="font-size:17px"></i>Imprimir / salvar como PDF</button>`;
-  document.getElementById('pr-proposta-area').scrollIntoView({behavior:'smooth',block:'start'});
+  const saldo=vgv-entrada-chave;
+  const mensal=saldo>0?saldo/qtMensal:0;
+  const anual =saldo>0&&qtAnual>0?saldo/qtAnual:0;
+  const carimboCor=isCustom?'#854F0B':'var(--status-disp)';
+  const carimboTxt=isCustom?'\u26a0 SUJEITA A APROVACAO COMERCIAL':'\u2713 PROPOSTA PADRAO';
+  const carimboBg=isCustom?'#fff8e6':'#edfaf5';
+  const carimboBdr=isCustom?'#e6c96a':'#a3dfc7';
+  const linhas=''
+    +'<div style="'+s+'"><span style="color:var(--text-3)">Entrada</span><span style="font-weight:600;color:var(--text)">'+fmt2(entrada)+'</span></div>'
+    +(chave>0?'<div style="'+s+'"><span style="color:var(--text-3)">Chaves</span><span style="font-weight:600;color:var(--text)">'+fmt2(chave)+'</span></div>':'')
+    +'<div style="'+s+'"><span style="color:var(--text-3)">'+qtMensal+'x mensais</span><span style="font-weight:600;color:var(--text)">'+fmt2(mensal)+'/mes</span></div>'
+    +(anual>0?'<div style="'+s+'"><span style="color:var(--text-3)">'+qtAnual+'x reforcos anuais</span><span style="font-weight:600;color:var(--text)">'+fmt2(anual)+'/ano</span></div>':'');
+  const prArea=document.getElementById('pr-proposta-area');
+  prArea.innerHTML='<div class="pdf-preview" style="padding:12px">'
+    +'<div style="background:'+carimboBg+';border:0.5px solid '+carimboBdr+';border-radius:5px;padding:4px 9px;margin-bottom:8px;font-size:9px;font-weight:700;color:'+carimboCor+';text-align:center;letter-spacing:.5px">'+carimboTxt+' - IMOVEL PRONTO</div>'
+    +'<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:7px;border-bottom:2px solid var(--hl-dark);margin-bottom:7px">'
+    +'<div><div style="font-size:8px;letter-spacing:2px;color:var(--hl-gold);font-weight:700;text-transform:uppercase">H Living - Proposta</div>'
+    +'<div style="font-size:11px;font-weight:700;color:var(--hl-dark)">'+e.nome+'</div>'
+    +'<div style="font-size:9px;color:var(--text-3)">'+today+' - '+corretor+'</div></div>'
+    +'<div style="text-align:right"><div style="font-size:14px;font-weight:700;color:var(--hl-dark)">Unid. '+u.n+'</div>'
+    +'<div style="font-size:9px;color:var(--text-3)">'+u.area+'m2 - '+e.local+'</div></div></div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:0.5px solid var(--border);padding-bottom:6px;margin-bottom:4px">'
+    +'<div><div style="font-size:8px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px">Cliente</div><div style="font-size:11px;font-weight:600;color:var(--text)">'+nome+'</div></div>'
+    +'<div><div style="font-size:8px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px">CPF</div><div style="font-size:11px;font-weight:600;color:var(--text)">'+cpf+'</div></div></div>'
+    +'<div style="font-size:10px;color:var(--text-3);padding:3px 0;border-bottom:0.5px solid var(--border)">'+(u.desc||'')+'</div>'
+    +linhas
+    +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px">'
+    +'<span style="font-size:10px;color:var(--text-3)">VGV total</span>'
+    +'<span style="font-size:15px;font-weight:700;color:var(--hl-dark)">'+fmt2(vgv)+'</span></div>'
+    +(obs?'<div style="margin-top:6px;padding:6px 8px;background:#f5f3ee;border-radius:5px;font-size:9px;color:var(--text-2)"><strong>Obs:</strong> '+obs+'</div>':'')
+    +'<div style="font-size:8px;color:var(--text-3);margin-top:5px;line-height:1.4">Imovel pronto. Entrega imediata. CUB R$ '+e.cub.toLocaleString('pt-BR',{minimumFractionDigits:2})+' - Validade 5 dias uteis.</div>'
+    +'</div>'
+    +'<button class="dl-btn" onclick="window.print()"><i class="ti ti-printer" style="font-size:17px"></i>Imprimir / salvar como PDF</button>'
+    +(isCustom?'<button class="dl-btn" style="margin-top:8px;background:#25D366;color:#fff;border-color:#25D366" onclick="enviarWhatsAppPronto()"><i class="ti ti-brand-whatsapp" style="font-size:17px"></i>Enviar para aprovacao</button>':'');
+  prArea.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+function enviarWhatsAppPronto(){
+  const prArea=document.getElementById('pr-proposta-area');
+  if(!prArea) return;
+  // Pegar dados dos campos ainda abertos
+  const e=PRONTOS.find(x=>x.id===document.querySelector('#prontos-detail-view .det-sub')&&x)||PRONTOS[0];
+  const nome=document.getElementById('pr-cli-nome').value||'[Nome do cliente]';
+  const cpf=document.getElementById('pr-cli-cpf').value||'[CPF]';
+  const corretor=document.getElementById('pr-cli-corretor').value||'[Corretor]';
+  const vgv=parseFloat(document.getElementById('pr-vgv-custom').value)||0;
+  const entrada=parseFloat(document.getElementById('pr-entrada-custom').value)||0;
+  const chave=parseFloat(document.getElementById('pr-chave-custom').value)||0;
+  const qtMensal=parseInt(document.getElementById('pr-qt-mensal-custom').value)||48;
+  const qtAnual=parseInt(document.getElementById('pr-qt-anual-custom').value)||6;
+  const obs=document.getElementById('pr-obs-custom').value||'';
+  const saldo=vgv-entrada-chave;
+  const fmt=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const today=new Date().toLocaleDateString('pt-BR');
+  const msg='*PROPOSTA PERSONALIZADA - AGUARDANDO APROVACAO*'
+    +'\n\n*Cliente:* '+nome+'\n*CPF:* '+cpf+'\n*Corretor:* '+corretor+'\n*Data:* '+today
+    +'\n\n*Condicoes solicitadas:*'
+    +'\n- Entrada: '+fmt(entrada)
+    +(chave>0?'\n- Chaves: '+fmt(chave):'')
+    +'\n- '+qtMensal+'x mensais: '+fmt(saldo/qtMensal)+'/mes'
+    +(qtAnual>0?'\n- '+qtAnual+'x reforcos: '+fmt(saldo/qtAnual)+'/ano':'')
+    +'\n- *VGV total: '+fmt(vgv)+'*'
+    +(obs?'\n\n*Obs:* '+obs:'')
+    +'\n\n_Esta proposta precisa de aprovacao antes de ser confirmada ao cliente._';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+
+function gerarCamposAreaTipo(prefix){
+  const input = document.getElementById(prefix+'-tipos');
+  const container = document.getElementById(prefix+'-areas-tipos');
+  if(!input||!container) return;
+  const tipos = input.value.split(',').map(t=>t.trim()).filter(t=>t);
+  if(tipos.length<=1){
+    container.innerHTML='';
+    return;
+  }
+  const areaBase = parseFloat(document.getElementById(prefix+'-area')&&document.getElementById(prefix+'-area').value)||0;
+  let html='<div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Área por tipologia (m²)</div>';
+  html+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px">';
+  tipos.forEach(t=>{
+    const existente = document.getElementById(prefix+'-area-tipo-'+t);
+    const val = existente ? existente.value : (areaBase||'');
+    html+=`<div class="field-wrap" style="margin:0"><label class="field-label">Tipo ${t}</label><input type="number" id="${prefix}-area-tipo-${t}" placeholder="m²" value="${val}" step="0.01" min="1"></div>`;
+  });
+  html+='</div>';
+  container.innerHTML=html;
+}
+
+function getAreaPorTipo(prefix, tipo){
+  const el = document.getElementById(prefix+'-area-tipo-'+tipo);
+  if(el && el.value) return parseFloat(el.value);
+  // fallback para área geral
+  const geral = document.getElementById(prefix+'-area');
+  return geral ? parseFloat(geral.value)||134 : 134;
+}
+
+
 function gerarUnidadesNovo(){
+  const ini = parseInt(document.getElementById('new-andar-ini').value)||6;
   const fim = parseInt(document.getElementById('new-andar-fim').value)||27;
   const upa = parseInt(document.getElementById('new-upa').value)||2;
   const tipos = document.getElementById('new-tipos').value.split(',').map(t=>t.trim());
@@ -1676,7 +1927,8 @@ function gerarUnidadesNovo(){
     for(let p=1; p<=upa; p++){
       const num = String(a*100 + p);
       const tipo = tipos[(p-1) % tipos.length] || '1';
-      unidades.push({n:num, t:tipo, v:null, s:'fase', obs:''});
+      const area = getAreaPorTipo('new', tipo);
+      unidades.push({n:num, t:tipo, v:null, s:'fase', area, obs:''});
     }
   }
   return unidades;
@@ -2479,6 +2731,8 @@ function setAdminArea(area){
   document.getElementById('admin-selector').style.display='none';
   document.getElementById('admin-lancamentos').style.display = area==='lancamentos' ? 'block' : 'none';
   document.getElementById('admin-prontos-inline').style.display = area==='prontos' ? 'block' : 'none';
+  const preEl = document.getElementById('admin-pre-inline');
+  if(preEl) preEl.style.display = area==='pre' ? 'block' : 'none';
   if(area==='lancamentos'){
     renderAdminEmpCards();
     document.getElementById('admin-emp-selector').style.display='block';
@@ -2488,6 +2742,9 @@ function setAdminArea(area){
     renderPrAdminUnits();
     const sel=document.getElementById('pr-new-emp-sel');
     if(sel) sel.innerHTML=PRONTOS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('');
+    // Popular select de troca de imagem
+    const imgSel=document.getElementById('pr-img-emp-sel');
+    if(imgSel) imgSel.innerHTML=PRONTOS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('');
     // Garantir que primeira aba está ativa e visível
     const container = document.getElementById('admin-prontos-inline');
     container.querySelectorAll('.admin-section').forEach((s,i)=>{
@@ -2496,6 +2753,10 @@ function setAdminArea(area){
     container.querySelectorAll('.admin-tab').forEach((t,i)=>{
       if(i===0) t.classList.add('active'); else t.classList.remove('active');
     });
+  }
+  if(area==='pre'){
+    renderPreListaAdmin();
+    setTimeout(()=>gerarCamposAreaTipo('pre'), 100);
   }
 }
 
@@ -2581,6 +2842,8 @@ function voltarSelectorAdmin(){
   document.getElementById('admin-selector').style.display='block';
   document.getElementById('admin-lancamentos').style.display='none';
   document.getElementById('admin-prontos-inline').style.display='none';
+  const preEl=document.getElementById('admin-pre-inline');
+  if(preEl) preEl.style.display='none';
 }
 
 function openAdminProntos(){
@@ -2649,29 +2912,7 @@ function adicionarUnidadePronta(){
   ['pr-new-num','pr-new-area','pr-new-vgv','pr-new-desc'].forEach(id=>document.getElementById(id).value='');
   toast(`✓ Unidade ${num} adicionada ao ${e.nome}`);
 }
-function previewProntoImg(input){
-  const file=input.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const img=new Image();
-    img.onload=()=>{
-      const canvas=document.createElement('canvas');
-      canvas.width=800;canvas.height=450;
-      const ctx=canvas.getContext('2d');
-      const sr=img.width/img.height,dr=800/450;
-      let sx,sy,sw,sh;
-      if(sr>dr){sw=img.height*dr;sh=img.height;sx=(img.width-sw)/2;sy=0;}
-      else{sw=img.width;sh=img.width/dr;sx=0;sy=(img.height-sh)/2;}
-      ctx.drawImage(img,sx,sy,sw,sh,0,0,800,450);
-      _prontoImgBase64=canvas.toDataURL('image/jpeg',0.88);
-      document.getElementById('pr-emp-img-thumb').src=_prontoImgBase64;
-      document.getElementById('pr-emp-img-preview').style.display='block';
-    };
-    img.src=ev.target.result;
-  };
-  reader.readAsDataURL(file);
-}
+
 function cadastrarEmpPronto(){
   const nome=document.getElementById('pr-emp-nome').value.trim();
   if(!nome){toast('Informe o nome');return;}
@@ -2702,6 +2943,257 @@ function cadastrarEmpPronto(){
   closeAdminProntos();
   _prontoImgBase64=null;
   toast(`✓ ${nome} cadastrado com sucesso`);
+}
+
+
+// ─── PRÉ-LANÇAMENTOS ──────────────────────────────────────────────
+let PRE_LANCAMENTOS = [];
+
+function renderPreCards(){
+  const cont = document.getElementById('pre-cards');
+  if(!cont) return;
+  if(!PRE_LANCAMENTOS.length){
+    cont.innerHTML=`<div style="text-align:center;padding:40px 20px">
+      <div style="font-size:40px;margin-bottom:12px">🚀</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Em breve</div>
+      <div style="font-size:13px;color:var(--text-3);line-height:1.6">Novos empreendimentos em pré-lançamento serão exibidos aqui.<br>Cadastre via painel Admin.</div>
+    </div>`;
+    return;
+  }
+  let html='';
+  PRE_LANCAMENTOS.forEach((e,i)=>{
+    html+=`<div class="emp-card" onclick="abrirPreEmp(${i})">
+      <div class="emp-banner" style="background:#2a1a3a;padding:0;overflow:hidden;position:relative">
+        ${e.img?`<img src="${e.img}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block" alt="${e.nome}">`:`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px">🚀</div>`}
+        <div class="emp-banner-overlay"></div>
+        <div style="position:absolute;bottom:10px;left:13px;right:13px;z-index:1;display:flex;justify-content:space-between;align-items:flex-end">
+          <div style="font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">${e.nome}</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:#9B59B6;color:#fff">Pré-lançamento</div>
+        </div>
+      </div>
+      <div class="emp-body">
+        <div class="emp-name">${e.nome}</div>
+        <div class="emp-loc"><i class="ti ti-map-pin" style="font-size:11px"></i>${e.local||'A definir'}${e.area?' · '+e.area+' m²':''}</div>
+        <div class="emp-mini-stats" style="margin-top:8px">
+          <div class="ems"><div class="ems-n" style="color:#9B59B6">${e.unidades?e.unidades.length:0}</div><div class="ems-l">Unidades</div></div>
+          <div class="ems"><div class="ems-n" style="font-size:11px;color:var(--text)">${e.previsao||'A definir'}</div><div class="ems-l">Previsão</div></div>
+        </div>
+        <div class="emp-footer" style="margin-top:10px">
+          <div style="font-size:10px;color:var(--text-3)">Lançamento previsto: ${e.previsao||'A definir'}</div>
+          <button class="emp-enter-btn"><i class="ti ti-arrow-right" style="font-size:14px"></i>Ver detalhes</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  cont.innerHTML=html;
+}
+
+function abrirPreEmp(idx){
+  const e = PRE_LANCAMENTOS[idx];
+  // Abrir view de detalhe
+  _preAtivo = idx;
+  document.getElementById('pre-det-nome').textContent = e.nome;
+  document.getElementById('pre-det-sub').textContent = (e.local||'') + (e.previsao?' · Lançamento: '+e.previsao:'');
+  document.getElementById('pre-det-desc').textContent = e.desc||'';
+  document.getElementById('pre-det-img').src = e.img||'';
+  document.getElementById('pre-det-img').style.display = e.img?'block':'none';
+  // Limpar campos
+  ['pre-int-nome','pre-int-cpf','pre-int-tel','pre-int-corretor','pre-int-obs'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('home-view').style.display='none';
+  document.getElementById('pre-detail-view').classList.add('open');
+  window.scrollTo(0,0);
+}
+
+let _preAtivo = null;
+
+
+function previewPreLancamento(){
+  const ini=parseInt(document.getElementById('pre-andar-ini').value)||6;
+  const fim=parseInt(document.getElementById('pre-andar-fim').value)||27;
+  const upa=parseInt(document.getElementById('pre-upa').value)||2;
+  const total=(fim-ini+1)*upa;
+  const el=document.getElementById('pre-preview-units');
+  el.style.display='block';
+  el.innerHTML='<strong>'+total+' unidades serão geradas</strong> (andares '+ini+' a '+fim+', '+upa+' por andar) com status Pré-lançamento.';
+}
+
+function cadastrarPreLancamento(){
+  const nome=document.getElementById('pre-nome').value.trim();
+  if(!nome){toast('Informe o nome','erro');return;}
+  const ini=parseInt(document.getElementById('pre-andar-ini').value)||6;
+  const fim=parseInt(document.getElementById('pre-andar-fim').value)||27;
+  const upa=parseInt(document.getElementById('pre-upa').value)||2;
+  const tipos=(document.getElementById('pre-tipos').value||'1,2').split(',').map(t=>t.trim());
+  const unidades=[];
+  for(let a=ini;a<=fim;a++){
+    for(let p=1;p<=upa;p++){
+      const num=String(a*100+p);
+      const tipo=tipos[(p-1)%tipos.length]||'1';
+      const area=getAreaPorTipo('pre',tipo);
+      unidades.push({n:num,t:tipo,v:null,s:'pre',area,obs:''});
+    }
+  }
+  const novoEmp={
+    id:'pre_'+Date.now(),
+    nome,
+    local:document.getElementById('pre-local').value,
+    area:parseFloat(document.getElementById('pre-area').value)||0,
+    previsao:document.getElementById('pre-previsao').value,
+    cub:parseFloat(document.getElementById('pre-cub').value)||3096.25,
+    cubData:document.getElementById('pre-cub-data').value,
+    ri:document.getElementById('pre-ri').value,
+    matricula:document.getElementById('pre-matricula').value,
+    desc:document.getElementById('pre-desc').value,
+    img:window._preImgB64||'',
+    pgto:{
+      tipo:'pct',
+      pctEntrada:parseFloat(document.getElementById('pre-pct-entrada').value)||10,
+      venEntrada:document.getElementById('pre-ven-entrada').value||'Atos',
+      pctObra:parseFloat(document.getElementById('pre-pct-obra').value)||10,
+      venObra:document.getElementById('pre-ven-obra').value||'',
+      pctChave:parseFloat(document.getElementById('pre-pct-chave').value)||10,
+      venChave:document.getElementById('pre-ven-chave').value||'',
+      pctMensal:parseFloat(document.getElementById('pre-pct-mensal').value)||40,
+      qtMensal:parseInt(document.getElementById('pre-qt-mensal').value)||84,
+      pctAnual:parseFloat(document.getElementById('pre-pct-anual').value)||30,
+      qtAnual:parseInt(document.getElementById('pre-qt-anual').value)||6,
+    },
+    unidades
+  };
+  PRE_LANCAMENTOS.push(novoEmp);
+  renderPreCards();
+  renderPreListaAdmin();
+  // Limpar campos
+  ['pre-nome','pre-local','pre-area','pre-previsao','pre-cub-data','pre-ri','pre-matricula','pre-desc','pre-andar-ini','pre-andar-fim'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  document.getElementById('pre-img-preview').style.display='none';
+  document.getElementById('pre-preview-units').style.display='none';
+  window._preImgB64=null;
+  toast('✓ '+nome+' adicionado aos pré-lançamentos','ok');
+}
+
+function renderPreListaAdmin(){
+  const el=document.getElementById('pre-lista-admin');
+  if(!el) return;
+  if(!PRE_LANCAMENTOS.length){el.innerHTML='';return;}
+  el.innerHTML='<div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Cadastrados</div>'+
+    PRE_LANCAMENTOS.map((e,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
+      <div><div style="font-size:13px;font-weight:600;color:var(--text)">${e.nome}</div><div style="font-size:11px;color:var(--text-3)">${e.local||'—'} · ${e.previsao||'—'}</div></div>
+      <button onclick="removerPreLancamento(${i})" style="background:none;border:none;color:var(--status-vend);cursor:pointer;font-size:18px">×</button>
+    </div>`).join('');
+}
+
+function removerPreLancamento(idx){
+  if(!confirm('Remover '+PRE_LANCAMENTOS[idx].nome+'?')) return;
+  PRE_LANCAMENTOS.splice(idx,1);
+  renderPreCards();
+  renderPreListaAdmin();
+  toast('Removido','ok');
+}
+
+
+function fecharPreDetalhe(){
+  document.getElementById('pre-detail-view').classList.remove('open');
+  document.getElementById('home-view').style.display='block';
+  setHomeTab('pre');
+  window.scrollTo(0,0);
+}
+
+function enviarInteressePreLancamento(){
+  const e=PRE_LANCAMENTOS[_preAtivo];
+  if(!e){toast('Erro: empreendimento nao encontrado','erro');return;}
+  const corretor=document.getElementById('pre-int-corretor').value.trim();
+  const creci=document.getElementById('pre-int-creci').value.trim();
+  const obs=document.getElementById('pre-int-obs').value.trim();
+  const today=new Date().toLocaleDateString('pt-BR');
+  if(!corretor){toast('Informe o corretor responsavel','erro');return;}
+  const msg='*INTERESSE EM PRE-LANCAMENTO*\n\n'
+    +'*Empreendimento:* '+e.nome+'\n'
+    +'*Localizacao:* '+(e.local||'A definir')+'\n'
+    +'*Previsao:* '+(e.previsao||'A definir')+'\n\n'
+    +'*Corretor:* '+corretor+'\n'
+    +(creci?'*Imobiliaria/CRECI:* '+creci+'\n':'')
+    +'*Data:* '+today
+    +(obs?'\n\n*Observacoes:* '+obs:'')
+    +'\n\n_Por favor, registrar o interesse para contato futuro._';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ─── TROCA DE IMAGEM ──────────────────────────────────────────────
+let _admImgB64 = null;
+let _prontoImgTrocaB64 = null;
+
+function processarImagem(file, callback){
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width=1200; canvas.height=675;
+      const ctx = canvas.getContext('2d');
+      const sr=img.width/img.height, dr=1200/675;
+      let sx,sy,sw,sh;
+      if(sr>dr){sw=img.height*dr;sh=img.height;sx=(img.width-sw)/2;sy=0;}
+      else{sw=img.width;sh=img.width/dr;sx=0;sy=(img.height-sh)/2;}
+      ctx.drawImage(img,sx,sy,sw,sh,0,0,1200,675);
+      callback(canvas.toDataURL('image/jpeg',0.90));
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function previewAdmImagem(input){
+  const file = input.files[0]; if(!file) return;
+  processarImagem(file, b64 => {
+    _admImgB64 = b64;
+    document.getElementById('adm-img-thumb').src = b64;
+    document.getElementById('adm-img-preview').style.display = 'block';
+  });
+}
+
+function previewTrocaImgPronto(input){
+  const file = input.files[0]; if(!file) return;
+  processarImagem(file, b64 => {
+    _prontoImgTrocaB64 = b64;
+    document.getElementById('pr-img-troca-thumb').src = b64;
+    document.getElementById('pr-img-troca-preview').style.display = 'block';
+  });
+}
+
+function salvarImagemPronto(){
+  if(!_prontoImgTrocaB64){ toast('Selecione uma imagem primeiro','erro'); return; }
+  const sel = document.getElementById('pr-img-emp-sel');
+  const empId = sel ? sel.value : null;
+  const e = PRONTOS.find(x=>x.id===empId);
+  if(!e){ toast('Selecione um empreendimento','erro'); return; }
+  e.img = _prontoImgTrocaB64;
+  renderProntosCards();
+  _prontoImgTrocaB64 = null;
+  document.getElementById('pr-img-troca-preview').style.display='none';
+  document.getElementById('pr-img-upload').value='';
+  toast('✓ Imagem de '+e.nome+' atualizada','ok');
+}
+
+function previewPreImg(input){
+  const file=input.files[0]; if(!file) return;
+  processarImagem(file, b64 => {
+    window._preImgB64 = b64;
+    document.getElementById('pre-img-thumb').src = b64;
+    document.getElementById('pre-img-preview').style.display = 'block';
+  });
+}
+
+function previewProntoImg(input){
+  const file=input.files[0]; if(!file) return;
+  processarImagem(file, b64 => {
+    window._prontoEmpImgB64 = b64;
+    document.getElementById('pr-emp-img-thumb').src = b64;
+    document.getElementById('pr-emp-img-preview').style.display = 'block';
+  });
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────
