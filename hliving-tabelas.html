@@ -555,6 +555,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <div id="adm-img-preview" style="display:none;margin-bottom:10px">
           <img id="adm-img-thumb" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)">
         </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface-1);border-radius:8px;padding:11px 13px;margin-bottom:14px">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Exibir publicamente</div>
+            <div style="font-size:11px;color:var(--text-3)">Quando desligado, o card some da home para visitantes</div>
+          </div>
+          <label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0">
+            <input type="checkbox" id="adm-ativo" checked style="opacity:0;width:0;height:0">
+            <span id="adm-ativo-track" onclick="toggleAdmAtivo()" style="position:absolute;cursor:pointer;inset:0;background:var(--status-disp);border-radius:24px;transition:.2s">
+              <span id="adm-ativo-knob" style="position:absolute;height:18px;width:18px;left:23px;bottom:3px;background:#fff;border-radius:50%;transition:.2s"></span>
+            </span>
+          </label>
+        </div>
         <button class="save-btn" onclick="salvarEmpreendimento()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar empreendimento</button>
       </div>
 
@@ -739,6 +751,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <img id="pr-img-troca-thumb" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)">
           </div>
           <button class="save-btn" style="margin-bottom:14px" onclick="salvarImagemPronto()"><i class="ti ti-photo" style="font-size:16px"></i>Trocar imagem</button>
+          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Visibilidade pública</div>
+          <div id="pr-visibilidade-lista"></div>
           <button class="save-btn" onclick="salvarUnidadesProntos()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar alterações de unidades</button>
         </div>
         <div class="admin-section" id="pr-tab-novo-unidade">
@@ -857,6 +871,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <script>
 // ─── DADOS CENTRAIS ───────────────────────────────────────────────
+let _2cinco4Ativo = true;
 let emp = {
   nome:'2CINCO4 Edition', local:'Itapema, SC', area:134,
   cub:3096.25, cubData:'01/06/2026',
@@ -1396,6 +1411,7 @@ function onStatusChange(num, tipo, novoStatus){
 }
 
 async function salvarEmpreendimento(){
+  const ativo = document.getElementById('adm-ativo').checked;
   const isEmp2 = _loginCtx === 'emp2' && _empAtivo;
   if(isEmp2){
     _empAtivo.ri        = document.getElementById('adm-ri').value;
@@ -1405,10 +1421,12 @@ async function salvarEmpreendimento(){
     _empAtivo.area      = parseFloat(document.getElementById('adm-area').value)||134;
     _empAtivo.cub       = parseFloat(document.getElementById('adm-cub').value)||3096.25;
     _empAtivo.cubData   = document.getElementById('adm-cub-data').value;
+    _empAtivo.ativo     = ativo;
     if(_admImgB64){ _empAtivo.img=_admImgB64; _admImgB64=null; document.getElementById('adm-img-preview').style.display='none'; }
     renderHome();
     toast('Empreendimento salvo','ok');
   } else {
+    _2cinco4Ativo = ativo;
     emp.ri        = document.getElementById('adm-ri').value;
     emp.matricula = document.getElementById('adm-matricula').value;
     emp.nome      = document.getElementById('adm-nome').value;
@@ -1639,6 +1657,7 @@ function renderProntosCards(){
   const cont = document.getElementById('prontos-cards');
   let html = '';
   PRONTOS.forEach((e,i)=>{
+    if(e.ativo===false) return;
     const minV = Math.min(...e.unidades.filter(u=>u.v).map(u=>u.v));
     html += `<div class="emp-card" onclick="abrirProntos(${i})">
       <div class="emp-banner" style="background:#1a2a1a;padding:0;overflow:hidden;position:relative">
@@ -2220,7 +2239,9 @@ function renderHome(){
 
   // Card 2CINCO4 fixo
   const imgSrc = IMG_2CINCO4;
-  let html=`
+  let html='';
+  if(_2cinco4Ativo){
+  html+=`
   <div class="emp-card" onclick="abrirEmpreendimento()">
     <div class="emp-banner" style="background:#1a2a1a;padding:0;overflow:hidden">
       ${imgSrc?`<img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block" alt="2CINCO4">`:''}
@@ -2246,9 +2267,11 @@ function renderHome(){
       </div>
     </div>
   </div>`;
+  }
 
   // Cards empreendimentos adicionais
   empreendimentos.forEach((e,i)=>{
+    if(e.ativo===false) return;
     const ds=e.unidades?e.unidades.filter(u=>u.s==='disp').length:0;
     const fs=e.unidades?e.unidades.filter(u=>u.s==='fase').length:0;
     const vs=e.unidades?e.unidades.filter(u=>u.s==='vend').length:0;
@@ -2819,6 +2842,10 @@ function setAdminEmp(id){
   document.getElementById('admin-emp-selector').style.display='none';
   document.getElementById('admin-emp-content').style.display='block';
 
+  // Popular toggle de visibilidade
+  const ativoAtual = id==='2cinco4' ? _2cinco4Ativo : (_empAtivo ? _empAtivo.ativo!==false : true);
+  setTimeout(()=>setAdmAtivoVisual(ativoAtual), 50);
+
   // Remover aba novo se existir
   const novoTab = document.getElementById('admin-tab-novo');
   if(novoTab) novoTab.remove();
@@ -2882,7 +2909,35 @@ function renderPrAdminUnits(){
     });
   });
   document.getElementById('pr-admin-units-list').innerHTML=html;
+  renderPrVisibilidade();
 }
+
+function renderPrVisibilidade(){
+  const el = document.getElementById('pr-visibilidade-lista');
+  if(!el) return;
+  el.innerHTML = PRONTOS.map(e=>{
+    const ativo = e.ativo!==false;
+    return `<div style="display:flex;align-items:center;justify-content:between;background:var(--surface-1);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:var(--text);font-weight:500">${e.nome}</span>
+      <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
+        <input type="checkbox" id="pr-vis-${e.id}" ${ativo?'checked':''} style="opacity:0;width:0;height:0">
+        <span onclick="togglePrVisibilidade('${e.id}')" style="position:absolute;cursor:pointer;inset:0;background:${ativo?'var(--status-disp)':'#ccc'};border-radius:22px;transition:.2s">
+          <span style="position:absolute;height:16px;width:16px;left:${ativo?'21px':'3px'};bottom:3px;background:#fff;border-radius:50%;transition:.2s"></span>
+        </span>
+      </label>
+    </div>`;
+  }).join('');
+}
+
+function togglePrVisibilidade(empId){
+  const e = PRONTOS.find(x=>x.id===empId);
+  if(!e) return;
+  e.ativo = e.ativo===false ? true : false;
+  renderPrVisibilidade();
+  renderProntosCards();
+  toast(e.nome+(e.ativo?' visível na home':' oculto da home'),'ok');
+}
+
 function salvarUnidadesProntos(){
   PRONTOS.forEach(e=>{
     e.unidades.forEach(u=>{
@@ -2952,7 +3007,8 @@ let PRE_LANCAMENTOS = [];
 function renderPreCards(){
   const cont = document.getElementById('pre-cards');
   if(!cont) return;
-  if(!PRE_LANCAMENTOS.length){
+  const ativos = PRE_LANCAMENTOS.filter(e=>e.ativo!==false);
+  if(!ativos.length){
     cont.innerHTML=`<div style="text-align:center;padding:40px 20px">
       <div style="font-size:40px;margin-bottom:12px">🚀</div>
       <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Em breve</div>
@@ -2962,6 +3018,7 @@ function renderPreCards(){
   }
   let html='';
   PRE_LANCAMENTOS.forEach((e,i)=>{
+    if(e.ativo===false) return;
     html+=`<div class="emp-card" onclick="abrirPreEmp(${i})">
       <div class="emp-banner" style="background:#2a1a3a;padding:0;overflow:hidden;position:relative">
         ${e.img?`<img src="${e.img}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block" alt="${e.nome}">`:`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px">🚀</div>`}
@@ -3080,10 +3137,30 @@ function renderPreListaAdmin(){
   if(!el) return;
   if(!PRE_LANCAMENTOS.length){el.innerHTML='';return;}
   el.innerHTML='<div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Cadastrados</div>'+
-    PRE_LANCAMENTOS.map((e,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
+    PRE_LANCAMENTOS.map((e,i)=>{
+      const ativo=e.ativo!==false;
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
       <div><div style="font-size:13px;font-weight:600;color:var(--text)">${e.nome}</div><div style="font-size:11px;color:var(--text-3)">${e.local||'—'} · ${e.previsao||'—'}</div></div>
-      <button onclick="removerPreLancamento(${i})" style="background:none;border:none;color:var(--status-vend);cursor:pointer;font-size:18px">×</button>
-    </div>`).join('');
+      <div style="display:flex;align-items:center;gap:10px">
+        <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
+          <input type="checkbox" ${ativo?'checked':''} style="opacity:0;width:0;height:0">
+          <span onclick="togglePreVisibilidade(${i})" style="position:absolute;cursor:pointer;inset:0;background:${ativo?'var(--status-disp)':'#ccc'};border-radius:22px;transition:.2s">
+            <span style="position:absolute;height:16px;width:16px;left:${ativo?'21px':'3px'};bottom:3px;background:#fff;border-radius:50%;transition:.2s"></span>
+          </span>
+        </label>
+        <button onclick="removerPreLancamento(${i})" style="background:none;border:none;color:var(--status-vend);cursor:pointer;font-size:18px">×</button>
+      </div>
+    </div>`;
+    }).join('');
+}
+
+function togglePreVisibilidade(idx){
+  const e = PRE_LANCAMENTOS[idx];
+  if(!e) return;
+  e.ativo = e.ativo===false ? true : false;
+  renderPreListaAdmin();
+  renderPreCards();
+  toast(e.nome+(e.ativo?' visível na home':' oculto da home'),'ok');
 }
 
 function removerPreLancamento(idx){
@@ -3153,6 +3230,25 @@ function previewAdmImagem(input){
     document.getElementById('adm-img-thumb').src = b64;
     document.getElementById('adm-img-preview').style.display = 'block';
   });
+}
+
+function toggleAdmAtivo(){
+  const cb = document.getElementById('adm-ativo');
+  cb.checked = !cb.checked;
+  const track = document.getElementById('adm-ativo-track');
+  const knob = document.getElementById('adm-ativo-knob');
+  track.style.background = cb.checked ? 'var(--status-disp)' : '#ccc';
+  knob.style.left = cb.checked ? '23px' : '3px';
+}
+
+function setAdmAtivoVisual(ativo){
+  const cb = document.getElementById('adm-ativo');
+  const track = document.getElementById('adm-ativo-track');
+  const knob = document.getElementById('adm-ativo-knob');
+  if(!cb) return;
+  cb.checked = ativo;
+  track.style.background = ativo ? 'var(--status-disp)' : '#ccc';
+  knob.style.left = ativo ? '23px' : '3px';
 }
 
 function previewTrocaImgPronto(input){
