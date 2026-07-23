@@ -1587,6 +1587,10 @@ async function carregarDoSheets(){
         renderProntosGrid();
       }
       renderProntosCards();
+      // Atualizar admin se estiver aberto
+      if(document.getElementById('admin-overlay').classList.contains('open')){
+        renderPrAdminUnits();
+      }
     }
 
     // Pre-lancamentos
@@ -1600,6 +1604,9 @@ async function carregarDoSheets(){
     }
 
     atualizarHeader(); renderUnits(); renderHome();
+    // Atualizar admin de prontos se estiver aberto
+    const prAdminList = document.getElementById('pr-admin-units-list');
+    if(prAdminList && prAdminList.innerHTML) renderPrAdminUnits();
     ocultarLoading();
     toast('Dados sincronizados','ok');
   } catch(err){
