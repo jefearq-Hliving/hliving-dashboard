@@ -936,6 +936,10 @@ function setHomeTab(tab){
     const el=document.getElementById('tab-prontos');
     if(el){el.style.background='var(--hl-dark)';el.style.color='#fff';}
     renderProntosCards();
+    // Se a view de prontos já estiver aberta, re-renderizar o grid
+    if(document.getElementById('prontos-view') && document.getElementById('prontos-view').style.display!=='none'){
+      renderProntosGrid();
+    }
   } else if(tab==='pre'){
     document.getElementById('home-pre').style.display='block';
     const el=document.getElementById('tab-pre');
@@ -1742,7 +1746,7 @@ function abrirProntos(idx){
   PRONTOS.forEach(e=>{ pills += `<button class="pill ${_prontoFilter===e.id?'active':''}" onclick="filtrarProntos('${e.id}',this)">${e.nome.split(' ')[0]}</button>`; });
   document.getElementById('prontos-pills').innerHTML = pills;
 
-  renderProntosGrid();
+  renderProntosGrid(); // sempre re-renderiza com dados mais recentes
   document.getElementById('home-view').style.display='none';
   document.getElementById('prontos-view').style.display='block';
   window.scrollTo(0,0);
