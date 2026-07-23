@@ -1557,6 +1557,24 @@ async function carregarDoSheets(){
     }
     if(data.reajustes && data.reajustes.length) reajusteHist=data.reajustes;
 
+    // Lançamentos adicionais (cadastrados via admin)
+    if(data.lancamentos && data.lancamentos.length){
+      data.lancamentos.forEach(saved=>{
+        const idx=empreendimentos.findIndex(e=>e.id===saved.id);
+        if(idx>-1){
+          // Atualizar existente
+          if(saved.unidades) saved.unidades.forEach(u=>{
+            const lu=empreendimentos[idx].unidades&&empreendimentos[idx].unidades.find(x=>x.n===u.n);
+            if(lu){ lu.v=u.v; lu.s=u.s; }
+          });
+          if(typeof saved.ativo!=='undefined') empreendimentos[idx].ativo=saved.ativo;
+        } else {
+          // Novo empreendimento — adicionar sem imagem
+          empreendimentos.push(Object.assign({img:''},saved));
+        }
+      });
+    }
+
     // Atlantia
     if(data.atlantia){
       const a=data.atlantia;
@@ -1574,27 +1592,23 @@ async function carregarDoSheets(){
     // Prontos
     if(data.prontos && data.prontos.length){
       data.prontos.forEach(saved=>{
+        if(!saved || !saved.id) return;
         const local=PRONTOS.find(p=>p.id===saved.id);
         if(local){
-          if(saved.unidades) saved.unidades.forEach(u=>{
-            const lu=local.unidades.find(x=>x.n===u.n);
+          if(saved.unidades && Array.isArray(saved.unidades)) saved.unidades.forEach(u=>{
+            const lu=local.unidades&&local.unidades.find(x=>x.n===u.n);
             if(lu){ lu.v=u.v; lu.s=u.s; }
           });
           if(typeof saved.ativo!=='undefined') local.ativo=saved.ativo;
           if(saved.pgto) local.pgto=saved.pgto;
         } else {
-          PRONTOS.push(Object.assign({img:''},saved));
+          PRONTOS.push(Object.assign({img:'', unidades:[]},saved));
         }
       });
-      // Re-renderizar prontos com dados atualizados
-      if(document.getElementById('prontos-view') && document.getElementById('prontos-view').style.display!=='none'){
-        renderProntosGrid();
-      }
       renderProntosCards();
-      // Atualizar admin se estiver aberto
-      if(document.getElementById('admin-overlay').classList.contains('open')){
-        renderPrAdminUnits();
-      }
+      renderProntosGrid();
+      const prAdminList = document.getElementById('pr-admin-units-list');
+      if(prAdminList && prAdminList.innerHTML) renderPrAdminUnits();
     }
 
     // Pre-lancamentos
@@ -2086,18 +2100,24 @@ async function cadastrarNovoEmp(){
 
   toast('Cadastrando empreendimento...');
   try {
-    await apiPost('saveNovoEmpreendimento', novoEmp);
-    // Adiciona card na home
     empreendimentos.push(novoEmp);
+    // Salvar lista completa de lançamentos adicionais no Sheets (sem imagem)
+    const toSave = empreendimentos.map(e=>({
+      id:e.id, nome:e.nome, local:e.local, area:e.area,
+      fase:e.fase, cub:e.cub, cubData:e.cubData, ri:e.ri,
+      matricula:e.matricula, ativo:e.ativo!==false,
+      pgto:e.pgto,
+      unidades:e.unidades?e.unidades.map(u=>({n:u.n,t:u.t,area:u.area,v:u.v,s:u.s})):[]
+    }));
+    await apiPost('saveLancamentos', toSave);
     renderHome();
     closeAdmin();
-    toast(`✓ ${nome} cadastrado com sucesso!`);
+    toast('✓ '+nome+' cadastrado com sucesso!','ok');
   } catch(err){
-    // Salva localmente mesmo sem conexão
     empreendimentos.push(novoEmp);
     renderHome();
     closeAdmin();
-    toast('✓ Cadastrado localmente — sincronize quando houver conexão');
+    toast('✓ Cadastrado localmente','ok');
   }
 }
 
