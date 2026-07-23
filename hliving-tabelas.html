@@ -1720,7 +1720,7 @@ function renderProntosCards(){
       <div class="emp-body">
         <div class="emp-loc"><i class="ti ti-map-pin" style="font-size:11px"></i>${e.local}</div>
         <div class="emp-mini-stats" style="margin-top:8px">
-          <div class="ems"><div class="ems-n" style="color:var(--status-disp)">${e.unidades.length}</div><div class="ems-l">Disp.</div></div>
+          <div class="ems"><div class="ems-n" style="color:var(--status-disp)">${e.unidades.filter(u=>u.s==='disp').length}</div><div class="ems-l">Disp.</div></div>
           <div class="ems"><div class="ems-n" style="font-size:11px;color:var(--text)">${e.unidades[0].area}m²</div><div class="ems-l">Área</div></div>
           <div class="ems" style="grid-column:span 2"><div class="ems-n" style="color:var(--hl-dark);font-size:11px">a partir de R$ ${Math.round(minV/1000).toLocaleString("pt-BR")} mil</div><div class="ems-l">VGV</div></div>
         </div>
