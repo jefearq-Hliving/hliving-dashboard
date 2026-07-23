@@ -1761,16 +1761,20 @@ function filtrarProntos(id,el){
 
 function renderProntosGrid(){
   const grid=document.getElementById('prontos-grid');
+  if(!grid) return;
   let html='';
   PRONTOS.forEach(e=>{
     if(_prontoFilter!=='all'&&_prontoFilter!==e.id) return;
     e.unidades.forEach(u=>{
-      html+=`<div class="unit-card disp" onclick="abrirDetalhePronto('${u.n}','${e.id}')">
+      const slabel = statusLabel[u.s]||u.s;
+      const sbg = u.s==='disp'?'#edfaf5':u.s==='vend'?'#fdeaea':u.s==='res'?'#e8f0fb':'#fff8e6';
+      const scor = u.s==='disp'?'var(--status-disp)':u.s==='vend'?'var(--status-vend)':u.s==='res'?'var(--status-res)':'var(--status-fase)';
+      html+=`<div class="unit-card ${u.s}" onclick="abrirDetalhePronto('${u.n}','${e.id}')">
         <div class="unit-top"><div class="unit-num">Unid. ${u.n}</div><div class="unit-tipo" style="font-size:9px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.nome.split(' ')[0]}</div></div>
         <div class="unit-val">${u.v?'R$ '+Math.round(u.v/1000).toLocaleString('pt-BR')+' mil':'—'}</div>
         <div class="unit-sub">${u.area}m² · ${e.local}</div>
         <div class="unit-sub" style="margin-top:2px;font-size:10px;color:var(--text-3)">${u.desc||''}</div>
-        <div class="unit-status disp" style="margin-top:4px">Pronto · Entrega imediata</div>
+        <div style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;background:${sbg};color:${scor};margin-top:4px">${slabel}</div>
       </div>`;
     });
   });
