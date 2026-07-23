@@ -1814,8 +1814,8 @@ function abrirDetalhePronto(num,empId){
     </div>
     <div id="pr-campos-custom" style="display:none">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <div class="field-wrap" style="margin:0"><label class="field-label">Entrada R$ <span style="color:var(--text-3);font-weight:400">(padrão: ${fmt2(p.tipo==='fixo'?(p.entrada||0):u.v*(p.pctEntrada/100))})</span></label><input type="number" id="pr-entrada-custom" value="${p.tipo==='fixo'?(p.entrada||0):Math.round(u.v*(p.pctEntrada/100))}" step="1000" inputmode="numeric"></div>
-        <div class="field-wrap" style="margin:0"><label class="field-label">Chaves R$ <span style="color:var(--text-3);font-weight:400">(padrão: ${fmt2(p.tipo==='fixo'?(p.chave||0):u.v*(p.pctChave/100))})</span></label><input type="number" id="pr-chave-custom" value="${p.tipo==='fixo'?(p.chave||0):Math.round(u.v*(p.pctChave/100))}" step="1000" inputmode="numeric"></div>
+        <div class="field-wrap" style="margin:0"><label class="field-label">Entrada R$ <span style="color:var(--text-3);font-weight:400">(padrão: ${fmt2(p.tipo==='fixo'?(p.entrada||0):(u.v||0)*((p.pctEntrada||0)/100))})</span></label><input type="number" id="pr-entrada-custom" value="${p.tipo==='fixo'?(p.entrada||0):Math.round((u.v||0)*((p.pctEntrada||0)/100))}" step="1000" inputmode="numeric"></div>
+        <div class="field-wrap" style="margin:0"><label class="field-label">Chaves R$ <span style="color:var(--text-3);font-weight:400">(padrão: ${fmt2(p.tipo==='fixo'?(p.chave||0):(u.v||0)*((p.pctChave||0)/100))})</span></label><input type="number" id="pr-chave-custom" value="${p.tipo==='fixo'?(p.chave||0):Math.round((u.v||0)*((p.pctChave||0)/100))}" step="1000" inputmode="numeric"></div>
         <div class="field-wrap" style="margin:0"><label class="field-label">Mensais nº <span style="color:var(--text-3);font-weight:400">(padrão: ${p.qtMensal||48}x)</span></label><input type="number" id="pr-qt-mensal-custom" value="${p.qtMensal||48}" min="1" max="120" inputmode="numeric"></div>
         <div class="field-wrap" style="margin:0"><label class="field-label">Reforços nº <span style="color:var(--text-3);font-weight:400">(padrão: ${p.qtAnual||6}x)</span></label><input type="number" id="pr-qt-anual-custom" value="${p.qtAnual||6}" min="1" max="12" inputmode="numeric"></div>
         <div class="field-wrap" style="margin:0;grid-column:span 2"><label class="field-label">VGV negociado</label><input type="number" id="pr-vgv-custom" value="${u.v||0}" step="1000" inputmode="numeric"></div>
@@ -3010,19 +3010,6 @@ function togglePrVisibilidade(empId){
   toast(e.nome+(e.ativo?' visível na home':' oculto da home'),'ok');
 }
 
-function salvarUnidadesProntos(){
-  PRONTOS.forEach(e=>{
-    e.unidades.forEach(u=>{
-      const vEl=document.getElementById(`pr-adm-v-${e.id}-${u.n}`);
-      const sEl=document.getElementById(`pr-adm-s-${e.id}-${u.n}`);
-      if(vEl) u.v=vEl.value?parseFloat(vEl.value):null;
-      if(sEl) u.s=sEl.value;
-    });
-  });
-  renderProntosGrid();
-  renderProntosCards();
-  toast('✓ Unidades prontas salvas','ok');
-}
 function adicionarUnidadePronta(){
   const empId=document.getElementById('pr-new-emp-sel').value;
   const num=document.getElementById('pr-new-num').value.trim();
