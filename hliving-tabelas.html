@@ -1608,6 +1608,11 @@ async function carregarDoSheets(){
     }
 
     atualizarHeader(); renderUnits(); renderHome();
+    // Forçar re-render de todos os grids com dados atualizados
+    renderProntosCards();
+    renderProntosGrid();
+    renderPreCards();
+    renderEmp2Units();
     // Atualizar admin de prontos se estiver aberto
     const prAdminList = document.getElementById('pr-admin-units-list');
     if(prAdminList && prAdminList.innerHTML) renderPrAdminUnits();
