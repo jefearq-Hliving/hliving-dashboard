@@ -568,6 +568,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           </label>
         </div>
         <button class="save-btn" onclick="salvarEmpreendimento()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar empreendimento</button>
+        <div id="adm-excluir-wrap" style="display:none;margin-top:8px">
+          <button class="save-btn" style="background:#fdeaea;color:var(--status-vend);border:0.5px solid #f5c6c6" onclick="excluirEmpreendimento()">
+            <i class="ti ti-trash" style="font-size:16px"></i>Excluir empreendimento
+          </button>
+        </div>
       </div>
 
       <!-- ABA PAGAMENTO -->
@@ -1427,7 +1432,20 @@ async function salvarEmpreendimento(){
     _empAtivo.cubData   = document.getElementById('adm-cub-data').value;
     _empAtivo.ativo     = ativo;
     if(_admImgB64){ _empAtivo.img=_admImgB64; _admImgB64=null; document.getElementById('adm-img-preview').style.display='none'; }
-    salvarVisibilidade();
+    // Salvar no Sheets dependendo do tipo
+    if(_empAtivo.id==='atlantia'){
+      await salvarAtlantia();
+    } else {
+      // É um lançamento adicional — salvar lista completa
+      const toSave = empreendimentos.map(e=>({
+        id:e.id,nome:e.nome,local:e.local,area:e.area,fase:e.fase||'lancamento',
+        cub:e.cub,cubData:e.cubData,ri:e.ri,matricula:e.matricula,
+        ativo:e.ativo!==false,pgto:e.pgto,
+        unidades:(e.unidades||[]).map(u=>({n:u.n,t:u.t,area:u.area,v:u.v,s:u.s}))
+      }));
+      try { await apiPost('saveLancamentos', toSave); } catch(e){}
+    }
+    await salvarVisibilidade();
     renderHome();
     toast('Empreendimento salvo','ok');
   } else {
@@ -1445,6 +1463,7 @@ async function salvarEmpreendimento(){
     renderHome();
     try {
       await apiPost('saveEmpreendimento', emp);
+      await salvarVisibilidade();
       toast('Empreendimento salvo','ok');
     } catch(err){ toast('Salvo localmente'); }
   }
@@ -2908,9 +2927,10 @@ function renderAdminEmpCards(){
         <div style="font-size:13px;font-weight:600;color:var(--text)">${e.nome}</div>
         <div style="font-size:11px;color:var(--text-3);margin-top:2px">${e.local}</div>
       </div>
-      <div style="text-align:right">
+      <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div style="font-size:12px;font-weight:600;color:var(--status-disp)">${e.disp} disp.</div>
         <div style="font-size:10px;color:var(--text-3)">${e.total} total</div>
+        ${e.id!=='2cinco4'&&e.id!=='atlantia'?`<span onclick="event.stopPropagation();excluirLancamentoId('`+e.id+`')" style="font-size:10px;color:var(--status-vend);cursor:pointer;padding:2px 6px;background:#fdeaea;border-radius:4px">✕ excluir</span>`:''}
       </div>
     </button>`).join('');
 }
@@ -2953,6 +2973,9 @@ function setAdminEmp(id){
   document.getElementById('admin-emp-badge-local').textContent = eInfo?eInfo.local:'—';
   document.getElementById('admin-emp-selector').style.display='none';
   document.getElementById('admin-emp-content').style.display='block';
+  // Mostrar botão excluir só para lançamentos adicionais
+  const excluirWrap = document.getElementById('adm-excluir-wrap');
+  if(excluirWrap) excluirWrap.style.display = (id!=='2cinco4'&&id!=='atlantia') ? 'block' : 'none';
 
   // Popular toggle de visibilidade
   const ativoAtual = id==='2cinco4' ? _2cinco4Ativo : (_empAtivo ? _empAtivo.ativo!==false : true);
@@ -3007,7 +3030,10 @@ function setProntosAdminTab(tab,el){
 function renderPrAdminUnits(){
   let html='';
   PRONTOS.forEach(e=>{
-    html+=`<div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;padding-bottom:4px;border-bottom:0.5px solid var(--border)">${e.nome}</div>`;
+    html+=`<div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;padding-bottom:4px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span>${e.nome}</span>
+      <span onclick="excluirPronto('${e.id}')" style="font-size:11px;color:var(--status-vend);cursor:pointer;font-weight:400;text-transform:none">✕ excluir</span>
+    </div>`;
     e.unidades.forEach(u=>{
       html+=`<div class="unit-admin-row">
         <div><div class="unit-admin-num">Unid. ${u.n}</div><div style="font-size:10px;color:var(--text-3)">${u.area}m²</div></div>
@@ -3293,7 +3319,7 @@ function renderPreListaAdmin(){
             <span style="position:absolute;height:16px;width:16px;left:${ativo?'21px':'3px'};bottom:3px;background:#fff;border-radius:50%;transition:.2s"></span>
           </span>
         </label>
-        <button onclick="removerPreLancamento(${i})" style="background:none;border:none;color:var(--status-vend);cursor:pointer;font-size:18px">×</button>
+        <button onclick="excluirPreLancamento(${i})" style="background:none;border:none;color:var(--status-vend);cursor:pointer;font-size:18px">×</button>
       </div>
     </div>`;
     }).join('');
@@ -3491,7 +3517,56 @@ function salvarUnidadesProntos(){
   toast('Unidades prontas salvas','ok');
 }
 
-// ─── INIT ─────────────────────────────────────────────────────────
+// ─── EXCLUSÃO DE EMPREENDIMENTOS ──────────────────────────────────
+function excluirLancamentoId(id){
+  const e = empreendimentos.find(x=>x.id===id);
+  if(!e) return;
+  if(!confirm('Excluir '+e.nome+'? Esta ação não pode ser desfeita.')) return;
+  empreendimentos.splice(empreendimentos.findIndex(x=>x.id===id), 1);
+  const toSave = empreendimentos.map(e=>({
+    id:e.id,nome:e.nome,local:e.local,area:e.area,fase:e.fase||'lancamento',
+    cub:e.cub,cubData:e.cubData,ri:e.ri,matricula:e.matricula,
+    ativo:e.ativo!==false,pgto:e.pgto,
+    unidades:(e.unidades||[]).map(u=>({n:u.n,t:u.t,area:u.area,v:u.v,s:u.s}))
+  }));
+  apiPost('saveLancamentos', toSave).catch(()=>{});
+  renderAdminEmpCards();
+  renderHome();
+  toast('Empreendimento excluído','ok');
+}
+
+function excluirEmpreendimento(){
+  // Para lançamentos adicionais abertos no admin
+  if(!_empAtivo || _empAtivo.id==='atlantia') return;
+  excluirLancamentoId(_empAtivo.id);
+  voltarEmpSelector();
+}
+
+function excluirPronto(empId){
+  const e = PRONTOS.find(x=>x.id===empId);
+  if(!e) return;
+  if(!confirm('Excluir '+e.nome+'? Esta ação não pode ser desfeita.')) return;
+  PRONTOS.splice(PRONTOS.findIndex(x=>x.id===empId), 1);
+  salvarProntos();
+  renderProntosCards();
+  renderPrAdminUnits();
+  const sel = document.getElementById('pr-img-emp-sel');
+  if(sel) sel.innerHTML = PRONTOS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('');
+  toast('Empreendimento excluído','ok');
+}
+
+function excluirPreLancamento(idx){
+  const e = PRE_LANCAMENTOS[idx];
+  if(!e) return;
+  if(!confirm('Excluir '+e.nome+'? Esta ação não pode ser desfeita.')) return;
+  PRE_LANCAMENTOS.splice(idx, 1);
+  salvarPre();
+  renderPreCards();
+  renderPreListaAdmin();
+  toast('Pré-lançamento excluído','ok');
+}
+
+
 document.addEventListener('DOMContentLoaded', function(){
   empreendimentos = [ATLANTIA];
   atualizarHeader();
