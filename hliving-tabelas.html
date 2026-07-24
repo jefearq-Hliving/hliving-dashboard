@@ -3047,7 +3047,8 @@ function togglePrVisibilidade(empId){
   e.ativo = e.ativo===false ? true : false;
   renderPrVisibilidade();
   renderProntosCards();
-  toast(e.nome+(e.ativo?' visível na home':' oculto da home'),'ok');
+  salvarProntos();
+  toast(e.nome+(e.ativo?' visivel':'oculto'),'ok');
 }
 
 function adicionarUnidadePronta(){
@@ -3063,8 +3064,9 @@ function adicionarUnidadePronta(){
   renderPrAdminUnits();
   renderProntosGrid();
   renderProntosCards();
+  salvarProntos();
   ['pr-new-num','pr-new-area','pr-new-vgv','pr-new-desc'].forEach(id=>document.getElementById(id).value='');
-  toast(`✓ Unidade ${num} adicionada ao ${e.nome}`);
+  toast('Unidade adicionada','ok');
 }
 
 function cadastrarEmpPronto(){
@@ -3091,6 +3093,7 @@ function cadastrarEmpPronto(){
   PRONTOS.push(novoEmp);
   renderProntosCards();
   renderPrAdminUnits();
+  salvarProntos();
   // Popular select
   const sel=document.getElementById('pr-new-emp-sel');
   if(sel) sel.innerHTML=PRONTOS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('');
@@ -3302,7 +3305,8 @@ function togglePreVisibilidade(idx){
   e.ativo = e.ativo===false ? true : false;
   renderPreListaAdmin();
   renderPreCards();
-  toast(e.nome+(e.ativo?' visível na home':' oculto da home'),'ok');
+  salvarPre();
+  toast(e.nome+(e.ativo?' visivel':'oculto'),'ok');
 }
 
 function removerPreLancamento(idx){
