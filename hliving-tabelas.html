@@ -1195,15 +1195,48 @@ function voltarHome(){
   window.scrollTo(0,0);
 }
 function atualizarContadoresHome(){
-  let ds=0,fs=0,vs=0;
+  let ds=0, vs=0, total=0;
+
+  // 2CINCO4
   units.forEach(u=>{
+    total++;
     if(u.s==='disp') ds++;
-    else if(u.s==='fase') fs++;
     else if(u.s==='vend') vs++;
   });
-  const hgTotal = document.getElementById('hg-total'); if(hgTotal) hgTotal.textContent=units.length;
-  const hgDisp = document.getElementById('hg-disp'); if(hgDisp) hgDisp.textContent=ds;
-  const hgVend = document.getElementById('hg-vend'); if(hgVend) hgVend.textContent=vs;
+
+  // Atlantia e outros lançamentos
+  empreendimentos.forEach(e=>{
+    if(!e.unidades) return;
+    e.unidades.forEach(u=>{
+      total++;
+      if(u.s==='disp') ds++;
+      else if(u.s==='vend') vs++;
+    });
+  });
+
+  // Prontos
+  PRONTOS.forEach(e=>{
+    if(!e.unidades) return;
+    e.unidades.forEach(u=>{
+      total++;
+      if(u.s==='disp') ds++;
+      else if(u.s==='vend') vs++;
+    });
+  });
+
+  // Pré-lançamentos
+  PRE_LANCAMENTOS.forEach(e=>{
+    if(!e.unidades) return;
+    e.unidades.forEach(u=>{
+      total++;
+      if(u.s==='disp') ds++;
+      else if(u.s==='vend') vs++;
+    });
+  });
+
+  const hgTotal = document.getElementById('hg-total'); if(hgTotal) hgTotal.textContent=total;
+  const hgDisp  = document.getElementById('hg-disp');  if(hgDisp)  hgDisp.textContent=ds;
+  const hgVend  = document.getElementById('hg-vend');  if(hgVend)  hgVend.textContent=vs;
 }
 // ─── GESTÃO DE SENHA ──────────────────────────────────────────────
 const SENHA_MESTRA = 'hliving@recovery2026'; // senha de recuperação — não compartilhe
@@ -1640,7 +1673,7 @@ async function carregarDoSheets(){
       if(typeof data.visibilidade['2cinco4']!=='undefined') _2cinco4Ativo=data.visibilidade['2cinco4'];
     }
 
-    atualizarHeader(); renderUnits(); renderHome();
+    atualizarHeader(); renderUnits(); renderHome(); atualizarContadoresHome();
     try { renderProntosCards(); } catch(e){}
     try { renderProntosGrid(); } catch(e){}
     try { renderPreCards(); } catch(e){}
