@@ -739,9 +739,46 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </button>
         <div class="admin-tabs">
           <button class="admin-tab active" onclick="setProntosAdminTab('unidades',this)">Unidades</button>
+          <button class="admin-tab" onclick="setProntosAdminTab('editar',this)">Editar</button>
           <button class="admin-tab" onclick="setProntosAdminTab('novo-unidade',this)">+ Unidade</button>
           <button class="admin-tab" onclick="setProntosAdminTab('novo-emp',this)">+ Empreend.</button>
         </div>
+        <!-- ABA EDITAR PRONTO -->
+        <div class="admin-section" id="pr-tab-editar">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:10px">Selecione o empreendimento para editar.</div>
+          <div class="field-wrap">
+            <label class="field-label">Empreendimento</label>
+            <select id="pr-edit-sel" onchange="carregarDadosPronto(this.value)" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:#fff;color:var(--text);font-size:14px"></select>
+          </div>
+          <div id="pr-edit-form" style="display:none">
+            <div class="field-wrap"><label class="field-label">Nome</label><input type="text" id="pr-edit-nome"></div>
+            <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="pr-edit-local"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="pr-edit-cub" step="0.01"></div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Matrícula</label><input type="text" id="pr-edit-matricula"></div>
+            </div>
+            <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Condições de pagamento</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="field-wrap" style="margin:0"><label class="field-label">Tipo</label>
+                <select id="pr-edit-pgto-tipo" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:#fff;color:var(--text);font-size:14px">
+                  <option value="pct">% do VGV</option><option value="fixo">Valor fixo (R$)</option>
+                </select>
+              </div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Entrada (% ou R$)</label><input type="number" id="pr-edit-entrada" step="0.5"></div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Chaves (% ou R$)</label><input type="number" id="pr-edit-chave" step="0.5"></div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Nº mensais</label><input type="number" id="pr-edit-qt-mensal" min="1"></div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Nº reforços anuais</label><input type="number" id="pr-edit-qt-anual" min="0"></div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Reajuste</label><input type="text" id="pr-edit-reajuste" placeholder="IPCA +0,6%"></div>
+            </div>
+            <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Imagem de capa</div>
+            <input type="file" id="pr-edit-img" accept="image/*" onchange="previewProntoEditImg(this)" style="padding:8px;width:100%">
+            <div id="pr-edit-img-preview" style="display:none;margin:8px 0">
+              <img id="pr-edit-img-thumb" style="width:100%;height:80px;object-fit:cover;border-radius:8px">
+            </div>
+            <button class="save-btn" onclick="salvarEdicaoPronto()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar alterações</button>
+          </div>
+        </div>
+
         <div class="admin-section active" id="pr-tab-unidades">
           <div style="font-size:11px;color:var(--text-3);margin-bottom:10px">Edite preço e status das unidades prontas.</div>
           <div id="pr-admin-units-list"></div>
@@ -866,6 +903,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <i class="ti ti-plus" style="font-size:16px"></i>Cadastrar pré-lançamento
         </button>
         <div style="margin-top:14px" id="pre-lista-admin"></div>
+
+        <!-- EDITAR PRÉ-LANÇAMENTO EXISTENTE -->
+        <div id="pre-edit-form-wrap" style="display:none;margin-top:14px;border-top:0.5px solid var(--border);padding-top:14px">
+          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Editando: <span id="pre-edit-titulo">—</span></div>
+          <div class="field-wrap"><label class="field-label">Nome</label><input type="text" id="pre-edit-nome"></div>
+          <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="pre-edit-local"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field-wrap" style="margin:0"><label class="field-label">Área (m²)</label><input type="number" id="pre-edit-area" step="1"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Previsão</label><input type="text" id="pre-edit-previsao"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="pre-edit-cub" step="0.01"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Matrícula</label><input type="text" id="pre-edit-matricula"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">RI</label><input type="text" id="pre-edit-ri"></div>
+            <div class="field-wrap" style="margin:0;grid-column:span 1"><label class="field-label">Descrição</label><input type="text" id="pre-edit-desc"></div>
+          </div>
+          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Condições de pagamento</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field-wrap" style="margin:0"><label class="field-label">% Entrada</label><input type="number" id="pre-edit-pct-entrada" step="0.5"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Venc. entrada</label><input type="text" id="pre-edit-ven-entrada"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">% Obra</label><input type="number" id="pre-edit-pct-obra" step="0.5"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Venc. obra</label><input type="text" id="pre-edit-ven-obra"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">% Chaves</label><input type="number" id="pre-edit-pct-chave" step="0.5"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Venc. chaves</label><input type="text" id="pre-edit-ven-chave"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">% Mensais</label><input type="number" id="pre-edit-pct-mensal" step="0.5"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Nº mensais</label><input type="number" id="pre-edit-qt-mensal" min="1"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">% Reforços</label><input type="number" id="pre-edit-pct-anual" step="0.5"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Nº reforços</label><input type="number" id="pre-edit-qt-anual" min="0"></div>
+          </div>
+          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Imagem de capa</div>
+          <input type="file" id="pre-edit-img" accept="image/*" onchange="previewPreEditImg(this)" style="padding:8px;width:100%">
+          <div id="pre-edit-img-preview" style="display:none;margin:8px 0">
+            <img id="pre-edit-img-thumb" style="width:100%;height:80px;object-fit:cover;border-radius:8px">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="save-btn" onclick="salvarEdicaoPre()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar</button>
+            <button class="save-btn" style="background:var(--surface-1);color:var(--text);border:0.5px solid var(--border-strong)" onclick="cancelarEdicaoPre()">Cancelar</button>
+          </div>
+        </div>
+
       </div><!-- fim admin-pre-inline -->
 
     </div>
@@ -3052,13 +3127,19 @@ function closeAdminProntos(){
 function setProntosAdminTab(tab,el){
   const container = document.getElementById('admin-prontos-inline');
   if(!container) return;
-  // Tabs
   container.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  // Seções — usar display explícito
   container.querySelectorAll('.admin-section').forEach(s=>s.style.display='none');
   const tabEl = document.getElementById('pr-tab-'+tab);
   if(tabEl) tabEl.style.display='block';
+  // Popular select ao abrir aba Editar
+  if(tab==='editar'){
+    const sel=document.getElementById('pr-edit-sel');
+    if(sel){
+      sel.innerHTML=PRONTOS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('');
+      if(PRONTOS.length) carregarDadosPronto(PRONTOS[0].id);
+    }
+  }
 }
 function renderPrAdminUnits(){
   let html='';
@@ -3345,13 +3426,14 @@ function renderPreListaAdmin(){
       const ativo=e.ativo!==false;
       return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
       <div><div style="font-size:13px;font-weight:600;color:var(--text)">${e.nome}</div><div style="font-size:11px;color:var(--text-3)">${e.local||'—'} · ${e.previsao||'—'}</div></div>
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:8px">
         <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
           <input type="checkbox" ${ativo?'checked':''} style="opacity:0;width:0;height:0">
           <span onclick="togglePreVisibilidade(${i})" style="position:absolute;cursor:pointer;inset:0;background:${ativo?'var(--status-disp)':'#ccc'};border-radius:22px;transition:.2s">
             <span style="position:absolute;height:16px;width:16px;left:${ativo?'21px':'3px'};bottom:3px;background:#fff;border-radius:50%;transition:.2s"></span>
           </span>
         </label>
+        <button onclick="editarPre(${i})" style="background:none;border:none;color:var(--hl-gold);cursor:pointer;font-size:16px" title="Editar">✏</button>
         <button onclick="excluirPreLancamento(${i})" style="background:none;border:none;color:var(--status-vend);cursor:pointer;font-size:18px">×</button>
       </div>
     </div>`;
@@ -3548,6 +3630,131 @@ function salvarUnidadesProntos(){
   renderProntosCards();
   salvarProntos();
   toast('Unidades prontas salvas','ok');
+}
+
+// ─── EDIÇÃO DE EMPREENDIMENTOS ────────────────────────────────────
+let _editProntoId = null;
+let _editPreIdx = null;
+let _editProntoImgB64 = null;
+let _editPreImgB64 = null;
+
+function carregarDadosPronto(empId){
+  const e = PRONTOS.find(x=>x.id===empId);
+  if(!e){ document.getElementById('pr-edit-form').style.display='none'; return; }
+  _editProntoId = empId;
+  document.getElementById('pr-edit-form').style.display='block';
+  document.getElementById('pr-edit-nome').value = e.nome||'';
+  document.getElementById('pr-edit-local').value = e.local||'';
+  document.getElementById('pr-edit-cub').value = e.cub||'';
+  document.getElementById('pr-edit-matricula').value = e.matricula||'';
+  const p = e.pgto||{};
+  document.getElementById('pr-edit-pgto-tipo').value = p.tipo||'pct';
+  document.getElementById('pr-edit-entrada').value = p.tipo==='fixo'?(p.entrada||''):(p.pctEntrada||'');
+  document.getElementById('pr-edit-chave').value = p.tipo==='fixo'?(p.chave||''):(p.pctChave||'');
+  document.getElementById('pr-edit-qt-mensal').value = p.qtMensal||'';
+  document.getElementById('pr-edit-qt-anual').value = p.qtAnual||'';
+  document.getElementById('pr-edit-reajuste').value = p.reajuste||'';
+  if(e.img){ document.getElementById('pr-edit-img-thumb').src=e.img; document.getElementById('pr-edit-img-preview').style.display='block'; }
+  else{ document.getElementById('pr-edit-img-preview').style.display='none'; }
+  _editProntoImgB64 = null;
+}
+
+function previewProntoEditImg(input){
+  const file=input.files[0]; if(!file) return;
+  processarImagem(file, b64=>{ _editProntoImgB64=b64; document.getElementById('pr-edit-img-thumb').src=b64; document.getElementById('pr-edit-img-preview').style.display='block'; });
+}
+
+function salvarEdicaoPronto(){
+  const e = PRONTOS.find(x=>x.id===_editProntoId);
+  if(!e){ toast('Selecione um empreendimento','erro'); return; }
+  e.nome      = document.getElementById('pr-edit-nome').value;
+  e.local     = document.getElementById('pr-edit-local').value;
+  e.cub       = parseFloat(document.getElementById('pr-edit-cub').value)||e.cub;
+  e.matricula = document.getElementById('pr-edit-matricula').value;
+  const tipo  = document.getElementById('pr-edit-pgto-tipo').value;
+  const ent   = parseFloat(document.getElementById('pr-edit-entrada').value)||0;
+  const chv   = parseFloat(document.getElementById('pr-edit-chave').value)||0;
+  e.pgto = { tipo, reajuste: document.getElementById('pr-edit-reajuste').value||'',
+    qtMensal: parseInt(document.getElementById('pr-edit-qt-mensal').value)||48,
+    qtAnual:  parseInt(document.getElementById('pr-edit-qt-anual').value)||6 };
+  if(tipo==='fixo'){ e.pgto.entrada=ent; e.pgto.chave=chv; }
+  else{ e.pgto.pctEntrada=ent; e.pgto.pctChave=chv; }
+  if(_editProntoImgB64){ e.img=_editProntoImgB64; _editProntoImgB64=null; }
+  salvarProntos();
+  renderProntosCards();
+  toast('✓ '+e.nome+' atualizado','ok');
+}
+
+function editarPre(idx){
+  const e = PRE_LANCAMENTOS[idx];
+  if(!e) return;
+  _editPreIdx = idx;
+  document.getElementById('pre-edit-titulo').textContent = e.nome;
+  document.getElementById('pre-edit-form-wrap').style.display='block';
+  document.getElementById('pre-edit-nome').value = e.nome||'';
+  document.getElementById('pre-edit-local').value = e.local||'';
+  document.getElementById('pre-edit-area').value = e.area||'';
+  document.getElementById('pre-edit-previsao').value = e.previsao||'';
+  document.getElementById('pre-edit-cub').value = e.cub||'';
+  document.getElementById('pre-edit-matricula').value = e.matricula||'';
+  document.getElementById('pre-edit-ri').value = e.ri||'';
+  document.getElementById('pre-edit-desc').value = e.desc||'';
+  const p = e.pgto||{};
+  document.getElementById('pre-edit-pct-entrada').value = p.pctEntrada||'';
+  document.getElementById('pre-edit-ven-entrada').value = p.venEntrada||'';
+  document.getElementById('pre-edit-pct-obra').value = p.pctObra||'';
+  document.getElementById('pre-edit-ven-obra').value = p.venObra||'';
+  document.getElementById('pre-edit-pct-chave').value = p.pctChave||'';
+  document.getElementById('pre-edit-ven-chave').value = p.venChave||'';
+  document.getElementById('pre-edit-pct-mensal').value = p.pctMensal||'';
+  document.getElementById('pre-edit-qt-mensal').value = p.qtMensal||'';
+  document.getElementById('pre-edit-pct-anual').value = p.pctAnual||'';
+  document.getElementById('pre-edit-qt-anual').value = p.qtAnual||'';
+  if(e.img){ document.getElementById('pre-edit-img-thumb').src=e.img; document.getElementById('pre-edit-img-preview').style.display='block'; }
+  else{ document.getElementById('pre-edit-img-preview').style.display='none'; }
+  _editPreImgB64=null;
+  document.getElementById('pre-edit-form-wrap').scrollIntoView({behavior:'smooth'});
+}
+
+function previewPreEditImg(input){
+  const file=input.files[0]; if(!file) return;
+  processarImagem(file, b64=>{ _editPreImgB64=b64; document.getElementById('pre-edit-img-thumb').src=b64; document.getElementById('pre-edit-img-preview').style.display='block'; });
+}
+
+function salvarEdicaoPre(){
+  if(_editPreIdx===null){ toast('Nenhum pré-lançamento selecionado','erro'); return; }
+  const e = PRE_LANCAMENTOS[_editPreIdx];
+  if(!e) return;
+  e.nome=document.getElementById('pre-edit-nome').value;
+  e.local=document.getElementById('pre-edit-local').value;
+  e.area=parseFloat(document.getElementById('pre-edit-area').value)||e.area;
+  e.previsao=document.getElementById('pre-edit-previsao').value;
+  e.cub=parseFloat(document.getElementById('pre-edit-cub').value)||e.cub;
+  e.matricula=document.getElementById('pre-edit-matricula').value;
+  e.ri=document.getElementById('pre-edit-ri').value;
+  e.desc=document.getElementById('pre-edit-desc').value;
+  e.pgto={tipo:'pct',
+    pctEntrada:parseFloat(document.getElementById('pre-edit-pct-entrada').value)||0,
+    venEntrada:document.getElementById('pre-edit-ven-entrada').value||'Atos',
+    pctObra:parseFloat(document.getElementById('pre-edit-pct-obra').value)||0,
+    venObra:document.getElementById('pre-edit-ven-obra').value||'',
+    pctChave:parseFloat(document.getElementById('pre-edit-pct-chave').value)||0,
+    venChave:document.getElementById('pre-edit-ven-chave').value||'',
+    pctMensal:parseFloat(document.getElementById('pre-edit-pct-mensal').value)||0,
+    qtMensal:parseInt(document.getElementById('pre-edit-qt-mensal').value)||84,
+    pctAnual:parseFloat(document.getElementById('pre-edit-pct-anual').value)||0,
+    qtAnual:parseInt(document.getElementById('pre-edit-qt-anual').value)||6};
+  if(_editPreImgB64){ e.img=_editPreImgB64; _editPreImgB64=null; }
+  salvarPre();
+  renderPreCards();
+  renderPreListaAdmin();
+  cancelarEdicaoPre();
+  toast('✓ '+e.nome+' atualizado','ok');
+}
+
+function cancelarEdicaoPre(){
+  _editPreIdx=null;
+  document.getElementById('pre-edit-form-wrap').style.display='none';
 }
 
 // ─── EXCLUSÃO DE EMPREENDIMENTOS ──────────────────────────────────
