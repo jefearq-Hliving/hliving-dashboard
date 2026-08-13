@@ -1313,20 +1313,34 @@ function atualizarContadoresHome(){
   const hgDisp  = document.getElementById('hg-disp');  if(hgDisp)  hgDisp.textContent=ds;
   const hgVend  = document.getElementById('hg-vend');  if(hgVend)  hgVend.textContent=vs;
 }
-// ─── GESTÃO DE SENHA ──────────────────────────────────────────────
-const SENHA_MESTRA = 'hliving@recovery2026'; // senha de recuperação — não compartilhe
-let _senhaAtual = localStorage.getItem('hliving_senha') || 'hliving2026';
+// ─── GESTÃO DE SENHA (validação no servidor via Worker) ───────────
+// A senha NÃO existe mais neste arquivo. O login envia a senha ao
+// Worker, que valida e devolve um token de sessão (validade 12h).
+// Todos os POSTs de gravação exigem esse token.
+let _token = sessionStorage.getItem('hliving_token') || '';
+try { localStorage.removeItem('hliving_senha'); } catch(e){} // limpa resíduo da versão antiga
 
-function checkLogin(){
+async function checkLogin(){
   const digitada = document.getElementById('admin-senha').value;
-  if(digitada === _senhaAtual){
-    closeLogin();
-    if(_loginCtx==='prontos') openAdminProntos();
-    else openAdmin();
-  } else {
-    document.getElementById('admin-senha').style.borderColor='var(--status-vend)';
-    setTimeout(()=>document.getElementById('admin-senha').style.borderColor='',1000);
-    toast('Senha incorreta','erro');
+  if(!digitada){ toast('Digite a senha','erro'); return; }
+  mostrarLoading('Verificando...');
+  try {
+    const res = await apiPost('login', {senha: digitada});
+    ocultarLoading();
+    if(res && res.ok && res.token){
+      _token = res.token;
+      sessionStorage.setItem('hliving_token', _token);
+      closeLogin();
+      if(_loginCtx==='prontos') openAdminProntos();
+      else openAdmin();
+    } else {
+      document.getElementById('admin-senha').style.borderColor='var(--status-vend)';
+      setTimeout(()=>document.getElementById('admin-senha').style.borderColor='',1000);
+      toast('Senha incorreta','erro');
+    }
+  } catch(err){
+    ocultarLoading();
+    toast('Sem conexão com o servidor','erro');
   }
 }
 
@@ -1347,48 +1361,69 @@ function fecharRecuperacao(){
 }
 
 function verificarMestra(){
+  // A senha mestra é validada apenas no servidor, no envio final.
   const mestra = document.getElementById('rec-mestra').value;
-  if(mestra !== SENHA_MESTRA){
-    document.getElementById('rec-mestra').style.borderColor='var(--status-vend)';
-    setTimeout(()=>document.getElementById('rec-mestra').style.borderColor='',1000);
-    toast('Senha mestra incorreta','erro');
-    return;
-  }
-  // Mestra correta — mostrar campos nova senha
+  if(!mestra){ toast('Digite a senha mestra','erro'); return; }
   document.getElementById('rec-nova-wrap').style.display='block';
   document.getElementById('rec-btn').innerHTML='<i class="ti ti-lock" style="font-size:16px"></i>Salvar nova senha';
   document.getElementById('rec-btn').onclick=salvarNovaSenhaRecuperacao;
   document.getElementById('rec-nova').focus();
 }
 
-function salvarNovaSenhaRecuperacao(){
+async function salvarNovaSenhaRecuperacao(){
+  const mestra = document.getElementById('rec-mestra').value;
   const nova = document.getElementById('rec-nova').value;
   const nova2 = document.getElementById('rec-nova2').value;
   if(!nova || nova.length < 6){ toast('A senha deve ter ao menos 6 caracteres','erro'); return; }
   if(nova !== nova2){ toast('As senhas não coincidem','erro'); return; }
-  _senhaAtual = nova;
-  localStorage.setItem('hliving_senha', nova);
-  fecharRecuperacao();
-  toast('✓ Senha redefinida com sucesso','ok');
+  mostrarLoading('Redefinindo...');
+  try {
+    const res = await apiPost('recoverPassword', {mestra, nova});
+    ocultarLoading();
+    if(res && res.ok){
+      fecharRecuperacao();
+      toast('✓ Senha redefinida com sucesso','ok');
+    } else if(res && res.error==='mestra'){
+      document.getElementById('rec-mestra').style.borderColor='var(--status-vend)';
+      setTimeout(()=>document.getElementById('rec-mestra').style.borderColor='',1000);
+      toast('Senha mestra incorreta','erro');
+    } else {
+      toast('Erro ao redefinir a senha','erro');
+    }
+  } catch(err){
+    ocultarLoading();
+    toast('Sem conexão com o servidor','erro');
+  }
 }
 
 async function alterarSenha(){
   const atual = document.getElementById('senha-atual').value;
   const nova  = document.getElementById('senha-nova').value;
   const nova2 = document.getElementById('senha-nova2').value;
-  if(atual !== _senhaAtual){ toast('Senha atual incorreta','erro'); return; }
   if(!nova || nova.length < 6){ toast('A nova senha deve ter ao menos 6 caracteres','erro'); return; }
   if(nova !== nova2){ toast('As novas senhas não coincidem','erro'); return; }
-  _senhaAtual = nova;
-  localStorage.setItem('hliving_senha', nova);
-  document.getElementById('senha-atual').value='';
-  document.getElementById('senha-nova').value='';
-  document.getElementById('senha-nova2').value='';
-  toast('✓ Senha alterada com sucesso','ok');
+  mostrarLoading('Alterando...');
+  try {
+    const res = await apiPost('changePassword', {atual, nova});
+    ocultarLoading();
+    if(res && res.ok){
+      document.getElementById('senha-atual').value='';
+      document.getElementById('senha-nova').value='';
+      document.getElementById('senha-nova2').value='';
+      toast('✓ Senha alterada com sucesso','ok');
+    } else if(res && res.error==='atual'){
+      toast('Senha atual incorreta','erro');
+    } else {
+      toast('Erro ao alterar a senha','erro');
+    }
+  } catch(err){
+    ocultarLoading();
+    toast('Sem conexão com o servidor','erro');
+  }
 }
 
 // ─── LOGIN ADMIN ──────────────────────────────────────────────────
-// Senha gerenciada via _senhaAtual
+// Senha validada no servidor (Worker) — nenhuma senha existe neste arquivo
 let _loginCtx='dash';
 function openLogin(ctx){
   _loginCtx=ctx||'dash';
@@ -1632,9 +1667,30 @@ async function apiPost(action, data){
   const res = await fetch(API_URL, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({action, data})
+    body: JSON.stringify({action, data, token: _token})
   });
-  return res.json();
+  const json = await res.json();
+  // Token ausente/expirado: limpar sessão e pedir novo login
+  if(json && json.error === 'auth' && action !== 'login'){
+    _token = '';
+    sessionStorage.removeItem('hliving_token');
+    toast('Sessão expirada — faça login novamente','erro');
+    throw new Error('auth');
+  }
+  return json;
+}
+
+// Sanitização anti-XSS: remove <> de qualquer string vinda do servidor,
+// impedindo injeção de HTML nos innerHTML dos cards e das tabelas PDF.
+function sanitizeDeep(v){
+  if(typeof v === 'string') return v.replace(/[<>]/g,'');
+  if(Array.isArray(v)) return v.map(sanitizeDeep);
+  if(v && typeof v === 'object'){
+    const o = {};
+    for(const k in v) o[k] = sanitizeDeep(v[k]);
+    return o;
+  }
+  return v;
 }
 
 function mostrarLoading(msg){
@@ -1654,7 +1710,7 @@ async function carregarDoSheets(){
     const res = await fetch(`${API_URL}?action=getAll`);
     if(!res.ok) throw new Error('HTTP '+res.status);
     const text = await res.text();
-    const data = JSON.parse(text);
+    const data = sanitizeDeep(JSON.parse(text));
 
     if(data.empreendimento){
       const e=data.empreendimento;
