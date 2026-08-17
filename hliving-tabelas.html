@@ -633,7 +633,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div class="admin-section" id="tab-reajuste">
         <div class="reajuste-box">
           <div class="reajuste-title">Reajuste mensal de preços</div>
-          <div class="reajuste-sub">Aplica um percentual de reajuste sobre o preço de todas as unidades <strong>disponíveis</strong>. O histórico fica registrado abaixo.</div>
+          <div class="reajuste-sub">Aplica um percentual de reajuste sobre o preço das unidades <strong>disponíveis</strong> apenas <strong>deste empreendimento</strong>. O histórico fica registrado abaixo.</div>
           <div class="reajuste-row">
             <input type="number" class="reajuste-input" id="reajuste-pct" placeholder="0,00" step="0.01" min="-100">
             <span style="font-size:18px;font-weight:600;color:var(--text-2);padding-bottom:2px">%</span>
@@ -642,6 +642,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Histórico de reajustes</div>
         <div id="reajuste-historico" style="font-size:12px;color:var(--text-3)">Nenhum reajuste aplicado ainda.</div>
+
+        <div class="reajuste-box" style="margin-top:16px;border:1px solid var(--hl-gold)">
+          <div class="reajuste-title">Reajuste Global de Preços</div>
+          <div class="reajuste-sub">Aplica o percentual sobre o preço das unidades <strong>disponíveis</strong> de <strong>todos</strong> os empreendimentos de uma vez — Lançamentos, Prontos, Pré-lançamentos e Atlantia.</div>
+          <div class="reajuste-row">
+            <input type="number" class="reajuste-input" id="reajuste-global-pct" placeholder="0,00" step="0.01" min="-100">
+            <span style="font-size:18px;font-weight:600;color:var(--text-2);padding-bottom:2px">%</span>
+            <button class="reajuste-apply" onclick="previaReajusteGlobal()">Prévia</button>
+          </div>
+        </div>
 
         <div class="reajuste-box" style="margin-top:16px">
           <div class="reajuste-title">CUB Global</div>
@@ -1849,6 +1859,67 @@ async function carregarDoSheets(){
 
 
 // ─── REAJUSTE ─────────────────────────────────────────────────────
+
+// ─── REAJUSTE GLOBAL DE PREÇOS ──────────────────────────────────────
+// Coleta todas as listas de unidades SEM duplicar a Atlantia (que existe
+// tanto como objeto próprio quanto por referência dentro de `empreendimentos`).
+function _unidadesGlobais(){
+  const grupos=[{nome:'2CINCO4', unidades:units}];
+  empreendimentos.forEach(e=>{
+    if(e.id!=='atlantia' && e.id!=='2cinco4' && e.unidades && e.unidades.length)
+      grupos.push({nome:e.nome, unidades:e.unidades});
+  });
+  PRONTOS.forEach(e=>{ if(e.unidades&&e.unidades.length) grupos.push({nome:e.nome, unidades:e.unidades}); });
+  PRE_LANCAMENTOS.forEach(e=>{ if(e.unidades&&e.unidades.length) grupos.push({nome:e.nome, unidades:e.unidades}); });
+  grupos.push({nome:'Atlantia', unidades:ATLANTIA.unidades});
+  return grupos;
+}
+
+function previaReajusteGlobal(){
+  const pct=parseFloat(document.getElementById('reajuste-global-pct').value);
+  if(isNaN(pct)||pct===0){toast('Informe um percentual válido','erro');return;}
+  const todas=_unidadesGlobais().flatMap(g=>g.unidades).filter(u=>u.s==='disp'&&u.v);
+  if(!todas.length){toast('Nenhuma unidade disponível para reajustar','erro');return;}
+  const minAtual=Math.min(...todas.map(u=>u.v));
+  const maxAtual=Math.max(...todas.map(u=>u.v));
+  const f=v=>'R$ '+Math.round(v/1000).toLocaleString('pt-BR')+' mil';
+  const conf=confirm(`REAJUSTE GLOBAL de ${pct>0?'+':''}${pct}% em ${todas.length} unidades de TODOS os empreendimentos\n\nFaixa atual: ${f(minAtual)} – ${f(maxAtual)}\nNova faixa: ${f(minAtual*(1+pct/100))} – ${f(maxAtual*(1+pct/100))}\n\nConfirmar?`);
+  if(conf) aplicarReajusteGlobal();
+}
+
+async function aplicarReajusteGlobal(){
+  const pct=parseFloat(document.getElementById('reajuste-global-pct').value);
+  if(isNaN(pct)||pct===0){toast('Informe um percentual válido');return;}
+  let count=0;
+  _unidadesGlobais().forEach(g=>g.unidades.forEach(u=>{
+    if(u.s==='disp'&&u.v){ u.v=Math.round(u.v*(1+pct/100)*100)/100; count++; }
+  }));
+  const today=new Date().toLocaleDateString('pt-BR');
+  reajusteHist.unshift({data:today,pct,count});
+  renderHistorico();
+  renderUnits(); renderHome();
+  document.getElementById('reajuste-global-pct').value='';
+  mostrarLoading('Salvando reajuste global...');
+  try {
+    await apiPost('saveReajuste', {data:today, pct, count});
+    await apiPost('saveUnidades', units);
+    const toSave = empreendimentos.map(e=>({
+      id:e.id,nome:e.nome,local:e.local,area:e.area,fase:e.fase||'lancamento',
+      cub:e.cub,cubData:e.cubData,ri:e.ri,matricula:e.matricula,
+      ativo:e.ativo!==false,pgto:e.pgto,
+      unidades:(e.unidades||[]).map(u=>({n:u.n,t:u.t,area:u.area,v:u.v,s:u.s}))
+    }));
+    await apiPost('saveLancamentos', toSave);
+    await salvarProntos();
+    await salvarPre();
+    await salvarAtlantia();
+    ocultarLoading();
+    toast(`✓ Reajuste global de ${pct>0?'+':''}${pct}% salvo — ${count} unidades`,'ok');
+  } catch(err){
+    ocultarLoading();
+    toast('⚠ Falha ao salvar o reajuste global — verifique a conexão e tente novamente','erro');
+  }
+}
 
 function previaPReajuste(){
   const pct=parseFloat(document.getElementById('reajuste-pct').value);
