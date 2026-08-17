@@ -1753,7 +1753,7 @@ async function carregarDoSheets(){
           if(typeof saved.ativo!=='undefined') empreendimentos[idx].ativo=saved.ativo;
         } else {
           // Novo empreendimento — adicionar sem imagem
-          empreendimentos.push(Object.assign({img:''},saved));
+          empreendimentos.push(Object.assign({},saved,{img:''})); // img do servidor ignorada
         }
       });
     }
@@ -1792,7 +1792,7 @@ async function carregarDoSheets(){
           if(typeof saved.ativo!=='undefined') local.ativo=saved.ativo;
           if(saved.pgto) local.pgto=saved.pgto;
         } else {
-          PRONTOS.push(Object.assign({img:'', unidades:[]},saved));
+          PRONTOS.push(Object.assign({unidades:[]},saved,{img:''})); // img do servidor ignorada
         }
       });
       renderProntosCards();
@@ -1803,7 +1803,7 @@ async function carregarDoSheets(){
 
     // Pre-lancamentos
     if(data.pre && data.pre.length){
-      PRE_LANCAMENTOS=data.pre.map(e=>Object.assign({img:''},e));
+      PRE_LANCAMENTOS=data.pre.map(e=>Object.assign({},e,{img:''})); // img do servidor ignorada
     }
 
     // Visibilidade
@@ -3667,7 +3667,8 @@ async function salvarProntos(){
 }
 async function salvarPre(){
   try {
-    const res = await apiPost('savePre', PRE_LANCAMENTOS);
+    const semImgPre = PRE_LANCAMENTOS.map(e=>{ const c=Object.assign({},e); delete c.img; return c; });
+    const res = await apiPost('savePre', semImgPre);
     console.log('salvarPre resposta:', res);
   } catch(e){
     console.error('salvarPre erro:', e);
