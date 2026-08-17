@@ -642,6 +642,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div style="font-size:11px;font-weight:600;color:var(--text-2);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Histórico de reajustes</div>
         <div id="reajuste-historico" style="font-size:12px;color:var(--text-3)">Nenhum reajuste aplicado ainda.</div>
+
+        <div class="reajuste-box" style="margin-top:16px">
+          <div class="reajuste-title">CUB Global</div>
+          <div class="reajuste-sub">Atualiza o CUB de referência de <strong>todos</strong> os empreendimentos de uma vez — Lançamentos, Prontos, Pré-lançamentos e Atlantia.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+            <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="cub-global-valor" placeholder="3096.25" step="0.01" min="0"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Data de referência</label><input type="text" id="cub-global-data" placeholder="01/07/2026"></div>
+          </div>
+          <button class="save-btn" onclick="aplicarCubGlobal()"><i class="ti ti-refresh" style="font-size:16px"></i>Aplicar a todos os empreendimentos</button>
+        </div>
       </div>
 
       <!-- ABA NOVO EMPREENDIMENTO -->
@@ -1443,6 +1453,10 @@ function openAdmin(){
   const eCtx = isEmp2 ? _empAtivo : {nome:emp.nome,local:emp.local,area:emp.area,cub:emp.cub,cubData:emp.cubData,ri:emp.ri,matricula:emp.matricula};
   const pCtx = isEmp2 ? (_empAtivo.pgto||{}) : pgto;
 
+  // Prefill do CUB Global (aba Reajuste) com o valor vigente
+  const cgv=document.getElementById('cub-global-valor'); if(cgv) cgv.value=emp.cub||'';
+  const cgd=document.getElementById('cub-global-data'); if(cgd) cgd.value=emp.cubData||'';
+
   // Atualizar título do admin
   document.querySelector('.modal-head-sub').textContent = eCtx.nome + ' · HLiving';
 
@@ -1761,6 +1775,8 @@ async function carregarDoSheets(){
     // Atlantia
     if(data.atlantia){
       const a=data.atlantia;
+      if(a.cub) ATLANTIA.cub=parseFloat(a.cub);
+      if(a.cubData) ATLANTIA.cubData=a.cubData;
       if(a.unidades) a.unidades.forEach(u=>{
         const local=ATLANTIA.unidades.find(x=>x.n===u.n);
         if(local){ local.v=u.v; local.s=u.s; }
@@ -1791,6 +1807,8 @@ async function carregarDoSheets(){
           });
           if(typeof saved.ativo!=='undefined') local.ativo=saved.ativo;
           if(saved.pgto) local.pgto=saved.pgto;
+          if(saved.cub) local.cub=parseFloat(saved.cub);
+          if(saved.cubData) local.cubData=saved.cubData;
         } else {
           PRONTOS.push(Object.assign({unidades:[]},saved,{img:''})); // img do servidor ignorada
         }
@@ -3646,13 +3664,51 @@ function previewProntoImg(input){
 // ─── SALVAMENTO GLOBAL ────────────────────────────────────────────
 async function salvarAtlantia(){
   try {
-    const res = await apiPost('saveAtlantia',{unidades:ATLANTIA.unidades,ativo:ATLANTIA.ativo});
+    const res = await apiPost('saveAtlantia',{unidades:ATLANTIA.unidades,ativo:ATLANTIA.ativo,cub:ATLANTIA.cub,cubData:ATLANTIA.cubData});
     console.log('salvarAtlantia resposta:', res);
   } catch(e){
     console.error('salvarAtlantia erro:', e);
     toast('Erro ao salvar Atlantia: '+e.message,'erro');
   }
 }
+// ─── CUB GLOBAL ─────────────────────────────────────────────────────
+// Atualiza o CUB de referência em TODOS os empreendimentos de uma vez
+// e persiste em cada destino (2CINCO4, Lançamentos, Prontos, Pré, Atlantia).
+async function aplicarCubGlobal(){
+  const v = parseFloat(document.getElementById('cub-global-valor').value);
+  const d = document.getElementById('cub-global-data').value.trim();
+  if(!v || v<=0){ toast('Informe o valor do CUB','erro'); return; }
+  if(!d){ toast('Informe a data de referência','erro'); return; }
+  if(!confirm('Aplicar CUB R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2})+' ('+d+') em TODOS os empreendimentos?')) return;
+  mostrarLoading('Aplicando CUB em todos os empreendimentos...');
+  try{
+    // Aplicar em memória
+    emp.cub=v; emp.cubData=d;
+    empreendimentos.forEach(e=>{ e.cub=v; e.cubData=d; });
+    PRONTOS.forEach(e=>{ e.cub=v; e.cubData=d; });
+    PRE_LANCAMENTOS.forEach(e=>{ e.cub=v; e.cubData=d; });
+    ATLANTIA.cub=v; ATLANTIA.cubData=d;
+    // Persistir em cada destino
+    await apiPost('saveEmpreendimento', emp);
+    const toSave = empreendimentos.map(e=>({
+      id:e.id,nome:e.nome,local:e.local,area:e.area,fase:e.fase||'lancamento',
+      cub:e.cub,cubData:e.cubData,ri:e.ri,matricula:e.matricula,
+      ativo:e.ativo!==false,pgto:e.pgto,
+      unidades:(e.unidades||[]).map(u=>({n:u.n,t:u.t,area:u.area,v:u.v,s:u.s}))
+    }));
+    await apiPost('saveLancamentos', toSave);
+    await salvarProntos();
+    await salvarPre();
+    await salvarAtlantia();
+    ocultarLoading();
+    atualizarHeader(); renderHome();
+    toast('✓ CUB atualizado em todos os empreendimentos','ok');
+  }catch(err){
+    ocultarLoading();
+    toast('Falha ao salvar o CUB — verifique a conexão e tente novamente','erro');
+  }
+}
+
 async function salvarProntos(){
   try {
     // Enviar SEM as imagens base64: payload leve e dentro do limite do
