@@ -1760,6 +1760,7 @@ async function carregarDoSheets(){
       data.unidades.forEach(u=>{
         const local=units.find(x=>x.n===u.n);
         if(local){ local.v=u.v; local.s=u.s; }
+        else units.push(Object.assign({t:'1',area:0,desc:''},u)); // unidade nova do servidor
       });
     }
     if(data.reajustes && data.reajustes.length) reajusteHist=data.reajustes;
@@ -1770,10 +1771,14 @@ async function carregarDoSheets(){
         const idx=empreendimentos.findIndex(e=>e.id===saved.id);
         if(idx>-1){
           // Atualizar existente
-          if(saved.unidades) saved.unidades.forEach(u=>{
-            const lu=empreendimentos[idx].unidades&&empreendimentos[idx].unidades.find(x=>x.n===u.n);
-            if(lu){ lu.v=u.v; lu.s=u.s; }
-          });
+          if(saved.unidades){
+            if(!empreendimentos[idx].unidades) empreendimentos[idx].unidades=[];
+            saved.unidades.forEach(u=>{
+              const lu=empreendimentos[idx].unidades.find(x=>x.n===u.n);
+              if(lu){ lu.v=u.v; lu.s=u.s; }
+              else empreendimentos[idx].unidades.push(Object.assign({t:'1',area:0,desc:''},u)); // unidade nova do servidor
+            });
+          }
           if(typeof saved.ativo!=='undefined') empreendimentos[idx].ativo=saved.ativo;
         } else {
           // Novo empreendimento — adicionar sem imagem
@@ -1790,6 +1795,7 @@ async function carregarDoSheets(){
       if(a.unidades) a.unidades.forEach(u=>{
         const local=ATLANTIA.unidades.find(x=>x.n===u.n);
         if(local){ local.v=u.v; local.s=u.s; }
+        else ATLANTIA.unidades.push(Object.assign({t:'1',area:0,desc:''},u)); // unidade nova do servidor
       });
       if(typeof a.ativo!=='undefined'){
         ATLANTIA.ativo=a.ativo;
@@ -1811,10 +1817,14 @@ async function carregarDoSheets(){
         if(!saved || !saved.id) return;
         const local=PRONTOS.find(p=>p.id===saved.id);
         if(local){
-          if(saved.unidades && Array.isArray(saved.unidades)) saved.unidades.forEach(u=>{
-            const lu=local.unidades&&local.unidades.find(x=>x.n===u.n);
-            if(lu){ lu.v=u.v; lu.s=u.s; }
-          });
+          if(saved.unidades && Array.isArray(saved.unidades)){
+            if(!local.unidades) local.unidades=[];
+            saved.unidades.forEach(u=>{
+              const lu=local.unidades.find(x=>x.n===u.n);
+              if(lu){ lu.v=u.v; lu.s=u.s; }
+              else local.unidades.push(Object.assign({t:'1',area:0,desc:''},u)); // unidade nova do servidor
+            });
+          }
           if(typeof saved.ativo!=='undefined') local.ativo=saved.ativo;
           if(saved.pgto) local.pgto=saved.pgto;
           if(saved.cub) local.cub=parseFloat(saved.cub);
