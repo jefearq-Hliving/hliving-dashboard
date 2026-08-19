@@ -71,6 +71,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .unit-card.fase{border-left:3px solid var(--status-fase)}
 .unit-card.vend{border-left:3px solid var(--status-vend);opacity:0.55}
 .unit-card.res{border-left:3px solid var(--status-res);opacity:0.7}
+.unit-card.pre{border-left:3px solid #9B59B6}
 .unit-card.hidden{display:none}
 .unit-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
 .unit-num{font-size:15px;font-weight:600;color:var(--text)}
@@ -79,7 +80,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .unit-sub{font-size:11px;color:var(--text-3);margin-top:2px}
 .unit-status{font-size:10px;margin-top:5px;font-weight:600}
 .unit-status.disp{color:var(--status-disp)}.unit-status.fase{color:var(--status-fase)}
-.unit-status.vend{color:var(--status-vend)}.unit-status.res{color:var(--status-res)}
+.unit-status.vend{color:var(--status-vend)}.unit-status.res{color:var(--status-res)}.unit-status.pre{color:#9B59B6}
 /* DETALHE */
 .detail-view{display:none;min-height:100vh;flex-direction:column}
 .detail-view.open{display:flex}
@@ -177,7 +178,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div style="display:flex;gap:0;background:var(--surface);border-radius:8px;overflow:hidden;border:0.5px solid var(--border)">
       <button id="tab-ativos" onclick="setHomeTab('ativos')" style="flex:1;padding:8px;border:none;background:var(--hl-dark);color:#fff;font-size:12px;font-weight:600;cursor:pointer">Lançamentos</button>
       <button id="tab-prontos" onclick="setHomeTab('prontos')" style="flex:1;padding:8px;border:none;background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer">Prontos</button>
-      <button id="tab-pre" onclick="setHomeTab('pre')" style="flex:1;padding:8px;border:none;background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer">Pré-lançamento</button>
+      <button id="tab-pre" onclick="setHomeTab('pre')" style="flex:1;padding:8px;border:none;background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer">Oportunidades</button>
     </div>
   </div>
 
@@ -189,13 +190,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="prontos-cards"></div>
   </div>
 
-  <!-- PRÉ-LANÇAMENTO -->
+  <!-- OPORTUNIDADES -->
   <div id="home-pre" style="display:none">
     <div id="pre-cards">
       <div style="text-align:center;padding:40px 20px">
-        <div style="font-size:40px;margin-bottom:12px">🚀</div>
+        <div style="font-size:40px;margin-bottom:12px">🏗️</div>
         <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Em breve</div>
-        <div style="font-size:13px;color:var(--text-3);line-height:1.6">Novos empreendimentos em pré-lançamento serão exibidos aqui.<br>Cadastre via painel Admin.</div>
+        <div style="font-size:13px;color:var(--text-3);line-height:1.6">Oportunidades em outros empreendimentos serão exibidas aqui.<br>Cadastre via painel Admin.</div>
       </div>
     </div>
   </div>
@@ -298,34 +299,52 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div style="height:32px"></div>
 </div>
 
-<!-- DETALHE PRÉ-LANÇAMENTO -->
-<div class="detail-view" id="pre-detail-view">
+<!-- DASHBOARD OPORTUNIDADES -->
+<div id="oportunidades-view" style="display:none;min-height:100vh">
+  <div class="header">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="hl-logo">H Living</div>
+        <div class="hl-title">Oportunidades</div>
+        <div class="hl-sub">Unidades em outros empreendimentos ainda na planta</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <button onclick="fecharOportunidades()" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:11px;cursor:pointer;display:flex;align-items:center;gap:4px;padding:0;white-space:nowrap">
+          <i class="ti ti-arrow-left" style="font-size:13px"></i>Portfólio
+        </button>
+        <button class="admin-btn" onclick="openLogin('home')" style="font-size:10px;padding:4px 10px">
+          <i class="ti ti-settings" style="font-size:12px"></i>Admin
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="op-s-total">0</div><div class="stat-l">Unidades</div></div>
+    <div class="stat"><div class="stat-n" id="op-s-emps">0</div><div class="stat-l">Empreend.</div></div>
+    <div class="stat"><div class="stat-n" id="op-s-vgv">0</div><div class="stat-l">VGV total (mi)</div></div>
+  </div>
+  <div style="padding:10px 1rem;background:var(--surface);border-bottom:0.5px solid var(--border);display:flex;gap:6px;flex-wrap:wrap" id="oportunidades-pills"></div>
+  <div style="padding:8px 1rem;background:var(--surface);border-bottom:0.5px solid var(--border)">
+    <button onclick="gerarTabelaPDF('oportunidades')" style="width:100%;padding:9px;background:var(--hl-dark);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px">
+      <i class="ti ti-file-spreadsheet" style="font-size:15px"></i>Gerar tabela completa para corretores
+    </button>
+  </div>
+  <div class="units-grid" id="oportunidades-grid"></div>
+  <div style="height:24px"></div>
+</div>
+
+<!-- DETALHE OPORTUNIDADES -->
+<div class="detail-view" id="oportunidades-detail-view">
   <div class="det-header">
     <div>
-      <div class="det-title" id="pre-det-nome">Pré-lançamento</div>
-      <div class="det-sub" id="pre-det-sub"></div>
+      <div class="det-title" id="op-det-title">Unidade</div>
+      <div class="det-sub" id="op-det-sub"></div>
     </div>
-    <button class="back-btn" onclick="fecharPreDetalhe()">
+    <button class="back-btn" onclick="fecharDetalheOp()">
       <i class="ti ti-arrow-left" style="font-size:16px"></i>Voltar
     </button>
   </div>
-  <div class="det-body">
-    <img id="pre-det-img" style="width:100%;height:160px;object-fit:cover;border-radius:10px;margin-bottom:12px;display:none">
-    <div id="pre-det-desc" style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:16px"></div>
-
-    <div style="background:#f5eef8;border:0.5px solid #9B59B6;border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:11px;color:#6C3483;line-height:1.5">
-      🚀 <strong>Pré-lançamento</strong> — Registre o interesse do cliente e envie para o time comercial via WhatsApp.
-    </div>
-
-    <div class="sec-title">Registrar interesse</div>
-    <div class="field-wrap"><label class="field-label">Corretor responsável</label><input type="text" id="pre-int-corretor" placeholder="Seu nome"></div>
-    <div class="field-wrap"><label class="field-label">Imobiliária / CRECI</label><input type="text" id="pre-int-creci" placeholder="Ex: Imobiliária XYZ · CRECI 12345"></div>
-    <div class="field-wrap"><label class="field-label">Observações</label><input type="text" id="pre-int-obs" placeholder="Ex: tenho clientes interessados em 2 suítes, orçamento até R$ 1,5M"></div>
-
-    <button class="generate-btn" style="background:#25D366;border-color:#25D366" onclick="enviarInteressePreLancamento()">
-      <i class="ti ti-brand-whatsapp" style="font-size:17px"></i>Enviar interesse ao time comercial
-    </button>
-  </div>
+  <div class="det-body" id="op-det-body"></div>
   <div style="height:32px"></div>
 </div>
 
@@ -480,8 +499,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             Prontos
           </button>
           <button onclick="setAdminArea('pre')" style="padding:16px 8px;border-radius:10px;border:1.5px solid #9B59B6;background:#f5eef8;color:#9B59B6;font-size:13px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
-            <i class="ti ti-rocket" style="font-size:22px"></i>
-            Pré-lançamento
+            <i class="ti ti-building-community" style="font-size:22px"></i>
+            Oportunidades
           </button>
         </div>
       </div>
@@ -677,6 +696,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="field-wrap" style="margin:0"><label class="field-label">Fase</label>
             <select id="new-fase" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:#fff;color:var(--text);font-size:14px">
               <option value="lancamento">Lançamento</option>
+              <option value="pre">🚀 Pré-lançamento</option>
               <option value="obras">Em obras</option>
               <option value="entregue">Entregue</option>
             </select>
@@ -860,107 +880,87 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div><!-- fim admin-prontos-inline -->
 
-      <!-- ÁREA PRÉ-LANÇAMENTO INLINE -->
+      <!-- ÁREA OPORTUNIDADES INLINE -->
       <div id="admin-pre-inline" style="display:none">
         <button onclick="voltarSelectorAdmin()" style="display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--text-3);font-size:12px;cursor:pointer;margin-bottom:12px;padding:0">
           <i class="ti ti-arrow-left" style="font-size:14px"></i>Voltar
         </button>
-        <div style="font-size:11px;font-weight:600;color:#9B59B6;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px">Pré-lançamentos</div>
-
-        <div style="background:var(--hl-gold-light);border:0.5px solid var(--hl-gold);border-radius:8px;padding:9px 11px;margin-bottom:14px;font-size:11px;color:#633806;line-height:1.5">
-          Preencha os dados abaixo para cadastrar um novo pré-lançamento. As unidades serão geradas com status <strong>Pré-lançamento</strong>.
+        <div class="admin-tabs">
+          <button class="admin-tab active" onclick="setOpAdminTab('unidades',this)">Unidades</button>
+          <button class="admin-tab" onclick="setOpAdminTab('editar',this)">Editar</button>
+          <button class="admin-tab" onclick="setOpAdminTab('novo-unidade',this)">+ Unidade</button>
+          <button class="admin-tab" onclick="setOpAdminTab('novo-emp',this)">+ Empreend.</button>
+        </div>
+        <!-- ABA EDITAR OPORTUNIDADE -->
+        <div class="admin-section" id="op-tab-editar">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:10px">Selecione o empreendimento para editar.</div>
+          <div class="field-wrap">
+            <label class="field-label">Empreendimento</label>
+            <select id="op-edit-sel" onchange="carregarDadosOp(this.value)" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:#fff;color:var(--text);font-size:14px"></select>
+          </div>
+          <div id="op-edit-form" style="display:none">
+            <div class="field-wrap"><label class="field-label">Nome</label><input type="text" id="op-edit-nome"></div>
+            <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="op-edit-local"></div>
+            <div class="field-wrap"><label class="field-label">Previsão de entrega</label><input type="text" id="op-edit-previsao" placeholder="Ex: T2 2027"></div>
+            <div class="field-wrap"><label class="field-label">Observações</label><input type="text" id="op-edit-obs" placeholder="Ex: unidade via permuta com o construtor X"></div>
+            <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Condições de pagamento oferecidas</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div class="field-wrap" style="margin:0"><label class="field-label">Tipo</label>
+                <select id="op-edit-pgto-tipo" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:#fff;color:var(--text);font-size:14px">
+                  <option value="pct">% do VGV</option><option value="fixo">Valor fixo (R$)</option>
+                </select>
+              </div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Entrada (% ou R$)</label><input type="number" id="op-edit-entrada" step="0.5"></div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Nº mensais</label><input type="number" id="op-edit-qt-mensal" min="1"></div>
+              <div class="field-wrap" style="margin:0"><label class="field-label">Reajuste</label><input type="text" id="op-edit-reajuste" placeholder="IPCA +0,6%"></div>
+            </div>
+            <button class="save-btn" onclick="salvarEdicaoOp()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar alterações</button>
+          </div>
         </div>
 
-        <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Dados gerais</div>
-        <div class="field-wrap"><label class="field-label">Nome do empreendimento</label><input type="text" id="pre-nome" placeholder="Ex: Ocean Towers"></div>
-        <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="pre-local" placeholder="Ex: Itapema, SC"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="field-wrap" style="margin:0"><label class="field-label">Área privativa (m²)</label><input type="number" id="pre-area" placeholder="134" min="1"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Previsão de lançamento</label><input type="text" id="pre-previsao" placeholder="Ex: T2 2027"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">CUB referência (R$)</label><input type="number" id="pre-cub" value="3096.25" step="0.01"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Data ref. CUB</label><input type="text" id="pre-cub-data" placeholder="01/06/2026"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Nº RI</label><input type="text" id="pre-ri" placeholder="R-XX-XXXXX"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Matrícula</label><input type="text" id="pre-matricula" placeholder="XXXXX"></div>
+        <div class="admin-section active" id="op-tab-unidades">
+          <div style="font-size:11px;color:var(--text-3);margin-bottom:10px">Edite preço e status das unidades de Oportunidades.</div>
+          <div id="op-admin-units-list"></div>
+          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Visibilidade pública</div>
+          <div id="op-visibilidade-lista"></div>
+          <button class="save-btn" onclick="salvarUnidadesOp()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar alterações de unidades</button>
         </div>
-        <div class="field-wrap" style="margin-top:8px"><label class="field-label">Descrição / Pitch</label><input type="text" id="pre-desc" placeholder="Ex: Residencial alto padrão com vista para o mar"></div>
-
-        <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Geração de unidades</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="field-wrap" style="margin:0"><label class="field-label">Andar inicial</label><input type="number" id="pre-andar-ini" placeholder="6" min="1"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Andar final</label><input type="number" id="pre-andar-fim" placeholder="27" min="1"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Unidades por andar</label><input type="number" id="pre-upa" placeholder="2" min="1" max="10"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Tipologias (ex: 1,2)</label><input type="text" id="pre-tipos" placeholder="1,2" value="1,2" oninput="gerarCamposAreaTipo('pre')"></div>
-        </div>
-        <div id="pre-areas-tipos" style="margin-top:8px"></div>
-
-        <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Condições de pagamento</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="field-wrap" style="margin:0"><label class="field-label">% Entrada</label><input type="number" id="pre-pct-entrada" value="10" min="0" max="100" step="0.5"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Vencimento entrada</label><input type="text" id="pre-ven-entrada" placeholder="Atos"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">% Obra</label><input type="number" id="pre-pct-obra" value="10" min="0" max="100" step="0.5"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Vencimento obra</label><input type="text" id="pre-ven-obra" placeholder="Mar/2027"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">% Chaves</label><input type="number" id="pre-pct-chave" value="10" min="0" max="100" step="0.5"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Vencimento chaves</label><input type="text" id="pre-ven-chave" placeholder="Mar/2031"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">% Mensais</label><input type="number" id="pre-pct-mensal" value="40" min="0" max="100" step="0.5"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Nº mensais</label><input type="number" id="pre-qt-mensal" value="84" min="1"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">% Reforços anuais</label><input type="number" id="pre-pct-anual" value="30" min="0" max="100" step="0.5"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Nº reforços anuais</label><input type="number" id="pre-qt-anual" value="6" min="1"></div>
-        </div>
-
-        <div style="display:none">Imagem de capa</div>
-        <div class="field-wrap" style="display:none">
-          <label class="field-label">Upload da imagem (JPG/PNG)</label>
-          <input type="file" id="pre-img" accept="image/*" onchange="previewPreImg(this)" style="padding:8px">
-        </div>
-        <div id="pre-img-preview" style="display:none;margin-bottom:10px">
-          <img id="pre-img-thumb" style="width:100%;height:100px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)">
-        </div>
-        <div id="pre-preview-units" style="display:none;background:var(--surface-1);border-radius:8px;padding:10px;margin-bottom:10px;font-size:11px;color:var(--text-2)"></div>
-        <button class="save-btn" style="background:var(--surface-1);color:var(--text);border:0.5px solid var(--border-strong);margin-bottom:8px" onclick="previewPreLancamento()">
-          <i class="ti ti-eye" style="font-size:16px"></i>Pré-visualizar unidades
-        </button>
-        <button class="save-btn" onclick="cadastrarPreLancamento()" style="margin-top:4px">
-          <i class="ti ti-plus" style="font-size:16px"></i>Cadastrar pré-lançamento
-        </button>
-        <div style="margin-top:14px" id="pre-lista-admin"></div>
-
-        <!-- EDITAR PRÉ-LANÇAMENTO EXISTENTE -->
-        <div id="pre-edit-form-wrap" style="display:none;margin-top:14px;border-top:0.5px solid var(--border);padding-top:14px">
-          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Editando: <span id="pre-edit-titulo">—</span></div>
-          <div class="field-wrap"><label class="field-label">Nome</label><input type="text" id="pre-edit-nome"></div>
-          <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="pre-edit-local"></div>
+        <div class="admin-section" id="op-tab-novo-unidade">
+          <div style="background:var(--hl-gold-light);border:0.5px solid var(--hl-gold);border-radius:8px;padding:9px 11px;margin-bottom:14px;font-size:11px;color:#633806;line-height:1.5">Adicione uma nova unidade a um empreendimento já cadastrado em Oportunidades.</div>
+          <div class="field-wrap"><label class="field-label">Empreendimento</label><select id="op-new-emp-sel" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:#fff;color:var(--text);font-size:14px"></select></div>
+          <div class="field-wrap"><label class="field-label">Número da unidade</label><input type="text" id="op-new-num" placeholder="Ex: 802"></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div class="field-wrap" style="margin:0"><label class="field-label">Área (m²)</label><input type="number" id="pre-edit-area" step="1"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">Previsão</label><input type="text" id="pre-edit-previsao"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="pre-edit-cub" step="0.01"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">Matrícula</label><input type="text" id="pre-edit-matricula"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">RI</label><input type="text" id="pre-edit-ri"></div>
-            <div class="field-wrap" style="margin:0;grid-column:span 1"><label class="field-label">Descrição</label><input type="text" id="pre-edit-desc"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Área (m²)</label><input type="number" id="op-new-area" placeholder="85" step="0.01"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">VGV (R$)</label><input type="number" id="op-new-vgv" placeholder="1500000" step="1000"></div>
           </div>
-          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Condições de pagamento</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div class="field-wrap" style="margin:0"><label class="field-label">% Entrada</label><input type="number" id="pre-edit-pct-entrada" step="0.5"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">Venc. entrada</label><input type="text" id="pre-edit-ven-entrada"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">% Obra</label><input type="number" id="pre-edit-pct-obra" step="0.5"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">Venc. obra</label><input type="text" id="pre-edit-ven-obra"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">% Chaves</label><input type="number" id="pre-edit-pct-chave" step="0.5"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">Venc. chaves</label><input type="text" id="pre-edit-ven-chave"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">% Mensais</label><input type="number" id="pre-edit-pct-mensal" step="0.5"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">Nº mensais</label><input type="number" id="pre-edit-qt-mensal" min="1"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">% Reforços</label><input type="number" id="pre-edit-pct-anual" step="0.5"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">Nº reforços</label><input type="number" id="pre-edit-qt-anual" min="0"></div>
-          </div>
-          <div style="display:none">Imagem de capa</div>
-          <input type="file" style="display:none" id="pre-edit-img" accept="image/*" onchange="previewPreEditImg(this)" style="padding:8px;width:100%">
-          <div id="pre-edit-img-preview" style="display:none;margin:8px 0">
-            <img id="pre-edit-img-thumb" style="width:100%;height:80px;object-fit:cover;border-radius:8px">
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="save-btn" onclick="salvarEdicaoPre()"><i class="ti ti-device-floppy" style="font-size:16px"></i>Salvar</button>
-            <button class="save-btn" style="background:var(--surface-1);color:var(--text);border:0.5px solid var(--border-strong)" onclick="cancelarEdicaoPre()">Cancelar</button>
-          </div>
+          <div class="field-wrap" style="margin-top:8px"><label class="field-label">Descrição</label><input type="text" id="op-new-desc" placeholder="Ex: 2 suítes · 2 vagas"></div>
+          <button class="save-btn" onclick="adicionarUnidadeOp()"><i class="ti ti-plus" style="font-size:16px"></i>Adicionar unidade</button>
         </div>
-
+        <div class="admin-section" id="op-tab-novo-emp">
+          <div style="background:var(--hl-gold-light);border:0.5px solid var(--hl-gold);border-radius:8px;padding:9px 11px;margin-bottom:14px;font-size:11px;color:#633806;line-height:1.5">Cadastre uma nova oportunidade (empreendimento de terceiros, ainda na planta ou em construção).</div>
+          <div class="field-wrap"><label class="field-label">Nome do empreendimento</label><input type="text" id="op-emp-nome" placeholder="Ex: Ocean Towers"></div>
+          <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="op-emp-local" placeholder="Ex: Itapema, SC"></div>
+          <div class="field-wrap"><label class="field-label">Previsão de entrega</label><input type="text" id="op-emp-previsao" placeholder="Ex: T2 2027"></div>
+          <div class="field-wrap"><label class="field-label">Observações</label><input type="text" id="op-emp-obs" placeholder="Ex: unidade via permuta com o construtor X"></div>
+          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Condições de pagamento oferecidas</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field-wrap" style="margin:0"><label class="field-label">Tipo</label>
+              <select id="op-emp-pgto-tipo" style="width:100%;padding:10px 12px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:#fff;color:var(--text);font-size:14px">
+                <option value="pct">% do VGV</option><option value="fixo">Valor fixo (R$)</option>
+              </select></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Entrada (% ou R$)</label><input type="number" id="op-emp-entrada" placeholder="30" step="0.5"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Nº mensais</label><input type="number" id="op-emp-qt-mensal" value="48" min="1"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Reajuste</label><input type="text" id="op-emp-reajuste" placeholder="IPCA +0,6%"></div>
+          </div>
+          <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Primeira unidade</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="field-wrap" style="margin:0"><label class="field-label">Número</label><input type="text" id="op-u1-num" placeholder="Ex: 101"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Área (m²)</label><input type="number" id="op-u1-area" placeholder="85" step="0.01"></div>
+            <div class="field-wrap" style="margin:0;grid-column:span 2"><label class="field-label">VGV (R$)</label><input type="number" id="op-u1-vgv" placeholder="1500000" step="1000"></div>
+            <div class="field-wrap" style="margin:0;grid-column:span 2"><label class="field-label">Descrição</label><input type="text" id="op-u1-desc" placeholder="Ex: 2 suítes · 2 vagas"></div>
+          </div>
+          <button class="save-btn" onclick="cadastrarEmpOp()" style="margin-top:14px"><i class="ti ti-plus" style="font-size:16px"></i>Cadastrar empreendimento</button>
+        </div>
       </div><!-- fim admin-pre-inline -->
 
     </div>
@@ -2302,13 +2302,15 @@ function gerarUnidadesNovo(){
   const fim = parseInt(document.getElementById('new-andar-fim').value)||27;
   const upa = parseInt(document.getElementById('new-upa').value)||2;
   const tipos = document.getElementById('new-tipos').value.split(',').map(t=>t.trim());
+  const fase = document.getElementById('new-fase').value;
+  const statusDefault = fase==='pre' ? 'pre' : 'fase';
   const unidades = [];
   for(let a=ini; a<=fim; a++){
     for(let p=1; p<=upa; p++){
       const num = String(a*100 + p);
       const tipo = tipos[(p-1) % tipos.length] || '1';
       const area = getAreaPorTipo('new', tipo);
-      unidades.push({n:num, t:tipo, v:null, s:'fase', area, obs:''});
+      unidades.push({n:num, t:tipo, v:null, s:statusDefault, area, obs:''});
     }
   }
   return unidades;
@@ -2329,6 +2331,8 @@ function previewNovoEmp(){
     <th style="padding:6px 8px;text-align:left">Status</th>
   </tr>`;
 
+  const faseAtual = document.getElementById('new-fase').value;
+  const statusDefault = faseAtual==='pre' ? 'pre' : 'fase';
   unidades.forEach(u=>{
     html+=`<tr style="border-bottom:0.5px solid var(--border)">
       <td style="padding:5px 8px;font-weight:600">${u.n}</td>
@@ -2337,7 +2341,8 @@ function previewNovoEmp(){
       <td style="padding:5px 4px"><input type="number" id="new-vgv-${u.n}" placeholder="Valor" step="1000" style="width:100%;padding:4px 6px;border:0.5px solid var(--border);border-radius:4px;font-size:11px;background:#fff"></td>
       <td style="padding:5px 4px">
         <select id="new-st-${u.n}" style="width:100%;padding:4px 6px;border:0.5px solid var(--border);border-radius:4px;font-size:11px;background:#fff">
-          <option value="fase">Fase posterior</option>
+          <option value="fase" ${statusDefault==='fase'?'selected':''}>Fase posterior</option>
+          <option value="pre" ${statusDefault==='pre'?'selected':''}>🚀 Pré-lançamento</option>
           <option value="disp">Disponível</option>
           <option value="res">Reservada</option>
           <option value="vend">Vendida</option>
@@ -2382,7 +2387,8 @@ async function cadastrarNovoEmp(){
       const vEl = document.getElementById('new-vgv-'+u.n);
       const sEl = document.getElementById('new-st-'+u.n);
       if(vEl) u.v = vEl.value ? parseFloat(vEl.value) : null;
-      if(sEl) u.s = sEl.value || 'fase';
+      const statusFallback = document.getElementById('new-fase').value==='pre' ? 'pre' : 'fase';
+      if(sEl) u.s = sEl.value || statusFallback;
       return u;
     })
   };
@@ -2445,6 +2451,44 @@ function gerarTabelaPDF(ctx){
       <div style="border-top:0.5px solid #e0ddd8;padding-top:10px;font-size:9px;color:#9a9894;line-height:1.6;text-align:center">Tabela sujeita à disponibilidade. Preços e condições podem variar. Validade: 5 dias úteis.</div>
     </div>
     <script>window.onload=function(){window.print()}<\/script></body></html>`;
+    const blob=new Blob([tabelaHTML],{type:'text/html'});
+    window.open(URL.createObjectURL(blob),'_blank');
+    return;
+  }
+
+  // Oportunidades: dashboard único com todas as unidades de terceiros
+  if(ctx==='oportunidades'){
+    const allUnits = PRE_LANCAMENTOS.filter(e=>e.ativo!==false).flatMap(e=>e.unidades.filter(u=>u.s==='disp'&&u.v).map(u=>({...u,empNome:e.nome,empLocal:e.local||'',empPgto:e.pgto||{},empPrevisao:e.previsao||'A definir'})));
+    const today = new Date().toLocaleDateString('pt-BR');
+    const fmt2 = v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+    const fmtK = v=>v?'R$ '+Math.round(v/1000).toLocaleString('pt-BR')+' mil':'—';
+    let cards = allUnits.map(u=>{
+      const p=u.empPgto;
+      let pgtoStr='';
+      if(p.tipo==='fixo'){const saldo=u.v-(p.entrada||0);const mensal=saldo/(p.qtMensal||48);pgtoStr=`Entrada ${fmt2(p.entrada)} · ${p.qtMensal||48}x ${fmt2(mensal)}/mês`;}
+      else{const entrada=u.v*((p.pctEntrada||0)/100);const saldo=u.v-entrada;const mensal=saldo/(p.qtMensal||48);pgtoStr=`Entrada ${p.pctEntrada||0}% ${fmt2(entrada)} · ${p.qtMensal||48}x ${fmt2(mensal)}/mês`;}
+      return `<div style="background:#f5eef8;border:1.5px solid #9B59B6;border-radius:10px;padding:10px 12px;break-inside:avoid">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+          <div><div style="font-size:13px;font-weight:700;color:#1a2a1a">Unid. ${u.n}</div><div style="font-size:9px;color:#6C3483">${u.empNome} · ${u.empLocal}</div></div>
+          <div style="text-align:right"><div style="font-size:8px;font-weight:700;color:#9B59B6;letter-spacing:1px">OPORTUNIDADE</div><div style="font-size:14px;font-weight:700;color:#1a2a1a">${fmtK(u.v)}</div></div>
+        </div>
+        <div style="font-size:10px;color:#5a5955;margin-bottom:4px">${u.area}m² · ${u.desc||''}</div>
+        <div style="font-size:9px;color:#6C3483;background:rgba(255,255,255,0.5);border-radius:5px;padding:4px 7px">${pgtoStr} · Entrega: ${u.empPrevisao}</div>
+      </div>`;
+    }).join('');
+    const tabelaHTML=`<html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0ede8;padding:0}@page{margin:1cm;size:A4}@media print{body{background:#fff}}</style></head><body>
+    <div style="max-width:760px;margin:0 auto;padding:16px">
+      <div style="background:#1a2a1a;border-radius:10px;padding:16px 20px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:9px;letter-spacing:3px;color:#c9a84c;font-weight:700;text-transform:uppercase;margin-bottom:3px">H Living</div>
+          <div style="font-size:20px;font-weight:700;color:#fff">Oportunidades</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:3px">Outros empreendimentos · ${allUnits.length} unidades disponíveis</div></div>
+        <div style="text-align:right"><div style="font-size:10px;color:rgba(255,255,255,0.4)">Tabela gerada em</div><div style="font-size:13px;font-weight:600;color:#fff">${today}</div></div>
+      </div>
+      <div style="font-size:11px;font-weight:700;color:#1a2a1a;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px">● Unidades disponíveis</div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px">${cards}</div>
+      <div style="border-top:0.5px solid #e0ddd8;padding-top:10px;font-size:9px;color:#9a9894;line-height:1.6;text-align:center">Tabela sujeita à disponibilidade. Preços e condições podem variar. Validade: 5 dias úteis.</div>
+    </div>
+    <script>window.onload=function(){window.print()}<\\/script></body></html>`;
     const blob=new Blob([tabelaHTML],{type:'text/html'});
     window.open(URL.createObjectURL(blob),'_blank');
     return;
@@ -2629,7 +2673,7 @@ function formatarData(d){
 }
 
 function faseLabel(f){
-  return {lancamento:'Lançamento',obras:'Em obras',entregue:'Entregue'}[f]||'Lançamento';
+  return {lancamento:'Lançamento',obras:'Em obras',entregue:'Entregue',pre:'🚀 Pré-lançamento'}[f]||'Lançamento';
 }
 
 function renderHome(){
@@ -2684,7 +2728,7 @@ function renderHome(){
         <div class="emp-banner-overlay"></div>
         <div style="position:absolute;bottom:10px;left:13px;right:13px;z-index:1;display:flex;justify-content:space-between;align-items:flex-end">
           <div style="font-size:15px;font-weight:700;color:#fff;letter-spacing:.5px;text-shadow:0 1px 4px rgba(0,0,0,.5)">${e.nome}</div>
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--hl-gold);color:#1a1a00">${faseLabel(e.fase)}</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:${e.fase==='pre'?'#9B59B6':'var(--hl-gold)'};color:${e.fase==='pre'?'#fff':'#1a1a00'}">${faseLabel(e.fase)}</div>
         </div>
       </div>
       <div class="emp-body">
@@ -3179,8 +3223,15 @@ function setAdminArea(area){
     });
   }
   if(area==='pre'){
-    renderPreListaAdmin();
-    setTimeout(()=>gerarCamposAreaTipo('pre'), 100);
+    renderOpAdminUnits();
+    // Garantir que primeira aba (Unidades) está ativa e visível
+    const containerOp = document.getElementById('admin-pre-inline');
+    containerOp.querySelectorAll('.admin-section').forEach((s,i)=>{
+      s.style.display = i===0 ? 'block' : 'none';
+    });
+    containerOp.querySelectorAll('.admin-tab').forEach((t,i)=>{
+      if(i===0) t.classList.add('active'); else t.classList.remove('active');
+    });
   }
 }
 
@@ -3405,8 +3456,10 @@ function cadastrarEmpPronto(){
 }
 
 
-// ─── PRÉ-LANÇAMENTOS ──────────────────────────────────────────────
+// ─── OPORTUNIDADES ──────────────────────────────────────────────────
 let PRE_LANCAMENTOS = [];
+let _opFilter = 'all';
+let _editOpId = null;
 
 function renderPreCards(){
   const cont = document.getElementById('pre-cards');
@@ -3414,34 +3467,34 @@ function renderPreCards(){
   const ativos = PRE_LANCAMENTOS.filter(e=>e.ativo!==false);
   if(!ativos.length){
     cont.innerHTML=`<div style="text-align:center;padding:40px 20px">
-      <div style="font-size:40px;margin-bottom:12px">🚀</div>
+      <div style="font-size:40px;margin-bottom:12px">🏗️</div>
       <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px">Em breve</div>
-      <div style="font-size:13px;color:var(--text-3);line-height:1.6">Novos empreendimentos em pré-lançamento serão exibidos aqui.<br>Cadastre via painel Admin.</div>
+      <div style="font-size:13px;color:var(--text-3);line-height:1.6">Oportunidades em outros empreendimentos serão exibidas aqui.<br>Cadastre via painel Admin.</div>
     </div>`;
     return;
   }
   let html='';
-  PRE_LANCAMENTOS.forEach((e,i)=>{
-    if(e.ativo===false) return;
-    html+=`<div class="emp-card" onclick="abrirPreEmp(${i})">
+  ativos.forEach((e,i)=>{
+    const comPreco = e.unidades.filter(u=>u.v);
+    const minV = comPreco.length ? Math.min(...comPreco.map(u=>u.v)) : null;
+    html += `<div class="emp-card" onclick="abrirOportunidades('${e.id}')">
       <div class="emp-banner" style="background:#2a1a3a;padding:0;overflow:hidden;position:relative">
-        ${e.img?`<img src="${e.img}" style="width:100%;height:100%;object-fit:cover;object-position:center;display:block" alt="${e.nome}">`:`<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:40px">🚀</div>`}
         <div class="emp-banner-overlay"></div>
         <div style="position:absolute;bottom:10px;left:13px;right:13px;z-index:1;display:flex;justify-content:space-between;align-items:flex-end">
-          <div style="font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">${e.nome}</div>
-          <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:#9B59B6;color:#fff">Pré-lançamento</div>
+          <div style="font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6);line-height:1.3">${e.nome}</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:#9B59B6;color:#fff">Oportunidade</div>
         </div>
       </div>
       <div class="emp-body">
-        <div class="emp-name">${e.nome}</div>
-        <div class="emp-loc"><i class="ti ti-map-pin" style="font-size:11px"></i>${e.local||'A definir'}${e.area?' · '+e.area+' m²':''}</div>
+        <div class="emp-loc"><i class="ti ti-map-pin" style="font-size:11px"></i>${e.local||'A definir'}</div>
         <div class="emp-mini-stats" style="margin-top:8px">
-          <div class="ems"><div class="ems-n" style="color:#9B59B6">${e.unidades?e.unidades.length:0}</div><div class="ems-l">Unidades</div></div>
-          <div class="ems"><div class="ems-n" style="font-size:11px;color:var(--text)">${e.previsao||'A definir'}</div><div class="ems-l">Previsão</div></div>
+          <div class="ems"><div class="ems-n" style="color:#9B59B6">${e.unidades.filter(u=>u.s==='disp').length}</div><div class="ems-l">Disp.</div></div>
+          <div class="ems"><div class="ems-n" style="font-size:11px;color:var(--text)">${e.previsao||'A definir'}</div><div class="ems-l">Entrega</div></div>
+          <div class="ems" style="grid-column:span 2"><div class="ems-n" style="color:var(--hl-dark);font-size:11px">${minV?'a partir de R$ '+Math.round(minV/1000).toLocaleString('pt-BR')+' mil':'consulte'}</div><div class="ems-l">VGV</div></div>
         </div>
         <div class="emp-footer" style="margin-top:10px">
-          <div style="font-size:10px;color:var(--text-3)">Lançamento previsto: ${e.previsao||'A definir'}</div>
-          <button class="emp-enter-btn"><i class="ti ti-arrow-right" style="font-size:14px"></i>Ver detalhes</button>
+          <div style="font-size:10px;color:var(--text-3)">Entrega: ${e.previsao||'A definir'}</div>
+          <button class="emp-enter-btn"><i class="ti ti-arrow-right" style="font-size:14px"></i>Ver unidades</button>
         </div>
       </div>
     </div>`;
@@ -3449,203 +3502,305 @@ function renderPreCards(){
   cont.innerHTML=html;
 }
 
-function abrirPreEmp(idx){
-  const e = PRE_LANCAMENTOS[idx];
-  // Abrir view de detalhe
-  _preAtivo = idx;
-  document.getElementById('pre-det-nome').textContent = e.nome;
-  document.getElementById('pre-det-sub').textContent = (e.local||'') + (e.previsao?' · Lançamento: '+e.previsao:'');
-  document.getElementById('pre-det-desc').textContent = e.desc||'';
-  document.getElementById('pre-det-img').src = e.img||'';
-  document.getElementById('pre-det-img').style.display = e.img?'block':'none';
-  // Limpar campos
-  ['pre-int-nome','pre-int-cpf','pre-int-tel','pre-int-corretor','pre-int-obs'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
+function abrirOportunidades(id){
+  _opFilter = id!==undefined ? id : 'all';
+  const ativos = PRE_LANCAMENTOS.filter(e=>e.ativo!==false);
+  const allUnits = ativos.flatMap(e=>e.unidades);
+  const totalV   = allUnits.reduce((s,u)=>s+(u.v||0),0);
+  document.getElementById('op-s-total').textContent = allUnits.length;
+  document.getElementById('op-s-emps').textContent  = ativos.length;
+  document.getElementById('op-s-vgv').textContent   = 'R$'+Math.round(totalV/1000000).toLocaleString('pt-BR')+'M';
+
+  let pills = `<button class="pill ${_opFilter==='all'?'active':''}" onclick="filtrarOportunidades('all',this)">Todos</button>`;
+  ativos.forEach(e=>{ pills += `<button class="pill ${_opFilter===e.id?'active':''}" onclick="filtrarOportunidades('${e.id}',this)">${e.nome.split(' ')[0]}</button>`; });
+  document.getElementById('oportunidades-pills').innerHTML = pills;
+
+  renderOportunidadesGrid();
   document.getElementById('home-view').style.display='none';
-  document.getElementById('pre-detail-view').classList.add('open');
+  document.getElementById('oportunidades-view').style.display='block';
   window.scrollTo(0,0);
 }
 
-let _preAtivo = null;
-
-
-function previewPreLancamento(){
-  const ini=parseInt(document.getElementById('pre-andar-ini').value)||6;
-  const fim=parseInt(document.getElementById('pre-andar-fim').value)||27;
-  const upa=parseInt(document.getElementById('pre-upa').value)||2;
-  const tipos=(document.getElementById('pre-tipos').value||'1,2').split(',').map(t=>t.trim());
-  const unidades=[];
-  for(let a=ini;a<=fim;a++){
-    for(let p=1;p<=upa;p++){
-      const num=String(a*100+p);
-      const tipo=tipos[(p-1)%tipos.length]||'1';
-      const area=getAreaPorTipo('pre',tipo);
-      unidades.push({n:num,t:tipo,area});
-    }
-  }
-  const el=document.getElementById('pre-preview-units');
-  el.style.display='block';
-  let html=`<div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">${unidades.length} unidades — preencha os preços disponíveis (opcional):</div>`;
-  html+=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">`;
-  html+=`<tr style="background:var(--hl-dark);color:#fff">
-    <th style="padding:6px 8px;text-align:left">Apto</th>
-    <th style="padding:6px 8px;text-align:left">Tipo</th>
-    <th style="padding:6px 8px;text-align:left">Área</th>
-    <th style="padding:6px 8px;text-align:left">VGV (R$)</th>
-    <th style="padding:6px 8px;text-align:left">Status</th>
-  </tr>`;
-  unidades.forEach(u=>{
-    html+=`<tr style="border-bottom:0.5px solid var(--border)">
-      <td style="padding:5px 8px;font-weight:600">${u.n}</td>
-      <td style="padding:5px 8px;color:var(--text-3)">Tipo ${u.t}</td>
-      <td style="padding:5px 8px;color:var(--text-3)">${u.area||'—'}m²</td>
-      <td style="padding:5px 4px"><input type="number" id="pre-vgv-${u.n}" placeholder="Valor" step="1000" style="width:100%;padding:4px 6px;border:0.5px solid var(--border);border-radius:4px;font-size:11px;background:#fff"></td>
-      <td style="padding:5px 4px">
-        <select id="pre-st-${u.n}" style="width:100%;padding:4px 6px;border:0.5px solid var(--border);border-radius:4px;font-size:11px;background:#fff">
-          <option value="pre">Pré-lançamento</option>
-          <option value="disp">Disponível</option>
-          <option value="res">Reservada</option>
-          <option value="vend">Vendida</option>
-        </select>
-      </td>
-    </tr>`;
-  });
-  html+=`</table></div>`;
-  el.innerHTML=html;
+function fecharOportunidades(){
+  document.getElementById('oportunidades-view').style.display='none';
+  document.getElementById('home-view').style.display='block';
+  window.scrollTo(0,0);
 }
 
-function cadastrarPreLancamento(){
-  const nome=document.getElementById('pre-nome').value.trim();
-  if(!nome){toast('Informe o nome','erro');return;}
-  const ini=parseInt(document.getElementById('pre-andar-ini').value)||6;
-  const fim=parseInt(document.getElementById('pre-andar-fim').value)||27;
-  const upa=parseInt(document.getElementById('pre-upa').value)||2;
-  const tipos=(document.getElementById('pre-tipos').value||'1,2').split(',').map(t=>t.trim());
-  const unidades=[];
-  for(let a=ini;a<=fim;a++){
-    for(let p=1;p<=upa;p++){
-      const num=String(a*100+p);
-      const tipo=tipos[(p-1)%tipos.length]||'1';
-      const area=getAreaPorTipo('pre',tipo);
-      unidades.push({n:num,t:tipo,v:null,s:'pre',area,obs:''});
-    }
-  }
-  // Ler preços da tabela de preview se estiver visível
-  unidades.forEach(u=>{
-    const vEl=document.getElementById('pre-vgv-'+u.n);
-    const sEl=document.getElementById('pre-st-'+u.n);
-    if(vEl&&vEl.value) u.v=parseFloat(vEl.value);
-    if(sEl&&sEl.value) u.s=sEl.value;
-  });
-  const novoEmp={
-    id:'pre_'+Date.now(),
-    nome,
-    local:document.getElementById('pre-local').value,
-    area:parseFloat(document.getElementById('pre-area').value)||0,
-    previsao:document.getElementById('pre-previsao').value,
-    cub:parseFloat(document.getElementById('pre-cub').value)||3096.25,
-    cubData:document.getElementById('pre-cub-data').value,
-    ri:document.getElementById('pre-ri').value,
-    matricula:document.getElementById('pre-matricula').value,
-    desc:document.getElementById('pre-desc').value,
-    img:window._preImgB64||'',
-    pgto:{
-      tipo:'pct',
-      pctEntrada:parseFloat(document.getElementById('pre-pct-entrada').value)||10,
-      venEntrada:document.getElementById('pre-ven-entrada').value||'Atos',
-      pctObra:parseFloat(document.getElementById('pre-pct-obra').value)||10,
-      venObra:document.getElementById('pre-ven-obra').value||'',
-      pctChave:parseFloat(document.getElementById('pre-pct-chave').value)||10,
-      venChave:document.getElementById('pre-ven-chave').value||'',
-      pctMensal:parseFloat(document.getElementById('pre-pct-mensal').value)||40,
-      qtMensal:parseInt(document.getElementById('pre-qt-mensal').value)||84,
-      pctAnual:parseFloat(document.getElementById('pre-pct-anual').value)||30,
-      qtAnual:parseInt(document.getElementById('pre-qt-anual').value)||6,
-    },
-    unidades
-  };
-  PRE_LANCAMENTOS.push(novoEmp);
-  renderPreCards();
-  renderPreListaAdmin();
-  // Limpar campos
-  ['pre-nome','pre-local','pre-area','pre-previsao','pre-cub-data','pre-ri','pre-matricula','pre-desc','pre-andar-ini','pre-andar-fim'].forEach(id=>{
-    const el=document.getElementById(id); if(el) el.value='';
-  });
-  document.getElementById('pre-img-preview').style.display='none';
-  document.getElementById('pre-preview-units').style.display='none';
-  window._preImgB64=null;
-  salvarPre();
-  toast('Pre-lancamento salvo','ok');
+function filtrarOportunidades(id,el){
+  _opFilter=id;
+  document.querySelectorAll('#oportunidades-pills .pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  renderOportunidadesGrid();
 }
 
-function renderPreListaAdmin(){
-  const el=document.getElementById('pre-lista-admin');
-  if(!el) return;
-  if(!PRE_LANCAMENTOS.length){el.innerHTML='';return;}
-  el.innerHTML='<div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Cadastrados</div>'+
-    PRE_LANCAMENTOS.map((e,i)=>{
-      const ativo=e.ativo!==false;
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border)">
-      <div><div style="font-size:13px;font-weight:600;color:var(--text)">${e.nome}</div><div style="font-size:11px;color:var(--text-3)">${e.local||'—'} · ${e.previsao||'—'}</div></div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
-          <input type="checkbox" ${ativo?'checked':''} style="opacity:0;width:0;height:0">
-          <span onclick="togglePreVisibilidade(${i})" style="position:absolute;cursor:pointer;inset:0;background:${ativo?'var(--status-disp)':'#ccc'};border-radius:22px;transition:.2s">
-            <span style="position:absolute;height:16px;width:16px;left:${ativo?'21px':'3px'};bottom:3px;background:#fff;border-radius:50%;transition:.2s"></span>
-          </span>
-        </label>
-        <button onclick="editarPre(${i})" style="background:none;border:none;color:var(--hl-gold);cursor:pointer;font-size:16px" title="Editar">✏</button>
-        <button onclick="excluirPreLancamento(${i})" style="background:none;border:none;color:var(--status-vend);cursor:pointer;font-size:18px">×</button>
-      </div>
+function renderOportunidadesGrid(){
+  const grid=document.getElementById('oportunidades-grid');
+  if(!grid) return;
+  let html='';
+  PRE_LANCAMENTOS.forEach(e=>{
+    if(e.ativo===false) return;
+    if(_opFilter!=='all'&&_opFilter!==e.id) return;
+    e.unidades.forEach(u=>{
+      const slabel = statusLabel[u.s]||u.s;
+      const sbg = u.s==='disp'?'#edfaf5':u.s==='vend'?'#fdeaea':u.s==='res'?'#e8f0fb':'#fff8e6';
+      const scor = u.s==='disp'?'var(--status-disp)':u.s==='vend'?'var(--status-vend)':u.s==='res'?'var(--status-res)':'var(--status-fase)';
+      html+=`<div class="unit-card ${u.s}" onclick="abrirDetalheOp('${u.n}','${e.id}')">
+        <div class="unit-top"><div class="unit-num">Unid. ${u.n}</div><div class="unit-tipo" style="font-size:9px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.nome.split(' ')[0]}</div></div>
+        <div class="unit-val">${u.v?'R$ '+Math.round(u.v/1000).toLocaleString('pt-BR')+' mil':'—'}</div>
+        <div class="unit-sub">${u.area}m² · ${e.local||''}</div>
+        <div class="unit-sub" style="margin-top:2px;font-size:10px;color:var(--text-3)">${u.desc||''}</div>
+        <div style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;background:${sbg};color:${scor};margin-top:4px">${slabel}</div>
+      </div>`;
+    });
+  });
+  grid.innerHTML=html;
+}
+
+function abrirDetalheOp(num,empId){
+  const e=PRE_LANCAMENTOS.find(x=>x.id===empId);
+  const u=e.unidades.find(x=>x.n===num);
+  const p=e.pgto||{};
+  const fmt2=v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+
+  let pgtoHtml='';
+  if(p.tipo==='fixo'){
+    const saldo=(u.v||0)-(p.entrada||0); const mensal=saldo/(p.qtMensal||48);
+    pgtoHtml=`<div class="pgto-row">
+      <div class="pgto-card"><div class="pgto-pct" style="font-size:12px">${fmt2(p.entrada)}</div><div class="pgto-desc">Entrada</div><div class="pgto-data">Atos</div></div>
+      <div class="pgto-card"><div class="pgto-pct" style="font-size:12px">${fmt2(saldo)}</div><div class="pgto-desc">Saldo</div><div class="pgto-data">${p.qtMensal||48}x</div></div>
+      <div class="pgto-card"><div class="pgto-pct" style="font-size:12px">${fmt2(mensal)}</div><div class="pgto-desc">/mês</div><div class="pgto-data">${p.reajuste||''}</div></div>
     </div>`;
-    }).join('');
+  } else {
+    const entrada=(u.v||0)*((p.pctEntrada||0)/100); const saldo=(u.v||0)-entrada; const mensal=saldo/(p.qtMensal||48);
+    pgtoHtml=`<div class="pgto-row">
+      <div class="pgto-card"><div class="pgto-pct">${p.pctEntrada||0}%</div><div class="pgto-desc">Entrada</div><div class="pgto-data">${fmt2(entrada)}</div></div>
+      <div class="pgto-card"><div class="pgto-pct">${p.qtMensal||48}x</div><div class="pgto-desc">Mensais</div><div class="pgto-data">${fmt2(mensal)}/mês</div></div>
+      <div class="pgto-card"><div class="pgto-pct" style="font-size:10px">${p.reajuste||''}</div><div class="pgto-desc">Reajuste</div><div class="pgto-data"> </div></div>
+    </div>`;
+  }
+
+  document.getElementById('op-det-title').textContent='Unidade '+u.n;
+  document.getElementById('op-det-sub').textContent=e.nome+' · '+(e.local||'');
+  document.getElementById('op-det-body').innerHTML=`
+    <div style="background:#f5eef8;border:0.5px solid #9B59B6;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;font-weight:600;color:#6C3483">🏗️ Oportunidade — entrega prevista ${e.previsao||'a definir'}</div>
+    <div class="detail-row"><span class="dl">Empreendimento</span><span class="dv">${e.nome}</span></div>
+    <div class="detail-row"><span class="dl">Localização</span><span class="dv">${e.local||'—'}</span></div>
+    <div class="detail-row"><span class="dl">Unidade</span><span class="dv">${u.n}</span></div>
+    <div class="detail-row"><span class="dl">Área</span><span class="dv">${u.area} m²</span></div>
+    <div class="detail-row"><span class="dl">Descrição</span><span class="dv">${u.desc||'—'}</span></div>
+    ${e.obs?`<div class="detail-row"><span class="dl">Observações</span><span class="dv">${e.obs}</span></div>`:''}
+    <div class="detail-row" style="border:none"><span class="dl">VGV</span><span class="dv">${fmt2(u.v)}</span></div>
+    <div class="sec-title">Condições de pagamento</div>
+    ${pgtoHtml}
+    <div class="sec-title">Gerar proposta</div>
+    <div class="field-wrap"><label class="field-label">Nome do cliente</label><input type="text" id="op-cli-nome" placeholder="Nome completo" autocomplete="name"></div>
+    <div class="field-wrap"><label class="field-label">CPF</label><input type="text" id="op-cli-cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14" inputmode="numeric"></div>
+    <div class="field-wrap"><label class="field-label">Corretor responsável</label><input type="text" id="op-cli-corretor" placeholder="Seu nome"></div>
+    <button class="generate-btn" onclick="gerarPropostaOp('${u.n}','${e.id}',${u.v||0})"><i class="ti ti-file-text" style="font-size:17px"></i>Gerar proposta</button>
+    <div id="op-proposta-area"></div>`;
+
+  document.getElementById('oportunidades-view').style.display='none';
+  document.getElementById('oportunidades-detail-view').classList.add('open');
+  window.scrollTo(0,0);
 }
 
-function togglePreVisibilidade(idx){
-  const e = PRE_LANCAMENTOS[idx];
-  if(!e) return;
-  e.ativo = e.ativo===false ? true : false;
-  renderPreListaAdmin();
-  renderPreCards();
-  salvarPre();
-  toast(e.nome+(e.ativo?' visivel':'oculto'),'ok');
-}
-
-function removerPreLancamento(idx){
-  if(!confirm('Remover '+PRE_LANCAMENTOS[idx].nome+'?')) return;
-  PRE_LANCAMENTOS.splice(idx,1);
-  renderPreCards();
-  renderPreListaAdmin();
-  toast('Removido','ok');
-}
-
-
-function fecharPreDetalhe(){
-  document.getElementById('pre-detail-view').classList.remove('open');
+function fecharDetalheOp(){
+  document.getElementById('oportunidades-detail-view').classList.remove('open');
   document.getElementById('home-view').style.display='block';
   setHomeTab('pre');
   window.scrollTo(0,0);
 }
 
-function enviarInteressePreLancamento(){
-  const e=PRE_LANCAMENTOS[_preAtivo];
-  if(!e){toast('Erro: empreendimento nao encontrado','erro');return;}
-  const corretor=document.getElementById('pre-int-corretor').value.trim();
-  const creci=document.getElementById('pre-int-creci').value.trim();
-  const obs=document.getElementById('pre-int-obs').value.trim();
-  const today=new Date().toLocaleDateString('pt-BR');
-  if(!corretor){toast('Informe o corretor responsavel','erro');return;}
-  const msg='*INTERESSE EM PRE-LANCAMENTO*\n\n'
+function gerarPropostaOp(num,empId,vgvPadrao){
+  const e=PRE_LANCAMENTOS.find(x=>x.id===empId);
+  const u=e.unidades.find(x=>x.n===num);
+  const nome=document.getElementById('op-cli-nome').value.trim();
+  const cpf=document.getElementById('op-cli-cpf').value.trim();
+  const corretor=document.getElementById('op-cli-corretor').value.trim();
+  if(!nome){toast('Informe o nome do cliente','erro');return;}
+  const fmt2=v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  const msg='*PROPOSTA — OPORTUNIDADE*\n\n'
     +'*Empreendimento:* '+e.nome+'\n'
-    +'*Localizacao:* '+(e.local||'A definir')+'\n'
-    +'*Previsao:* '+(e.previsao||'A definir')+'\n\n'
-    +'*Corretor:* '+corretor+'\n'
-    +(creci?'*Imobiliaria/CRECI:* '+creci+'\n':'')
-    +'*Data:* '+today
-    +(obs?'\n\n*Observacoes:* '+obs:'')
-    +'\n\n_Por favor, registrar o interesse para contato futuro._';
+    +'*Unidade:* '+u.n+' · '+(u.area||'')+'m²\n'
+    +'*VGV:* '+fmt2(vgvPadrao)+'\n\n'
+    +'*Cliente:* '+nome+(cpf?' · '+cpf:'')+'\n'
+    +(corretor?'*Corretor:* '+corretor+'\n':'')
+    +'*Data:* '+new Date().toLocaleDateString('pt-BR');
+  document.getElementById('op-proposta-area').innerHTML='<div style="margin-top:10px;font-size:11px;color:var(--text-3)">Proposta pronta para envio.</div>';
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+// ─── ADMIN OPORTUNIDADES ────────────────────────────────────────────
+function setOpAdminTab(tab,el){
+  document.querySelectorAll('#admin-pre-inline .admin-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('#admin-pre-inline .admin-section').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('op-tab-'+tab).classList.add('active');
+  if(tab==='unidades') renderOpAdminUnits();
+  if(tab==='editar'){
+    const sel=document.getElementById('op-edit-sel');
+    if(sel) sel.innerHTML='<option value="">Selecione...</option>'+PRE_LANCAMENTOS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('');
+  }
+  if(tab==='novo-unidade'){
+    const sel=document.getElementById('op-new-emp-sel');
+    if(sel) sel.innerHTML=PRE_LANCAMENTOS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('');
+  }
+}
+
+function renderOpAdminUnits(){
+  let html='';
+  PRE_LANCAMENTOS.forEach(e=>{
+    html+=`<div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:10px 0 6px;padding-bottom:4px;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <span>${e.nome}</span>
+      <span onclick="excluirOp('${e.id}')" style="font-size:11px;color:var(--status-vend);cursor:pointer;font-weight:400;text-transform:none">✕ excluir</span>
+    </div>`;
+    e.unidades.forEach(u=>{
+      html+=`<div class="unit-admin-row">
+        <div><div class="unit-admin-num">Unid. ${u.n}</div><div style="font-size:10px;color:var(--text-3)">${u.area}m²</div></div>
+        <input class="unit-admin-input" type="number" id="op-adm-v-${e.id}-${u.n}" value="${u.v||''}" placeholder="VGV" step="1000">
+        <select class="unit-admin-select" id="op-adm-s-${e.id}-${u.n}">
+          <option value="disp" ${u.s==='disp'?'selected':''}>Disponível</option>
+          <option value="vend" ${u.s==='vend'?'selected':''}>Vendida</option>
+          <option value="res"  ${u.s==='res'?'selected':''}>Reservada</option>
+        </select>
+      </div>`;
+    });
+  });
+  document.getElementById('op-admin-units-list').innerHTML=html;
+  renderOpVisibilidade();
+}
+
+function renderOpVisibilidade(){
+  const el = document.getElementById('op-visibilidade-lista');
+  if(!el) return;
+  el.innerHTML = PRE_LANCAMENTOS.map(e=>{
+    const ativo = e.ativo!==false;
+    return `<div style="background:var(--surface-1);border-radius:8px;padding:9px 11px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12px;color:var(--text);font-weight:500">${e.nome}</span>
+      <label style="position:relative;display:inline-block;width:40px;height:22px;flex-shrink:0">
+        <input type="checkbox" id="op-vis-${e.id}" ${ativo?'checked':''} style="opacity:0;width:0;height:0">
+        <span onclick="toggleOpVisibilidade('${e.id}')" style="position:absolute;cursor:pointer;inset:0;background:${ativo?'var(--status-disp)':'#ccc'};border-radius:22px;transition:.2s">
+          <span style="position:absolute;height:16px;width:16px;left:${ativo?'21px':'3px'};bottom:3px;background:#fff;border-radius:50%;transition:.2s"></span>
+        </span>
+      </label>
+    </div>`;
+  }).join('');
+}
+
+function toggleOpVisibilidade(empId){
+  const e = PRE_LANCAMENTOS.find(x=>x.id===empId);
+  if(!e) return;
+  e.ativo = e.ativo===false ? true : false;
+  renderOpVisibilidade();
+  renderPreCards();
+  salvarPre();
+  toast(e.nome+(e.ativo?' visível':' oculto'),'ok');
+}
+
+function salvarUnidadesOp(){
+  PRE_LANCAMENTOS.forEach(e=>{
+    e.unidades.forEach(u=>{
+      const vEl=document.getElementById('op-adm-v-'+e.id+'-'+u.n);
+      const sEl=document.getElementById('op-adm-s-'+e.id+'-'+u.n);
+      if(vEl) u.v = vEl.value ? parseFloat(vEl.value) : null;
+      if(sEl) u.s = sEl.value;
+    });
+  });
+  salvarPre();
+  renderPreCards();
+  toast('✓ Unidades de Oportunidades salvas','ok');
+}
+
+function adicionarUnidadeOp(){
+  const empId=document.getElementById('op-new-emp-sel').value;
+  const num=document.getElementById('op-new-num').value.trim();
+  const area=parseFloat(document.getElementById('op-new-area').value)||0;
+  const vgv=parseFloat(document.getElementById('op-new-vgv').value)||0;
+  const desc=document.getElementById('op-new-desc').value.trim();
+  if(!num||!vgv){toast('Informe número e VGV');return;}
+  const e=PRE_LANCAMENTOS.find(x=>x.id===empId);
+  if(!e){toast('Selecione um empreendimento','erro');return;}
+  if(e.unidades.find(u=>u.n===num)){toast('Unidade '+num+' já existe');return;}
+  e.unidades.push({n:num,t:'1',area,desc,v:vgv,s:'disp'});
+  renderOpAdminUnits();
+  renderPreCards();
+  salvarPre();
+  ['op-new-num','op-new-area','op-new-vgv','op-new-desc'].forEach(id=>document.getElementById(id).value='');
+  toast('Unidade adicionada','ok');
+}
+
+function cadastrarEmpOp(){
+  const nome=document.getElementById('op-emp-nome').value.trim();
+  if(!nome){toast('Informe o nome');return;}
+  const tipo=document.getElementById('op-emp-pgto-tipo').value;
+  const ent=parseFloat(document.getElementById('op-emp-entrada').value)||30;
+  const pgto={tipo,reajuste:document.getElementById('op-emp-reajuste').value||'',qtMensal:parseInt(document.getElementById('op-emp-qt-mensal').value)||48};
+  if(tipo==='fixo') pgto.entrada=ent; else pgto.pctEntrada=ent;
+  const u1num=document.getElementById('op-u1-num').value.trim();
+  const u1area=parseFloat(document.getElementById('op-u1-area').value)||0;
+  const u1vgv=parseFloat(document.getElementById('op-u1-vgv').value)||0;
+  const u1desc=document.getElementById('op-u1-desc').value.trim();
+  const novoEmp={
+    id:'op_'+Date.now(),nome,
+    local:document.getElementById('op-emp-local').value,
+    previsao:document.getElementById('op-emp-previsao').value,
+    obs:document.getElementById('op-emp-obs').value,
+    pgto,
+    unidades:u1num?[{n:u1num,t:'1',area:u1area,desc:u1desc,v:u1vgv,s:'disp'}]:[]
+  };
+  PRE_LANCAMENTOS.push(novoEmp);
+  renderPreCards();
+  renderOpAdminUnits();
+  salvarPre();
+  const sel=document.getElementById('op-new-emp-sel');
+  if(sel) sel.innerHTML=PRE_LANCAMENTOS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('');
+  closeAdminProntos();
+  toast(`✓ ${nome} cadastrado com sucesso`,'ok');
+}
+
+function carregarDadosOp(empId){
+  const e = PRE_LANCAMENTOS.find(x=>x.id===empId);
+  if(!e){ document.getElementById('op-edit-form').style.display='none'; return; }
+  _editOpId = empId;
+  document.getElementById('op-edit-form').style.display='block';
+  document.getElementById('op-edit-nome').value = e.nome||'';
+  document.getElementById('op-edit-local').value = e.local||'';
+  document.getElementById('op-edit-previsao').value = e.previsao||'';
+  document.getElementById('op-edit-obs').value = e.obs||'';
+  const p = e.pgto||{};
+  document.getElementById('op-edit-pgto-tipo').value = p.tipo||'pct';
+  document.getElementById('op-edit-entrada').value = p.tipo==='fixo'?(p.entrada||''):(p.pctEntrada||'');
+  document.getElementById('op-edit-qt-mensal').value = p.qtMensal||'';
+  document.getElementById('op-edit-reajuste').value = p.reajuste||'';
+}
+
+function salvarEdicaoOp(){
+  const e = PRE_LANCAMENTOS.find(x=>x.id===_editOpId);
+  if(!e){ toast('Selecione um empreendimento','erro'); return; }
+  e.nome     = document.getElementById('op-edit-nome').value;
+  e.local    = document.getElementById('op-edit-local').value;
+  e.previsao = document.getElementById('op-edit-previsao').value;
+  e.obs      = document.getElementById('op-edit-obs').value;
+  const tipo = document.getElementById('op-edit-pgto-tipo').value;
+  const ent  = parseFloat(document.getElementById('op-edit-entrada').value)||0;
+  e.pgto = { tipo, reajuste: document.getElementById('op-edit-reajuste').value||'',
+    qtMensal: parseInt(document.getElementById('op-edit-qt-mensal').value)||48 };
+  if(tipo==='fixo'){ e.pgto.entrada=ent; } else { e.pgto.pctEntrada=ent; }
+  salvarPre();
+  renderPreCards();
+  toast('✓ '+e.nome+' atualizado','ok');
+}
+
+function excluirOp(empId){
+  const e = PRE_LANCAMENTOS.find(x=>x.id===empId);
+  if(!e) return;
+  if(!confirm('Excluir '+e.nome+'? Esta ação não pode ser desfeita.')) return;
+  PRE_LANCAMENTOS = PRE_LANCAMENTOS.filter(x=>x.id!==empId);
+  salvarPre();
+  renderPreCards();
+  renderOpAdminUnits();
+  toast('Oportunidade excluída','ok');
 }
 
 // ─── TROCA DE IMAGEM ──────────────────────────────────────────────
@@ -3723,14 +3878,6 @@ function salvarImagemPronto(){
   toast('✓ Imagem de '+e.nome+' atualizada','ok');
 }
 
-function previewPreImg(input){
-  const file=input.files[0]; if(!file) return;
-  processarImagem(file, b64 => {
-    window._preImgB64 = b64;
-    document.getElementById('pre-img-thumb').src = b64;
-    document.getElementById('pre-img-preview').style.display = 'block';
-  });
-}
 
 function previewProntoImg(input){
   const file=input.files[0]; if(!file) return;
@@ -3838,9 +3985,7 @@ function salvarUnidadesProntos(){
 
 // ─── EDIÇÃO DE EMPREENDIMENTOS ────────────────────────────────────
 let _editProntoId = null;
-let _editPreIdx = null;
 let _editProntoImgB64 = null;
-let _editPreImgB64 = null;
 
 function carregarDadosPronto(empId){
   const e = PRONTOS.find(x=>x.id===empId);
@@ -3889,78 +4034,6 @@ function salvarEdicaoPronto(){
   toast('✓ '+e.nome+' atualizado','ok');
 }
 
-function editarPre(idx){
-  const e = PRE_LANCAMENTOS[idx];
-  if(!e) return;
-  _editPreIdx = idx;
-  document.getElementById('pre-edit-titulo').textContent = e.nome;
-  document.getElementById('pre-edit-form-wrap').style.display='block';
-  document.getElementById('pre-edit-nome').value = e.nome||'';
-  document.getElementById('pre-edit-local').value = e.local||'';
-  document.getElementById('pre-edit-area').value = e.area||'';
-  document.getElementById('pre-edit-previsao').value = e.previsao||'';
-  document.getElementById('pre-edit-cub').value = e.cub||'';
-  document.getElementById('pre-edit-matricula').value = e.matricula||'';
-  document.getElementById('pre-edit-ri').value = e.ri||'';
-  document.getElementById('pre-edit-desc').value = e.desc||'';
-  const p = e.pgto||{};
-  document.getElementById('pre-edit-pct-entrada').value = p.pctEntrada||'';
-  document.getElementById('pre-edit-ven-entrada').value = p.venEntrada||'';
-  document.getElementById('pre-edit-pct-obra').value = p.pctObra||'';
-  document.getElementById('pre-edit-ven-obra').value = p.venObra||'';
-  document.getElementById('pre-edit-pct-chave').value = p.pctChave||'';
-  document.getElementById('pre-edit-ven-chave').value = p.venChave||'';
-  document.getElementById('pre-edit-pct-mensal').value = p.pctMensal||'';
-  document.getElementById('pre-edit-qt-mensal').value = p.qtMensal||'';
-  document.getElementById('pre-edit-pct-anual').value = p.pctAnual||'';
-  document.getElementById('pre-edit-qt-anual').value = p.qtAnual||'';
-  if(e.img){ document.getElementById('pre-edit-img-thumb').src=e.img; document.getElementById('pre-edit-img-preview').style.display='block'; }
-  else{ document.getElementById('pre-edit-img-preview').style.display='none'; }
-  _editPreImgB64=null;
-  document.getElementById('pre-edit-form-wrap').scrollIntoView({behavior:'smooth'});
-}
-
-function previewPreEditImg(input){
-  const file=input.files[0]; if(!file) return;
-  processarImagem(file, b64=>{ _editPreImgB64=b64; document.getElementById('pre-edit-img-thumb').src=b64; document.getElementById('pre-edit-img-preview').style.display='block'; });
-}
-
-function salvarEdicaoPre(){
-  if(_editPreIdx===null){ toast('Nenhum pré-lançamento selecionado','erro'); return; }
-  const e = PRE_LANCAMENTOS[_editPreIdx];
-  if(!e) return;
-  e.nome=document.getElementById('pre-edit-nome').value;
-  e.local=document.getElementById('pre-edit-local').value;
-  e.area=parseFloat(document.getElementById('pre-edit-area').value)||e.area;
-  e.previsao=document.getElementById('pre-edit-previsao').value;
-  e.cub=parseFloat(document.getElementById('pre-edit-cub').value)||e.cub;
-  e.matricula=document.getElementById('pre-edit-matricula').value;
-  e.ri=document.getElementById('pre-edit-ri').value;
-  e.desc=document.getElementById('pre-edit-desc').value;
-  e.pgto={tipo:'pct',
-    pctEntrada:parseFloat(document.getElementById('pre-edit-pct-entrada').value)||0,
-    venEntrada:document.getElementById('pre-edit-ven-entrada').value||'Atos',
-    pctObra:parseFloat(document.getElementById('pre-edit-pct-obra').value)||0,
-    venObra:document.getElementById('pre-edit-ven-obra').value||'',
-    pctChave:parseFloat(document.getElementById('pre-edit-pct-chave').value)||0,
-    venChave:document.getElementById('pre-edit-ven-chave').value||'',
-    pctMensal:parseFloat(document.getElementById('pre-edit-pct-mensal').value)||0,
-    qtMensal:parseInt(document.getElementById('pre-edit-qt-mensal').value)||84,
-    pctAnual:parseFloat(document.getElementById('pre-edit-pct-anual').value)||0,
-    qtAnual:parseInt(document.getElementById('pre-edit-qt-anual').value)||6};
-  if(_editPreImgB64){ e.img=_editPreImgB64; _editPreImgB64=null; }
-  salvarPre();
-  renderPreCards();
-  renderPreListaAdmin();
-  cancelarEdicaoPre();
-  toast('✓ '+e.nome+' atualizado','ok');
-}
-
-function cancelarEdicaoPre(){
-  _editPreIdx=null;
-  document.getElementById('pre-edit-form-wrap').style.display='none';
-}
-
 // ─── EXCLUSÃO DE EMPREENDIMENTOS ──────────────────────────────────
 function excluirLancamentoId(id){
   const e = empreendimentos.find(x=>x.id===id);
@@ -3999,16 +4072,6 @@ function excluirPronto(empId){
   toast('Empreendimento excluído','ok');
 }
 
-function excluirPreLancamento(idx){
-  const e = PRE_LANCAMENTOS[idx];
-  if(!e) return;
-  if(!confirm('Excluir '+e.nome+'? Esta ação não pode ser desfeita.')) return;
-  PRE_LANCAMENTOS.splice(idx, 1);
-  salvarPre();
-  renderPreCards();
-  renderPreListaAdmin();
-  toast('Pré-lançamento excluído','ok');
-}
 
 
 document.addEventListener('DOMContentLoaded', function(){
