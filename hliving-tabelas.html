@@ -1636,21 +1636,37 @@ async function salvarEmpreendimento(){
   }
 }
 async function salvarPagamento(){
-  pgto.pctEntrada=parseFloat(document.getElementById('adm-pct-entrada').value)||10;
-  pgto.venEntrada=document.getElementById('adm-ven-entrada').value;
-  pgto.pctObra=parseFloat(document.getElementById('adm-pct-obra').value)||10;
-  pgto.venObra=document.getElementById('adm-ven-obra').value;
-  pgto.pctChave=parseFloat(document.getElementById('adm-pct-chave').value)||10;
-  pgto.venChave=document.getElementById('adm-ven-chave').value;
-  pgto.pctMensal=parseFloat(document.getElementById('adm-pct-mensal').value)||40;
-  pgto.qtMensal=parseInt(document.getElementById('adm-qt-mensal').value)||84;
-  pgto.pctAnual=parseFloat(document.getElementById('adm-pct-anual').value)||30;
-  pgto.qtAnual=parseInt(document.getElementById('adm-qt-anual').value)||6;
+  const isEmp2 = _loginCtx==='emp2'&&_empAtivo;
+  const alvo = isEmp2 ? (_empAtivo.pgto || (_empAtivo.pgto={})) : pgto;
+  alvo.pctEntrada=parseFloat(document.getElementById('adm-pct-entrada').value)||10;
+  alvo.venEntrada=document.getElementById('adm-ven-entrada').value;
+  alvo.pctObra=parseFloat(document.getElementById('adm-pct-obra').value)||10;
+  alvo.venObra=document.getElementById('adm-ven-obra').value;
+  alvo.pctChave=parseFloat(document.getElementById('adm-pct-chave').value)||10;
+  alvo.venChave=document.getElementById('adm-ven-chave').value;
+  alvo.pctMensal=parseFloat(document.getElementById('adm-pct-mensal').value)||40;
+  alvo.qtMensal=parseInt(document.getElementById('adm-qt-mensal').value)||84;
+  alvo.pctAnual=parseFloat(document.getElementById('adm-pct-anual').value)||30;
+  alvo.qtAnual=parseInt(document.getElementById('adm-qt-anual').value)||6;
   toast('Salvando...');
   try {
-    await apiPost('savePagamento', pgto);
+    if(isEmp2){
+      if(_empAtivo.id==='atlantia'){
+        await salvarAtlantia();
+      } else {
+        const toSave = empreendimentos.map(e=>({
+          id:e.id, nome:e.nome, local:e.local, area:e.area,
+          fase:e.fase||'lancamento', cub:e.cub, cubData:e.cubData, ri:e.ri,
+          matricula:e.matricula, ativo:e.ativo!==false, pgto:e.pgto,
+          unidades:(e.unidades||[]).map(u=>({n:u.n,t:u.t,area:u.area,v:u.v,s:u.s}))
+        }));
+        await apiPost('saveLancamentos', toSave);
+      }
+    } else {
+      await apiPost('savePagamento', pgto);
+    }
     toast('✓ Condições de pagamento salvas','ok');
-  } catch(err){ toast('⚠ Salvo localmente, sem conexão'); }
+  } catch(err){ toast('⚠ Salvo localmente, sem conexão','erro'); }
 }
 
 async function salvarUnidades(){
@@ -1665,8 +1681,25 @@ async function salvarUnidades(){
   if(isEmp2){
     renderEmp2Units();
     renderHome();
-    if(_empAtivo&&_empAtivo.id==='atlantia') salvarAtlantia();
-    toast('Unidades salvas','ok');
+    toast('Salvando...');
+    try {
+      if(_empAtivo.id==='atlantia'){
+        await salvarAtlantia();
+      } else {
+        // Lançamento adicional (não-Atlantia): persistir a lista completa,
+        // igual ao padrão usado em aplicarCubGlobal/aplicarReajusteGlobal.
+        const toSave = empreendimentos.map(e=>({
+          id:e.id, nome:e.nome, local:e.local, area:e.area,
+          fase:e.fase||'lancamento', cub:e.cub, cubData:e.cubData, ri:e.ri,
+          matricula:e.matricula, ativo:e.ativo!==false, pgto:e.pgto,
+          unidades:(e.unidades||[]).map(u=>({n:u.n,t:u.t,area:u.area,v:u.v,s:u.s}))
+        }));
+        await apiPost('saveLancamentos', toSave);
+      }
+      toast('✓ Unidades salvas no servidor','ok');
+    } catch(err){
+      toast('⚠ Salvo localmente, sem conexão — tente novamente','erro');
+    }
   } else {
     renderUnits();
     atualizarContadoresHome();
