@@ -3633,10 +3633,13 @@ function gerarPropostaOp(num,empId,vgvPadrao){
 
 // ─── ADMIN OPORTUNIDADES ────────────────────────────────────────────
 function setOpAdminTab(tab,el){
-  document.querySelectorAll('#admin-pre-inline .admin-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('#admin-pre-inline .admin-section').forEach(s=>s.classList.remove('active'));
+  const container = document.getElementById('admin-pre-inline');
+  if(!container) return;
+  container.querySelectorAll('.admin-tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
-  document.getElementById('op-tab-'+tab).classList.add('active');
+  container.querySelectorAll('.admin-section').forEach(s=>s.style.display='none');
+  const tabEl = document.getElementById('op-tab-'+tab);
+  if(tabEl) tabEl.style.display='block';
   if(tab==='unidades') renderOpAdminUnits();
   if(tab==='editar'){
     const sel=document.getElementById('op-edit-sel');
