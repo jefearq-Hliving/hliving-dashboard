@@ -1048,6 +1048,18 @@ function setHomeTab(tab){
   }
 }
 const fmt=v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+
+// Abre o WhatsApp com fallback para bloqueio de pop-up (comum no iOS Safari:
+// window.open() pode ser silenciosamente bloqueado, sem erro nenhum no console).
+// Quando bloqueado, window.open retorna null/undefined — nesse caso navegamos
+// na mesma aba via location.href, que não é bloqueado por popup blockers.
+function abrirWhatsApp(msg){
+  const url = 'https://wa.me/?text='+encodeURIComponent(msg);
+  const win = window.open(url, '_blank');
+  if(!win || win.closed || typeof win.closed==='undefined'){
+    window.location.href = url;
+  }
+}
 const fmtK=v=>v?'R$ '+Math.round(v/1000).toLocaleString('pt-BR')+' mil':'A definir';
 function toast(msg,tipo){
   const t=document.getElementById('toast');
@@ -1257,7 +1269,7 @@ function compartilharWhatsApp(num,tipo,vgv,andar){
   const p=calcP(vgv);
   const f=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const msg=`*${emp.nome} · Apto ${num}*\nTipo ${tipo} · ${andar}º andar · ${emp.area}m²\n\n*Cliente:* ${nome}\n*CPF:* ${cpf}\n*Corretor:* ${corretor}\n*Data:* ${today}\n\n*Condições:*\n• Entrada ${pgto.pctEntrada}% (${pgto.venEntrada}): ${f(p.entrada)}\n• Obra ${pgto.pctObra}% (${pgto.venObra}): ${f(p.obra)}\n• ${pgto.qtMensal}x mensais: ${f(p.mensal)}/mês\n• ${pgto.qtAnual}x reforços anuais: ${f(p.anual)}/ano\n• Chaves ${pgto.pctChave}% (${pgto.venChave}): ${f(p.chave)}\n• *VGV total: ${f(vgv)}*\n\n_${emp.nome} · HLiving_`;
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  abrirWhatsApp(msg);
 }
 function enviarWhatsApp(num,tipo,andar,data,corretor,pctE,pctO,pctC,qtM,qtA,vgv,obs){
   const nome=document.getElementById('cli-nome').value||'[Nome do cliente]';
@@ -1268,7 +1280,7 @@ function enviarWhatsApp(num,tipo,andar,data,corretor,pctE,pctO,pctC,qtM,qtA,vgv,
   const mensal=(vgv*(resto*40/7000))/qtM, anual=(vgv*(resto*30/7000))/qtA;
   const f=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const msg=`*⚠ PROPOSTA PERSONALIZADA — AGUARDANDO APROVAÇÃO*\n\n*${emp.nome} · Apto ${num}*\nTipo ${tipo} · ${andar}º andar · ${emp.area} m²\n\n*Cliente:* ${nome}\n*CPF:* ${cpf}\n*Corretor:* ${corretor}\n*Data:* ${today}\n\n*Condições solicitadas:*\n• Entrada ${pctE}% (${pgto.venEntrada}): ${f(entrada)}\n• Obra ${pctO}% (${pgto.venObra}): ${f(obra)}\n• ${qtM}x mensais: ${f(mensal)}/mês\n• ${qtA}x reforços anuais: ${f(anual)}/ano\n• Chaves ${pctC}% (${pgto.venChave}): ${f(chave)}\n• *VGV total: ${f(vgv)}*${obs?'\n\n*Obs do corretor:* '+obs:''}\n\n_Esta proposta precisa de aprovação antes de ser confirmada ao cliente._`;
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  abrirWhatsApp(msg);
 }
 
 function maskCPF(el){
@@ -2296,7 +2308,7 @@ function enviarWhatsAppPronto(){
     +'\n- *VGV total: '+fmt(vgv)+'*'
     +(obs?'\n\n*Obs:* '+obs:'')
     +'\n\n_Esta proposta precisa de aprovacao antes de ser confirmada ao cliente._';
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  abrirWhatsApp(msg);
 }
 
 
@@ -3016,7 +3028,7 @@ function enviarWhatsAppEmp2(num,tipo,andar,area,vista,data,corretor,entrada,chav
   const saldo=vgv-entrada-chave;
   const f=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const msg=`*⚠ PROPOSTA PERSONALIZADA — AGUARDANDO APROVAÇÃO*\n\n*${e.nome} · Apto ${num}*\nTipo ${tipo} · ${andar}º andar · ${area}m² · ${vista}\n\n*Cliente:* ${nome}\n*CPF:* ${cpf}\n*Corretor:* ${corretor}\n*Data:* ${data}\n\n*Condições solicitadas:*\n• Entrada: ${f(entrada)}\n• Chaves: ${f(chave)}\n• ${qtMensal}x mensais: ${f(saldo/qtMensal)}/mês\n• ${qtAnual}x reforços: ${f(saldo/qtAnual)}/ano\n• *VGV total: ${f(vgv)}*${obs?'\n\n*Obs:* '+obs:''}\n\n_Esta proposta precisa de aprovação antes de ser confirmada ao cliente._`;
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  abrirWhatsApp(msg);
 }
 
 
@@ -3661,7 +3673,7 @@ function gerarPropostaOp(num,empId,vgvPadrao){
     +(corretor?'*Corretor:* '+corretor+'\n':'')
     +'*Data:* '+new Date().toLocaleDateString('pt-BR');
   document.getElementById('op-proposta-area').innerHTML='<div style="margin-top:10px;font-size:11px;color:var(--text-3)">Proposta pronta para envio.</div>';
-  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+  abrirWhatsApp(msg);
 }
 
 // ─── ADMIN OPORTUNIDADES ────────────────────────────────────────────
