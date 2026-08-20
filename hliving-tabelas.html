@@ -1060,6 +1060,46 @@ function abrirWhatsApp(msg){
     window.location.href = url;
   }
 }
+
+// Divide o saldo (após entrada/chaves) entre mensais e reforços anuais SEM
+// dupla contagem. Usa a mesma proporção 40/70 (mensais) e 30/70 (reforços)
+// já usada no 2CINCO4. Se não há reforços configurados, 100% via mensais.
+function splitSaldo(saldo, qtMensal, qtAnual){
+  const temAnual = qtAnual>0;
+  const valMensal = temAnual ? saldo*(40/70) : saldo;
+  const valAnual  = temAnual ? saldo*(30/70) : 0;
+  return {
+    mensal: qtMensal>0 ? valMensal/qtMensal : 0,
+    anual:  temAnual ? valAnual/qtAnual : 0
+  };
+}
+
+// Memória de cálculo: tabela com quantidade × valor unitário = subtotal por
+// item de pagamento, seguida de uma linha de verificação somando tudo e
+// conferindo com o VGV negociado. Usada nas 4 telas de proposta (2CINCO4,
+// Prontos, Lançamento adicional, Oportunidades) para deixar claro — inclusive
+// para o cliente — que a soma bate com o valor proposto.
+function renderMemoriaCalculo(itens, vgv){
+  // itens: [{label, qtd, valorUnit}], qtd=1 para itens únicos (entrada/chaves)
+  const rows = itens.filter(it=>it.qtd>0).map(it=>{
+    const subtotal = it.qtd*it.valorUnit;
+    const meio = it.qtd===1 ? 'ato' : it.qtd+' × '+fmt(it.valorUnit);
+    return `<tr style="border-bottom:0.5px solid var(--border)">
+      <td style="padding:6px 0;color:var(--text);font-weight:600;font-size:10px">${it.label}</td>
+      <td style="padding:6px 4px;color:var(--text-3);text-align:center;font-size:10px">${meio}</td>
+      <td style="padding:6px 0;color:var(--text);text-align:right;font-weight:600;font-size:10px">${fmt(subtotal)}</td>
+    </tr>`;
+  }).join('');
+  const soma = itens.reduce((s,it)=>s+(it.qtd>0?it.qtd*it.valorUnit:0),0);
+  const somaTxt = itens.filter(it=>it.qtd>0).map(it=>Math.round(it.qtd*it.valorUnit).toLocaleString('pt-BR')).join(' + ');
+  return `
+    <div style="font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:1px;margin:8px 0 4px">Memória de cálculo</div>
+    <table style="width:100%;border-collapse:collapse">${rows}</table>
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#edfaf5;border:0.5px solid #a3dfc7;border-radius:6px;padding:7px 9px;margin-top:8px">
+      <span style="font-size:9px;color:#0F6E56">${somaTxt}</span>
+      <span style="font-size:11px;font-weight:700;color:#0F6E56">= ${fmt(soma)} ✓</span>
+    </div>`;
+}
 const fmtK=v=>v?'R$ '+Math.round(v/1000).toLocaleString('pt-BR')+' mil':'A definir';
 function toast(msg,tipo){
   const t=document.getElementById('toast');
@@ -1242,11 +1282,13 @@ function gerarProposta(num,tipo,vgvPadrao,andar){
       <div><div style="font-size:8px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px">Cliente</div><div style="font-size:11px;font-weight:600;color:var(--text)">${nome}</div></div>
       <div><div style="font-size:8px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px">CPF</div><div style="font-size:11px;font-weight:600;color:var(--text)">${cpf}</div></div>
     </div>
-    <div style="${s}"><span style="color:var(--text-3)">Entrada ${pctE}% · ${pgto.venEntrada}</span><span style="font-weight:600;color:var(--text)">${fmt(entrada)}</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">Obra ${pctO}% · ${pgto.venObra}</span><span style="font-weight:600;color:var(--text)">${fmt(obra)}</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">${qtM}x mensais (${pctM.toFixed(1)}%)</span><span style="font-weight:600;color:var(--text)">${fmt(mensal)}/mês</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">${qtA}x reforços anuais (${pctAn.toFixed(1)}%)</span><span style="font-weight:600;color:var(--text)">${fmt(anual)}/ano</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">Chaves ${pctC}% · ${pgto.venChave}</span><span style="font-weight:600;color:var(--text)">${fmt(chave)}</span></div>
+    ${renderMemoriaCalculo([
+      {label:'Entrada',qtd:1,valorUnit:entrada},
+      {label:'Obra',qtd:1,valorUnit:obra},
+      {label:'Mensais',qtd:qtM,valorUnit:mensal},
+      {label:'Reforços',qtd:qtA,valorUnit:anual},
+      {label:'Chaves',qtd:1,valorUnit:chave}
+    ], vgv)}
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px">
       <span style="font-size:10px;color:var(--text-3)">VGV total</span>
       <span style="font-size:15px;font-weight:700;color:var(--hl-dark)">${fmt(vgv)}</span>
@@ -1260,6 +1302,18 @@ function gerarProposta(num,tipo,vgvPadrao,andar){
   area.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+
+// Mesma lógica de renderMemoriaCalculo, em texto simples (para WhatsApp).
+function memoriaCalculoTexto(itens, vgv){
+  const linhas = itens.filter(it=>it.qtd>0).map(it=>{
+    const subtotal = it.qtd*it.valorUnit;
+    const meio = it.qtd===1 ? '' : ' ('+it.qtd+' × '+fmt(it.valorUnit)+')';
+    return '- '+it.label+meio+': '+fmt(subtotal);
+  }).join('\n');
+  const soma = itens.reduce((s,it)=>s+(it.qtd>0?it.qtd*it.valorUnit:0),0);
+  const somaTxt = itens.filter(it=>it.qtd>0).map(it=>Math.round(it.qtd*it.valorUnit).toLocaleString('pt-BR')).join(' + ');
+  return linhas+'\n- Soma: '+somaTxt+' = '+fmt(soma);
+}
 
 function compartilharWhatsApp(num,tipo,vgv,andar){
   const nome=document.getElementById('cli-nome').value||'[Nome do cliente]';
@@ -1279,7 +1333,14 @@ function enviarWhatsApp(num,tipo,andar,data,corretor,pctE,pctO,pctC,qtM,qtA,vgv,
   const resto=100-pctE-pctO-pctC;
   const mensal=(vgv*(resto*40/7000))/qtM, anual=(vgv*(resto*30/7000))/qtA;
   const f=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const msg=`*⚠ PROPOSTA PERSONALIZADA — AGUARDANDO APROVAÇÃO*\n\n*${emp.nome} · Apto ${num}*\nTipo ${tipo} · ${andar}º andar · ${emp.area} m²\n\n*Cliente:* ${nome}\n*CPF:* ${cpf}\n*Corretor:* ${corretor}\n*Data:* ${today}\n\n*Condições solicitadas:*\n• Entrada ${pctE}% (${pgto.venEntrada}): ${f(entrada)}\n• Obra ${pctO}% (${pgto.venObra}): ${f(obra)}\n• ${qtM}x mensais: ${f(mensal)}/mês\n• ${qtA}x reforços anuais: ${f(anual)}/ano\n• Chaves ${pctC}% (${pgto.venChave}): ${f(chave)}\n• *VGV total: ${f(vgv)}*${obs?'\n\n*Obs do corretor:* '+obs:''}\n\n_Esta proposta precisa de aprovação antes de ser confirmada ao cliente._`;
+  const memoria=memoriaCalculoTexto([
+    {label:'Entrada',qtd:1,valorUnit:entrada},
+    {label:'Obra',qtd:1,valorUnit:obra},
+    {label:'Mensais',qtd:qtM,valorUnit:mensal},
+    {label:'Reforços',qtd:qtA,valorUnit:anual},
+    {label:'Chaves',qtd:1,valorUnit:chave}
+  ], vgv);
+  const msg=`*⚠ PROPOSTA PERSONALIZADA — AGUARDANDO APROVAÇÃO*\n\n*${emp.nome} · Apto ${num}*\nTipo ${tipo} · ${andar}º andar · ${emp.area} m²\n\n*Cliente:* ${nome}\n*CPF:* ${cpf}\n*Corretor:* ${corretor}\n*Data:* ${today}\n\n*Condições solicitadas:*\n${memoria}${obs?'\n\n*Obs do corretor:* '+obs:''}\n\n_Esta proposta precisa de aprovação antes de ser confirmada ao cliente._`;
   abrirWhatsApp(msg);
 }
 
@@ -2245,17 +2306,17 @@ function gerarPropostaPronto(num,empId,vgvPadrao){
     chave  =p.tipo==='fixo'?(p.chave||0):vgv*((p.pctChave||0)/100);
   }
   const saldo=vgv-entrada-chave;
-  const mensal=saldo>0?saldo/qtMensal:0;
-  const anual =saldo>0&&qtAnual>0?saldo/qtAnual:0;
+  const {mensal,anual}=splitSaldo(saldo>0?saldo:0, qtMensal, qtAnual);
   const carimboCor=isCustom?'#854F0B':'var(--status-disp)';
   const carimboTxt=isCustom?'\u26a0 SUJEITA A APROVACAO COMERCIAL':'\u2713 PROPOSTA PADRAO';
   const carimboBg=isCustom?'#fff8e6':'#edfaf5';
   const carimboBdr=isCustom?'#e6c96a':'#a3dfc7';
-  const linhas=''
-    +'<div style="'+s+'"><span style="color:var(--text-3)">Entrada</span><span style="font-weight:600;color:var(--text)">'+fmt2(entrada)+'</span></div>'
-    +(chave>0?'<div style="'+s+'"><span style="color:var(--text-3)">Chaves</span><span style="font-weight:600;color:var(--text)">'+fmt2(chave)+'</span></div>':'')
-    +'<div style="'+s+'"><span style="color:var(--text-3)">'+qtMensal+'x mensais</span><span style="font-weight:600;color:var(--text)">'+fmt2(mensal)+'/mes</span></div>'
-    +(anual>0?'<div style="'+s+'"><span style="color:var(--text-3)">'+qtAnual+'x reforcos anuais</span><span style="font-weight:600;color:var(--text)">'+fmt2(anual)+'/ano</span></div>':'');
+  const linhas=renderMemoriaCalculo([
+    {label:'Entrada',qtd:1,valorUnit:entrada},
+    {label:'Chaves',qtd:chave>0?1:0,valorUnit:chave},
+    {label:'Mensais',qtd:qtMensal,valorUnit:mensal},
+    {label:'Reforços',qtd:qtAnual,valorUnit:anual}
+  ], vgv);
   const prArea=document.getElementById('pr-proposta-area');
   prArea.innerHTML='<div class="pdf-preview" style="padding:12px">'
     +'<div style="background:'+carimboBg+';border:0.5px solid '+carimboBdr+';border-radius:5px;padding:4px 9px;margin-bottom:8px;font-size:9px;font-weight:700;color:'+carimboCor+';text-align:center;letter-spacing:.5px">'+carimboTxt+' - IMOVEL PRONTO</div>'
@@ -2296,16 +2357,18 @@ function enviarWhatsAppPronto(){
   const qtAnual=parseInt(document.getElementById('pr-qt-anual-custom').value)||6;
   const obs=document.getElementById('pr-obs-custom').value||'';
   const saldo=vgv-entrada-chave;
+  const {mensal,anual}=splitSaldo(saldo>0?saldo:0, qtMensal, qtAnual);
   const fmt=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
   const today=new Date().toLocaleDateString('pt-BR');
+  const memoria=memoriaCalculoTexto([
+    {label:'Entrada',qtd:1,valorUnit:entrada},
+    {label:'Chaves',qtd:chave>0?1:0,valorUnit:chave},
+    {label:'Mensais',qtd:qtMensal,valorUnit:mensal},
+    {label:'Reforços',qtd:qtAnual,valorUnit:anual}
+  ], vgv);
   const msg='*PROPOSTA PERSONALIZADA - AGUARDANDO APROVACAO*'
     +'\n\n*Cliente:* '+nome+'\n*CPF:* '+cpf+'\n*Corretor:* '+corretor+'\n*Data:* '+today
-    +'\n\n*Condicoes solicitadas:*'
-    +'\n- Entrada: '+fmt(entrada)
-    +(chave>0?'\n- Chaves: '+fmt(chave):'')
-    +'\n- '+qtMensal+'x mensais: '+fmt(saldo/qtMensal)+'/mes'
-    +(qtAnual>0?'\n- '+qtAnual+'x reforcos: '+fmt(saldo/qtAnual)+'/ano':'')
-    +'\n- *VGV total: '+fmt(vgv)+'*'
+    +'\n\n*Condicoes solicitadas:*\n'+memoria
     +(obs?'\n\n*Obs:* '+obs:'')
     +'\n\n_Esta proposta precisa de aprovacao antes de ser confirmada ao cliente._';
   abrirWhatsApp(msg);
@@ -2985,8 +3048,7 @@ function gerarPropostaEmp2(num,tipo,vgvPadrao,andar,area,vista,desc){
     qtMensal=pBase.qtMensal||72; qtAnual=pBase.qtAnual||6; vgv=vgvPadrao;
   }
   const saldo=vgv-entrada-chave;
-  const mensal=saldo/qtMensal;
-  const anual=saldo/qtAnual;
+  const {mensal,anual}=splitSaldo(saldo>0?saldo:0, qtMensal, qtAnual);
   const s='font-size:10px;padding:4px 0;display:flex;justify-content:space-between;border-bottom:0.5px solid var(--border)';
   const carimboCor=isCustom?'#854F0B':'var(--status-disp)';
   const carimboTxt=isCustom?'⚠ SUJEITA À APROVAÇÃO COMERCIAL':'✓ PROPOSTA PADRÃO';
@@ -3006,10 +3068,12 @@ function gerarPropostaEmp2(num,tipo,vgvPadrao,andar,area,vista,desc){
       <div><div style="font-size:8px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px">Cliente</div><div style="font-size:11px;font-weight:600;color:var(--text)">${nome}</div></div>
       <div><div style="font-size:8px;color:var(--text-3);text-transform:uppercase;letter-spacing:.5px">CPF</div><div style="font-size:11px;font-weight:600;color:var(--text)">${cpf}</div></div>
     </div>
-    <div style="${s}"><span style="color:var(--text-3)">Entrada · No ato</span><span style="font-weight:600;color:var(--text)">${fmt(entrada)}</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">Chaves · ${pBase.venChave||'Dez/2028'}</span><span style="font-weight:600;color:var(--text)">${fmt(chave)}</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">${qtMensal}x mensais · reajuste ${pBase.reajuste||'CUB/SC'}</span><span style="font-weight:600;color:var(--text)">${fmt(mensal)}/mês</span></div>
-    <div style="${s}"><span style="color:var(--text-3)">${qtAnual}x reforços anuais</span><span style="font-weight:600;color:var(--text)">${fmt(anual)}/ano</span></div>
+    ${renderMemoriaCalculo([
+      {label:'Entrada',qtd:1,valorUnit:entrada},
+      {label:'Chaves',qtd:chave>0?1:0,valorUnit:chave},
+      {label:'Mensais',qtd:qtMensal,valorUnit:mensal},
+      {label:'Reforços',qtd:qtAnual,valorUnit:anual}
+    ], vgv)}
     <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:6px">
       <span style="font-size:10px;color:var(--text-3)">VGV total</span>
       <span style="font-size:15px;font-weight:700;color:var(--hl-dark)">${fmt(vgv)}</span></div>
@@ -3026,8 +3090,15 @@ function enviarWhatsAppEmp2(num,tipo,andar,area,vista,data,corretor,entrada,chav
   const nome=document.getElementById('e2-cli-nome').value||'[Nome do cliente]';
   const cpf=document.getElementById('e2-cli-cpf').value||'[CPF]';
   const saldo=vgv-entrada-chave;
+  const {mensal,anual}=splitSaldo(saldo>0?saldo:0, qtMensal, qtAnual);
   const f=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
-  const msg=`*⚠ PROPOSTA PERSONALIZADA — AGUARDANDO APROVAÇÃO*\n\n*${e.nome} · Apto ${num}*\nTipo ${tipo} · ${andar}º andar · ${area}m² · ${vista}\n\n*Cliente:* ${nome}\n*CPF:* ${cpf}\n*Corretor:* ${corretor}\n*Data:* ${data}\n\n*Condições solicitadas:*\n• Entrada: ${f(entrada)}\n• Chaves: ${f(chave)}\n• ${qtMensal}x mensais: ${f(saldo/qtMensal)}/mês\n• ${qtAnual}x reforços: ${f(saldo/qtAnual)}/ano\n• *VGV total: ${f(vgv)}*${obs?'\n\n*Obs:* '+obs:''}\n\n_Esta proposta precisa de aprovação antes de ser confirmada ao cliente._`;
+  const memoria=memoriaCalculoTexto([
+    {label:'Entrada',qtd:1,valorUnit:entrada},
+    {label:'Chaves',qtd:chave>0?1:0,valorUnit:chave},
+    {label:'Mensais',qtd:qtMensal,valorUnit:mensal},
+    {label:'Reforços',qtd:qtAnual,valorUnit:anual}
+  ], vgv);
+  const msg=`*⚠ PROPOSTA PERSONALIZADA — AGUARDANDO APROVAÇÃO*\n\n*${e.nome} · Apto ${num}*\nTipo ${tipo} · ${andar}º andar · ${area}m² · ${vista}\n\n*Cliente:* ${nome}\n*CPF:* ${cpf}\n*Corretor:* ${corretor}\n*Data:* ${data}\n\n*Condições solicitadas:*\n${memoria}${obs?'\n\n*Obs:* '+obs:''}\n\n_Esta proposta precisa de aprovação antes de ser confirmada ao cliente._`;
   abrirWhatsApp(msg);
 }
 
@@ -3665,10 +3736,19 @@ function gerarPropostaOp(num,empId,vgvPadrao){
   const corretor=document.getElementById('op-cli-corretor').value.trim();
   if(!nome){toast('Informe o nome do cliente','erro');return;}
   const fmt2=v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
+  const p=e.pgto||{};
+  const entrada = p.tipo==='fixo' ? (p.entrada||0) : vgvPadrao*((p.pctEntrada||0)/100);
+  const saldo = vgvPadrao-entrada;
+  const qtMensal = p.qtMensal||48;
+  const mensal = qtMensal>0 ? saldo/qtMensal : 0;
+  const memoria=memoriaCalculoTexto([
+    {label:'Entrada',qtd:1,valorUnit:entrada},
+    {label:'Mensais',qtd:qtMensal,valorUnit:mensal}
+  ], vgvPadrao);
   const msg='*PROPOSTA — OPORTUNIDADE*\n\n'
     +'*Empreendimento:* '+e.nome+'\n'
-    +'*Unidade:* '+u.n+' · '+(u.area||'')+'m²\n'
-    +'*VGV:* '+fmt2(vgvPadrao)+'\n\n'
+    +'*Unidade:* '+u.n+' · '+(u.area||'')+'m²\n\n'
+    +'*Condições:*\n'+memoria+'\n\n'
     +'*Cliente:* '+nome+(cpf?' · '+cpf:'')+'\n'
     +(corretor?'*Corretor:* '+corretor+'\n':'')
     +'*Data:* '+new Date().toLocaleDateString('pt-BR');
