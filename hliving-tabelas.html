@@ -1903,11 +1903,9 @@ async function carregarDoSheets(){
         if(local){ local.v=u.v; local.s=u.s; }
         else ATLANTIA.unidades.push(Object.assign({t:'1',area:0,desc:''},u)); // unidade nova do servidor
       });
-      if(typeof a.ativo!=='undefined'){
-        ATLANTIA.ativo=a.ativo;
-        const idx=empreendimentos.findIndex(e=>e.id==='atlantia');
-        if(idx>-1) empreendimentos[idx].ativo=a.ativo;
-      }
+      // ativo NÃO é mais aplicado aqui: a lista de Lançamentos (acima) já é
+      // a autoridade sobre visibilidade/exclusão da Atlantia, evitando que
+      // este canal (mais antigo, só de unidades/CUB) sobrescreva por engano.
     }
 
     // Prontos
@@ -3354,8 +3352,8 @@ function setAdminArea(area){
 function renderAdminEmpCards(){
   // Lista todos os empreendimentos de lançamento
   const emps = [
-    {id:'2cinco4', nome:emp.nome, local:emp.local, total:units.length, disp:units.filter(u=>u.s==='disp').length},
-    ...empreendimentos.map(e=>({id:e.id, nome:e.nome, local:e.local, total:e.unidades?e.unidades.length:0, disp:e.unidades?e.unidades.filter(u=>u.s==='disp').length:0}))
+    {id:'2cinco4', nome:emp.nome, local:emp.local, total:units.length, disp:units.filter(u=>u.s==='disp').length, ativo:true},
+    ...empreendimentos.map(e=>({id:e.id, nome:e.nome, local:e.local, total:e.unidades?e.unidades.length:0, disp:e.unidades?e.unidades.filter(u=>u.s==='disp').length:0, ativo:e.ativo!==false}))
   ];
   const cont = document.getElementById('admin-emp-cards');
   cont.innerHTML = emps.map(e=>`
@@ -3367,7 +3365,10 @@ function renderAdminEmpCards(){
       <div style="text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:4px">
         <div style="font-size:12px;font-weight:600;color:var(--status-disp)">${e.disp} disp.</div>
         <div style="font-size:10px;color:var(--text-3)">${e.total} total</div>
-        ${e.id!=='2cinco4'&&e.id!=='atlantia'?`<span onclick="event.stopPropagation();excluirLancamentoId('`+e.id+`')" style="font-size:10px;color:var(--status-vend);cursor:pointer;padding:2px 6px;background:#fdeaea;border-radius:4px">✕ excluir</span>`:''}
+        ${e.id!=='2cinco4'?`<div style="display:flex;gap:5px;align-items:center">
+          <span onclick="event.stopPropagation();toggleLancamentoVisibilidade('${e.id}')" style="font-size:10px;color:var(--text-3);cursor:pointer;padding:2px 6px;background:var(--surface-1);border-radius:4px" title="${e.ativo===false?'Reexibir na home':'Esconder da home sem excluir'}"><i class="ti ti-${e.ativo===false?'eye-off':'eye'}" style="font-size:12px;vertical-align:-1px"></i> ${e.ativo===false?'Oculto':'Visível'}</span>
+          ${e.id!=='atlantia'?`<span onclick="event.stopPropagation();excluirLancamentoId('`+e.id+`')" style="font-size:10px;color:var(--status-vend);cursor:pointer;padding:2px 6px;background:#fdeaea;border-radius:4px">✕ excluir</span>`:''}
+        </div>`:''}
       </div>
     </button>`).join('');
 }
@@ -4181,10 +4182,37 @@ function excluirLancamentoId(id){
 }
 
 function excluirEmpreendimento(){
-  // Para lançamentos adicionais abertos no admin
+  // Para lançamentos adicionais abertos no admin.
+  // Atlantia fica de fora: por ser um "empreendimento padrão" recriado a
+  // cada carregamento (mesmo mecanismo do 2CINCO4), uma exclusão dela não
+  // sobrevive ao F5 sem uma mudança maior de arquitetura — usar "Ocultar" em
+  // vez disso, que é confiável.
   if(!_empAtivo || _empAtivo.id==='atlantia') return;
   excluirLancamentoId(_empAtivo.id);
   voltarEmpSelector();
+}
+
+// Esconde/reexibe um lançamento adicional na home sem excluir os dados —
+// útil para tirar de vista temporariamente (ex.: corrigindo algo) sem
+// perder o cadastro. 2CINCO4 (prédio principal) não passa por aqui.
+async function toggleLancamentoVisibilidade(id){
+  const e = empreendimentos.find(x=>x.id===id);
+  if(!e) return;
+  e.ativo = e.ativo===false ? true : false;
+  renderAdminEmpCards();
+  renderHome();
+  const toSave = empreendimentos.map(x=>({
+    id:x.id,nome:x.nome,local:x.local,area:x.area,fase:x.fase||'lancamento',
+    cub:x.cub,cubData:x.cubData,ri:x.ri,matricula:x.matricula,
+    ativo:x.ativo!==false,pgto:x.pgto,
+    unidades:(x.unidades||[]).map(u=>({n:u.n,t:u.t,area:u.area,v:u.v,s:u.s}))
+  }));
+  try {
+    await apiPost('saveLancamentos', toSave);
+    toast(e.nome+(e.ativo?' visível novamente':' oculto da home'),'ok');
+  } catch(err){
+    toast('⚠ Alterado localmente, mas não salvou — tente novamente','erro');
+  }
 }
 
 function excluirPronto(empId){
