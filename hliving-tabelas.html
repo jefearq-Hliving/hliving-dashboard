@@ -1844,6 +1844,15 @@ function ocultarLoading(){
   if(t) t.classList.remove('show');
 }
 
+// Converte números vindos da planilha/API em formato BR ("3.171,96", "3171,96")
+// ou US ("3171.96"). parseFloat puro corta tudo depois da vírgula (3171,96 -> 3171).
+function numBR(v){
+  if(typeof v==='number') return v;
+  let s=String(v==null?'':v).trim().replace(/[^\d,.\-]/g,'');
+  if(s.indexOf(',')>=0) s=s.replace(/\./g,'').replace(',','.');
+  return parseFloat(s);
+}
+
 async function carregarDoSheets(){
   mostrarLoading('Sincronizando...');
   try {
@@ -1855,21 +1864,21 @@ async function carregarDoSheets(){
     if(data.empreendimento){
       const e=data.empreendimento;
       if(e.nome) emp.nome=e.nome; if(e.local) emp.local=e.local;
-      if(e.area) emp.area=parseFloat(e.area); if(e.cub) emp.cub=parseFloat(e.cub);
+      if(e.area) emp.area=numBR(e.area); if(e.cub) emp.cub=numBR(e.cub);
       if(e.cubData) emp.cubData=e.cubData; if(e.ri) emp.ri=e.ri;
       if(e.matricula) emp.matricula=e.matricula;
     }
     if(data.pagamento){
       const p=data.pagamento;
-      if(p.pctEntrada) pgto.pctEntrada=parseFloat(p.pctEntrada);
+      if(p.pctEntrada) pgto.pctEntrada=numBR(p.pctEntrada);
       if(p.venEntrada) pgto.venEntrada=p.venEntrada;
-      if(p.pctObra) pgto.pctObra=parseFloat(p.pctObra);
+      if(p.pctObra) pgto.pctObra=numBR(p.pctObra);
       if(p.venObra) pgto.venObra=p.venObra;
-      if(p.pctChave) pgto.pctChave=parseFloat(p.pctChave);
+      if(p.pctChave) pgto.pctChave=numBR(p.pctChave);
       if(p.venChave) pgto.venChave=p.venChave;
-      if(p.pctMensal) pgto.pctMensal=parseFloat(p.pctMensal);
+      if(p.pctMensal) pgto.pctMensal=numBR(p.pctMensal);
       if(p.qtMensal) pgto.qtMensal=parseInt(p.qtMensal);
-      if(p.pctAnual) pgto.pctAnual=parseFloat(p.pctAnual);
+      if(p.pctAnual) pgto.pctAnual=numBR(p.pctAnual);
       if(p.qtAnual) pgto.qtAnual=parseInt(p.qtAnual);
     }
     if(data.unidades && data.unidades.length){
@@ -1906,7 +1915,7 @@ async function carregarDoSheets(){
     // Atlantia
     if(data.atlantia){
       const a=data.atlantia;
-      if(a.cub) ATLANTIA.cub=parseFloat(a.cub);
+      if(a.cub) ATLANTIA.cub=numBR(a.cub);
       if(a.cubData) ATLANTIA.cubData=a.cubData;
       if(a.unidades) a.unidades.forEach(u=>{
         const local=ATLANTIA.unidades.find(x=>x.n===u.n);
@@ -1941,7 +1950,7 @@ async function carregarDoSheets(){
           }
           if(typeof saved.ativo!=='undefined') local.ativo=saved.ativo;
           if(saved.pgto) local.pgto=saved.pgto;
-          if(saved.cub) local.cub=parseFloat(saved.cub);
+          if(saved.cub) local.cub=numBR(saved.cub);
           if(saved.cubData) local.cubData=saved.cubData;
         } else {
           PRONTOS.push(Object.assign({unidades:[]},saved,{img:''})); // img do servidor ignorada
@@ -4245,7 +4254,7 @@ async function buscarCUBSinduscon(){
     const r = await fetch('https://hliving-proxy.jefearq.workers.dev/?action=getCUB');
     const d = await r.json();
     if(d.ok && d.cub){
-      const val = parseFloat(String(d.cub).replace(',','.'));
+      const val = numBR(d.cub);
       if(!isNaN(val)){
         // Preenche campo do admin
         const el = document.getElementById('adm-cub');
