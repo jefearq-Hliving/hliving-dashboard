@@ -4230,12 +4230,43 @@ function excluirPronto(empId){
 
 
 
+async function buscarCUBSinduscon(){
+  try {
+    const r = await fetch('https://hliving-proxy.jefearq.workers.dev/?action=getCUB');
+    const d = await r.json();
+    if(d.ok && d.cub){
+      const val = parseFloat(String(d.cub).replace(',','.'));
+      if(!isNaN(val)){
+        // Preenche campo do admin
+        const el = document.getElementById('adm-cub');
+        if(el && !el._cubEditado) el.value = val;
+        // Data: mês/ano atual como referência
+        const elData = document.getElementById('adm-cub-data');
+        if(elData && !elData._cubEditado){
+          const hoje = new Date();
+          elData.value = `01/${String(hoje.getMonth()+1).padStart(2,'0')}/${hoje.getFullYear()}`;
+        }
+        console.log('[HLiving] CUB Sinduscon:', val);
+      }
+    }
+  } catch(e){ console.warn('[HLiving] getCUB falhou:', e.message); }
+}
+
+// Marca campo como editado manualmente para não sobrescrever
+document.addEventListener('DOMContentLoaded', function(){
+  ['adm-cub','adm-cub-data'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', ()=>{ el._cubEditado=true; });
+  });
+});
+
 document.addEventListener('DOMContentLoaded', function(){
   empreendimentos = [ATLANTIA];
   atualizarHeader();
   renderUnits();
   renderHome();
   carregarDoSheets();
+  buscarCUBSinduscon();
 });
 </script>
 </body>
