@@ -71,7 +71,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .unit-card.fase{border-left:3px solid var(--status-fase)}
 .unit-card.vend{border-left:3px solid var(--status-vend);opacity:0.55}
 .unit-card.res{border-left:3px solid var(--status-res);opacity:0.7}
-.unit-card.pre{border-left:3px solid #9B59B6}
+.unit-card.pre{border-left:3px solid #8C7355}
 .unit-card.hidden{display:none}
 .unit-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px}
 .unit-num{font-size:15px;font-weight:600;color:var(--text)}
@@ -80,7 +80,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .unit-sub{font-size:11px;color:var(--text-3);margin-top:2px}
 .unit-status{font-size:10px;margin-top:5px;font-weight:600}
 .unit-status.disp{color:var(--status-disp)}.unit-status.fase{color:var(--status-fase)}
-.unit-status.vend{color:var(--status-vend)}.unit-status.res{color:var(--status-res)}.unit-status.pre{color:#9B59B6}
+.unit-status.vend{color:var(--status-vend)}.unit-status.res{color:var(--status-res)}.unit-status.pre{color:#8C7355}
 /* DETALHE */
 .detail-view{display:none;min-height:100vh;flex-direction:column}
 .detail-view.open{display:flex}
@@ -162,6 +162,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .hg-l,.stat-l{color:rgba(255,255,255,.85)}
 .hg,.stat{border-right-color:rgba(255,255,255,.25)}
 .reajuste-apply{background:var(--hl-dark)}
+
+/* Logo H Living (PNG sem fundo) no lugar do texto */
+.home-brand-logo,.hl-logo{width:74px;height:64px;margin-bottom:10px;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAM8AAAC0CAMAAAAEuohvAAAAYFBMVEWulnWulnWulnWulnWulnWulnWulnWulnUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALBrobAAAAIHRSTlMA/JA4zE60cAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPKaAR4AAAMkSURBVHja7dztsqMgDIBhTfi4/zteUWuRVYiWOtudN/+cschjBMEzJ8NwGuMrXDrS7VCGp0K2a2o6dNvhrdbw4MGDBw8ePHjw4MGDBw8ePHjw4MGDBw8ePHjw4MGDBw8ePHjw4MGDBw8ePHjw4MGDBw8ePHj+MY+m+A88GiW8rzSdHSR6/U2Pl1yyiyCfo571eBkb4cR/5AnPefQ8M6Xpbpp8doUvezSMVyLcSNP+El/1XNQspKj3Nd/1HDxTaUrzqt77YrK7N5r8XzfsOc9RL9VLuJ2mw5H5kKc22DWGk2TG2o+Os/uIpz3MT99P0wOqfyU1no/LBzzBNsC10ksXgswRQmP2/7rHXZmCvfVlVdwwecwTL79OrpLSyHzKE261pz5YTS4+uH4bP1iUTaPJ2V+9v7GfmzYYzraC/aH9qc4riXcPnTuYwn9yv13Z1vL9AA8ePHjw4MGDBw8ePHjw4MGDBw8ePHjw4MGDBw8ePHjw4MGDBw8ePHjw4MGDBw8ePHjw4MHznMd38IRXLP/gvB3Gxzxxu+acH9kOB4IgCIIgCIIgCIIgiPshtipZXk4/66gUVZ+unLuPKLE8vdWxtcLKVnjEWH0mnH8k0vWL1hblcU6tV4cpa+H49cvbuSYvviRLE6bvaVL56CX7TsZKn9ueXXdaHj//IPq19pXTLp4iIe48PRbPrt5k3ePzs+dUaReP5JeNtWpQTU+U/Od1jxa1jSQ9rT08mj/2tfQYPGmkRpsnlHcudnre8gT5arEugyfvZt1zOO908WQJCtUTLZ703d0bPMd3rosnKfQli5963qCq53ge7ePRVzP19Bg9G6jqeT/kWe2zTp6XQxvNGT0JpPb8fMGzQlqnWT26/E2uNX5eXdclYj/PmqBWa1bPCro4v/X0zLNNbK23zJ5lVajV9qSce1xHz/weda3Frd2TTnWN9U6xPghjT0+6fis9VzzLYvPi+i15nLwj3vfMf34Ow0cet3uAfMuzrq9TJeR5fS2zZ7RU4jR4vKH0ZTM/UozvC/ufoNNwG2QX/sb+NNvqtneT9f1p2YFoadFtlZGn1v8AxOwqyes4jMoAAAAASUVORK5CYII=) left center/contain no-repeat;font-size:0;line-height:0;letter-spacing:0;color:transparent;-webkit-print-color-adjust:exact;print-color-adjust:exact}
 </style>
 </head>
 <body>
@@ -504,7 +507,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
             <i class="ti ti-home-check" style="font-size:22px"></i>
             Prontos
           </button>
-          <button onclick="setAdminArea('pre')" style="padding:16px 8px;border-radius:10px;border:1.5px solid #9B59B6;background:#f5eef8;color:#9B59B6;font-size:13px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
+          <button onclick="setAdminArea('pre')" style="padding:16px 8px;border-radius:10px;border:1.5px solid #8C7355;background:#f4efe9;color:#8C7355;font-size:13px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px">
             <i class="ti ti-building-community" style="font-size:22px"></i>
             Oportunidades
           </button>
@@ -2580,13 +2583,13 @@ function gerarTabelaPDF(ctx){
       let pgtoStr='';
       if(p.tipo==='fixo'){const saldo=u.v-(p.entrada||0);const mensal=saldo/(p.qtMensal||48);pgtoStr=`Entrada ${fmt2(p.entrada)} · ${p.qtMensal||48}x ${fmt2(mensal)}/mês`;}
       else{const entrada=u.v*((p.pctEntrada||0)/100);const saldo=u.v-entrada;const mensal=saldo/(p.qtMensal||48);pgtoStr=`Entrada ${p.pctEntrada||0}% ${fmt2(entrada)} · ${p.qtMensal||48}x ${fmt2(mensal)}/mês`;}
-      return `<div style="background:#f5eef8;border:1.5px solid #9B59B6;border-radius:10px;padding:10px 12px;break-inside:avoid">
+      return `<div style="background:#f4efe9;border:1.5px solid #8C7355;border-radius:10px;padding:10px 12px;break-inside:avoid">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-          <div><div style="font-size:13px;font-weight:700;color:#3d3328">Unid. ${u.n}</div><div style="font-size:9px;color:#6C3483">${u.empNome} · ${u.empLocal}</div></div>
-          <div style="text-align:right"><div style="font-size:8px;font-weight:700;color:#9B59B6;letter-spacing:1px">OPORTUNIDADE</div><div style="font-size:14px;font-weight:700;color:#3d3328">${fmtK(u.v)}</div></div>
+          <div><div style="font-size:13px;font-weight:700;color:#3d3328">Unid. ${u.n}</div><div style="font-size:9px;color:#5C4A36">${u.empNome} · ${u.empLocal}</div></div>
+          <div style="text-align:right"><div style="font-size:8px;font-weight:700;color:#8C7355;letter-spacing:1px">OPORTUNIDADE</div><div style="font-size:14px;font-weight:700;color:#3d3328">${fmtK(u.v)}</div></div>
         </div>
         <div style="font-size:10px;color:#5a5955;margin-bottom:4px">${u.area}m² · ${u.desc||''}</div>
-        <div style="font-size:9px;color:#6C3483;background:rgba(255,255,255,0.5);border-radius:5px;padding:4px 7px">${pgtoStr} · Entrega: ${u.empPrevisao}</div>
+        <div style="font-size:9px;color:#5C4A36;background:rgba(255,255,255,0.5);border-radius:5px;padding:4px 7px">${pgtoStr} · Entrega: ${u.empPrevisao}</div>
       </div>`;
     }).join('');
     const tabelaHTML=`<html><head><meta charset="UTF-8"><style>*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f4efe9;padding:0}@page{margin:1cm;size:A4}@media print{body{background:#fff}}</style></head><body>
@@ -2841,7 +2844,7 @@ function renderHome(){
         <div class="emp-banner-overlay"></div>
         <div style="position:absolute;bottom:10px;left:13px;right:13px;z-index:1;display:flex;justify-content:space-between;align-items:flex-end">
           <div style="font-size:15px;font-weight:700;color:#fff;letter-spacing:.5px;text-shadow:0 1px 4px rgba(0,0,0,.5)">${e.nome}</div>
-          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:${e.fase==='pre'?'#9B59B6':'var(--hl-gold)'};color:${e.fase==='pre'?'#fff':'#1a1a00'}">${faseLabel(e.fase)}</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:${e.fase==='pre'?'#8C7355':'var(--hl-gold)'};color:${e.fase==='pre'?'#fff':'#1a1a00'}">${faseLabel(e.fase)}</div>
         </div>
       </div>
       <div class="emp-body">
@@ -3602,17 +3605,17 @@ function renderPreCards(){
     const comPreco = e.unidades.filter(u=>u.v);
     const minV = comPreco.length ? Math.min(...comPreco.map(u=>u.v)) : null;
     html += `<div class="emp-card" onclick="abrirOportunidades('${e.id}')">
-      <div class="emp-banner" style="background:#2a1a3a;padding:0;overflow:hidden;position:relative">
+      <div class="emp-banner" style="background:#3d3328;padding:0;overflow:hidden;position:relative">
         <div class="emp-banner-overlay"></div>
         <div style="position:absolute;bottom:10px;left:13px;right:13px;z-index:1;display:flex;justify-content:space-between;align-items:flex-end">
           <div style="font-size:14px;font-weight:700;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6);line-height:1.3">${e.nome}</div>
-          <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:#9B59B6;color:#fff">Oportunidade</div>
+          <div style="font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:#8C7355;color:#fff">Oportunidade</div>
         </div>
       </div>
       <div class="emp-body">
         <div class="emp-loc"><i class="ti ti-map-pin" style="font-size:11px"></i>${e.local||'A definir'}</div>
         <div class="emp-mini-stats" style="margin-top:8px">
-          <div class="ems"><div class="ems-n" style="color:#9B59B6">${e.unidades.filter(u=>u.s==='disp').length}</div><div class="ems-l">Disp.</div></div>
+          <div class="ems"><div class="ems-n" style="color:#8C7355">${e.unidades.filter(u=>u.s==='disp').length}</div><div class="ems-l">Disp.</div></div>
           <div class="ems"><div class="ems-n" style="font-size:11px;color:var(--text)">${e.previsao||'A definir'}</div><div class="ems-l">Entrega</div></div>
           <div class="ems" style="grid-column:span 2"><div class="ems-n" style="color:var(--hl-dark);font-size:11px">${minV?'a partir de R$ '+Math.round(minV/1000).toLocaleString('pt-BR')+' mil':'consulte'}</div><div class="ems-l">VGV</div></div>
         </div>
@@ -3707,7 +3710,7 @@ function abrirDetalheOp(num,empId){
   document.getElementById('op-det-title').textContent='Unidade '+u.n;
   document.getElementById('op-det-sub').textContent=e.nome+' · '+(e.local||'');
   document.getElementById('op-det-body').innerHTML=`
-    <div style="background:#f5eef8;border:0.5px solid #9B59B6;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;font-weight:600;color:#6C3483">🏗️ Oportunidade — entrega prevista ${e.previsao||'a definir'}</div>
+    <div style="background:#f4efe9;border:0.5px solid #8C7355;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:11px;font-weight:600;color:#5C4A36">🏗️ Oportunidade — entrega prevista ${e.previsao||'a definir'}</div>
     <div class="detail-row"><span class="dl">Empreendimento</span><span class="dv">${e.nome}</span></div>
     <div class="detail-row"><span class="dl">Localização</span><span class="dv">${e.local||'—'}</span></div>
     <div class="detail-row"><span class="dl">Unidade</span><span class="dv">${u.n}</span></div>
