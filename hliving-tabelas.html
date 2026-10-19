@@ -2031,6 +2031,7 @@ async function aplicarReajusteGlobal(){
   reajusteHist.unshift({data:today,pct,count});
   renderHistorico();
   renderUnits(); renderHome();
+  if(document.getElementById('admin-units-list')) renderAdminUnits();
   document.getElementById('reajuste-global-pct').value='';
   mostrarLoading('Salvando reajuste global...');
   try {
@@ -2081,6 +2082,7 @@ async function aplicarReajuste(){
   reajusteHist.unshift({data:today,pct,count});
   renderHistorico();
   renderUnits();
+  if(document.getElementById('admin-units-list')) renderAdminUnits();
   document.getElementById('reajuste-pct').value='';
   toast('Salvando reajuste...');
   try {
