@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Portal do Corretor HLiving</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: barra da marca > abas Empreendimentos/Tabela de Vendas > grade de 2 cards com capa, barras e ações; empilha no celular */
+:root{
+  --bg:#f4f5f6; --card:#ffffff; --card-2:#fafafb;
+  --line:#e6e7e9; --line-2:#d3d6d9;
+  --ink:#15181c; --ink-2:#5c6269; --ink-3:#8b9096;
+  --dark:#1d2430; --dark-2:#2c3542;
+  --accent:#ae9675; --accent-soft:#f7f0e5; --accent-ink:#8a6f44;
+  --ok:#16a34a; --wait:#b45309; --sold:#b91c1c; --res:#1d4ed8;
+  --shadow:0 1px 2px rgba(20,24,28,.04), 0 10px 24px -18px rgba(20,24,28,.35);
+  --serif:'Cormorant Garamond', Georgia, serif;
+  --sans:'Hanken Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#101215; --card:#191c21; --card-2:#1f2329;
+  --line:#2a2f36; --line-2:#3a4149;
+  --ink:#eef0f2; --ink-2:#a8aeb6; --ink-3:#7b828a;
+  --dark:#0a0d12; --dark-2:#232b36;
+  --accent:#c7ac87; --accent-soft:#2a241c; --accent-ink:#d9c1a0;
+  --ok:#3fbf7a; --wait:#d08a2c; --sold:#e06a6a; --res:#6193e8;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 24px -18px rgba(0,0,0,.9);
+  color-scheme: dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#101215; --card:#191c21; --card-2:#1f2329;
+  --line:#2a2f36; --line-2:#3a4149;
+  --ink:#eef0f2; --ink-2:#a8aeb6; --ink-3:#7b828a;
+  --dark:#0a0d12; --dark-2:#232b36;
+  --accent:#c7ac87; --accent-soft:#2a241c; --accent-ink:#d9c1a0;
+  --ok:#3fbf7a; --wait:#d08a2c; --sold:#e06a6a; --res:#6193e8;
+  --shadow:0 1px 2px rgba(0,0,0,.45), 0 10px 24px -18px rgba(0,0,0,.9);
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--card)}
+h1,h2,h3{margin:0;text-wrap:balance}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:inherit}
+.wrap{max-width:1200px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- header ---------- */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--card);border-bottom:1px solid var(--line)}
+.topbar::after{content:"";display:block;height:2px;background:linear-gradient(90deg,var(--accent) 0%,var(--accent-soft) 48%,transparent 100%)}
+.topbar-in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:13px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo svg{display:block;flex:none;color:var(--accent)}
+.logo-txt{display:flex;flex-direction:column;line-height:1}
+.logo-txt b{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:.07em;color:var(--ink)}
+.logo-txt span{font-size:8.5px;letter-spacing:.4em;color:var(--accent-ink);margin-top:4px;font-weight:600}
+.topbar-r{text-align:right;line-height:1.25}
+.topbar-r b{display:block;font-size:15px;font-weight:700;letter-spacing:-.01em}
+.topbar-r span{display:block;font-size:9px;letter-spacing:.26em;color:var(--accent-ink);font-weight:600;margin-top:3px}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:8px;padding-block:18px 0;flex-wrap:wrap}
+.tab{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:9px;padding:10px 16px;font-size:13.5px;font-weight:600;color:var(--ink-2);transition:.16s}
+.tab:hover{border-color:var(--line-2);color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.tab svg{flex:none}
+
+/* ---------- filtros ---------- */
+.filters{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 0}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--ink-2);transition:.16s}
+.chip:hover{border-color:var(--line-2)}
+.chip[aria-pressed="true"]{background:var(--dark);border-color:var(--dark);color:#fff}
+.chip em{font-style:normal;opacity:.55;margin-left:6px;font-weight:500}
+.meta{font-size:11.5px;color:var(--ink-3);margin-top:12px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.meta .dot{width:6px;height:6px;border-radius:50%;background:var(--ok);flex:none}
+
+/* ---------- cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:16px}
+.emp{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;min-width:0}
+
+.cover{position:relative;aspect-ratio:16/8;max-width:100%;display:flex;align-items:flex-end;padding:18px;overflow:hidden;background:#8f98a3}
+.cover-img{position:absolute;inset:0;background-size:cover;background-position:center}
+/* fachada abstrata enquanto a foto real não entra */
+.facade{position:absolute;inset:0;background:
+   linear-gradient(168deg,#b4bdc6 0%,#929ca8 40%,#6d7783 72%,#525b66 100%)}
+.facade::before{content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(90deg,rgba(255,255,255,.05) 0 50%,transparent 50% 100%),
+    linear-gradient(180deg,rgba(0,0,0,.035) 0 50%,transparent 50% 100%);
+  background-size:34px 100%, 100% 46px}
+.facade::after{content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(120% 80% at 18% 8%, rgba(255,255,255,.28) 0%, transparent 55%),
+    linear-gradient(112deg, rgba(255,255,255,.12) 0%, transparent 38%)}
+.cover::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,17,22,0) 34%,rgba(13,17,22,.58) 76%,rgba(13,17,22,.84) 100%)}
+.cover-txt{position:relative;z-index:2;min-width:0}
+.cover-txt h3{font-size:23px;font-weight:800;letter-spacing:.02em;color:#fff;line-height:1.1;text-transform:uppercase}
+.cover-txt p{margin-top:7px;font-size:12.5px;color:rgba(255,255,255,.88);display:flex;gap:6px;align-items:flex-start}
+.cover-txt p svg{flex:none;margin-top:2px}
+.badge{position:absolute;top:14px;right:14px;z-index:3;display:inline-flex;align-items:center;gap:6px;background:rgba(15,20,26,.74);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:5px 12px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+.badge svg{color:var(--accent);flex:none}
+.nofoto{position:absolute;left:14px;top:14px;z-index:3;display:inline-flex;align-items:center;gap:5px;background:rgba(15,20,26,.5);color:rgba(255,255,255,.9);border:1px dashed rgba(255,255,255,.4);border-radius:7px;padding:4px 9px;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+.emp-body{padding:18px;display:flex;flex-direction:column;gap:14px;flex:1}
+.resumo{font-size:14px;font-weight:700;line-height:1.4}
+.detalhe{font-size:13px;color:var(--ink-2);line-height:1.5}
+
+.prog-h{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700;display:flex;align-items:center;gap:7px;padding-top:14px;border-top:1px solid var(--line)}
+.prog-h svg{flex:none;color:var(--accent)}
+.prog{margin-top:11px;display:flex;flex-direction:column;gap:7px}
+.prog-row{display:grid;grid-template-columns:104px 1fr 42px;align-items:center;gap:12px;font-size:12px;color:var(--ink-2)}
+.bar{height:6px;border-radius:999px;background:var(--card-2);border:1px solid var(--line);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:999px;background:var(--accent)}
+.prog-row b{text-align:right;font-weight:700;color:var(--ink);font-size:12px}
+.prog-note{margin-top:10px;font-size:11px;color:var(--ink-3)}
+.prog-note b{color:var(--ink-2);font-weight:700}
+.badge svg{color:var(--accent);flex:none}
+
+.emp-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:auto;padding-top:14px}
+.entrega{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:7px}
+.entrega svg{flex:none;color:var(--ink-3)}
+.preco{text-align:right;min-width:0}
+.preco .disp{font-size:12px;color:var(--ok);font-weight:700;display:block}
+.preco .val{font-size:19px;font-weight:800;letter-spacing:-.02em;display:block;margin-top:3px}
+.preco .val small{font-weight:500;color:var(--ink-3);font-size:12px;letter-spacing:0}
+
+.acoes{display:flex;gap:9px;flex-wrap:wrap;padding:0 18px 18px}
+.btn{display:inline-flex;align-items:center;gap:8px;border-radius:9px;padding:10px 15px;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink-2);text-decoration:none;transition:.16s}
+.btn:hover{border-color:var(--line-2);color:var(--ink)}
+.btn-main{background:var(--dark);border-color:var(--dark);color:#fff}
+.btn-main:hover{background:var(--dark-2);border-color:var(--dark-2);color:#fff}
+.btn-doc{color:var(--accent-ink)}
+.btn-doc:hover{border-color:var(--accent);color:var(--accent-ink)}
+.btn svg{flex:none}
+
+/* ---------- tabela de vendas ---------- */
+.tnav{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 12px}
+.tmeta{display:flex;align-items:center;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-3);margin-bottom:12px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-2);margin-bottom:16px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.thead{padding:20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:flex-start}
+.thead h2{font-size:22px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;line-height:1.1}
+.thead .sub{font-size:12.5px;color:var(--ink-2);margin-top:8px;display:flex;align-items:flex-start;gap:6px}
+.thead .sub svg{flex:none;margin-top:2px}
+.thead .ri{font-size:11.5px;color:var(--ink-3);margin-top:5px}
+.thead-r{text-align:right}
+.thead-r .e{font-size:12px;color:var(--ink-2)}
+.thead-r .d{font-size:12px;color:var(--ok);font-weight:700;margin-top:9px}
+.thead-r .p{font-size:19px;font-weight:800;letter-spacing:-.02em;margin-top:2px}
+.thead-r .p small{font-weight:500;color:var(--ink-3);font-size:12px;letter-spacing:0}
+
+.tscroll{overflow-x:auto}
+.tipos{display:grid;min-width:min-content}
+.tipo{border-right:1px solid var(--line);min-width:156px}
+.tipo:last-child{border-right:0}
+.tipo-h{background:var(--dark);color:#fff;padding:12px 14px}
+.tipo-h b{display:block;font-size:10px;letter-spacing:.16em;font-weight:800;color:var(--accent)}
+.tipo-h span{display:block;font-size:11.5px;color:rgba(255,255,255,.7);margin-top:4px}
+.tipo-h em{display:block;font-style:normal;font-size:10.5px;color:var(--accent);margin-top:5px;font-weight:700}
+.u{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 14px;min-height:36px;border-bottom:1px solid var(--line);font-size:13px}
+.u:last-child{border-bottom:0}
+.u-n{color:var(--ink-3);font-weight:500}
+.u-v{font-weight:700;text-align:right}
+.u.free{background:var(--card)}
+.u.free .u-n{color:var(--ink-2)}
+.u.taken{background:var(--card-2)}
+.u.taken .u-n{opacity:.7}
+.u-s{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;text-align:right;white-space:nowrap}
+.s-res{color:var(--res)} .s-vend{color:var(--sold)} .s-fase{color:var(--wait)}
+
+.ulist{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr))}
+.ucard{padding:16px 18px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0}
+.ucard-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ucard-top b{font-size:14px;font-weight:800}
+.ucard .v{font-size:14.5px;font-weight:800;white-space:nowrap}
+.ucard .m{font-size:12px;color:var(--ink-2);margin-top:6px}
+.ucard .d{font-size:12px;color:var(--ink-3);margin-top:3px}
+.pill{display:inline-block;margin-top:10px;font-size:9px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;border-radius:999px;padding:4px 10px;border:1px solid currentColor}
+.p-disp{color:var(--ok)} .p-vend{color:var(--sold)}
+
+.pgto{border-top:1px solid var(--line);background:var(--card-2);padding:18px 20px}
+.pgto-h{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:12px}
+.pgto-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(124px,1fr));gap:11px}
+.pgto-i{background:var(--card);border:1px solid var(--line);border-radius:9px;padding:12px 14px;min-width:0}
+.pgto-i b{display:block;font-size:18px;font-weight:800;color:var(--accent-ink);letter-spacing:-.02em}
+.pgto-i span{display:block;font-size:11.5px;color:var(--ink-2);margin-top:4px}
+.pgto-i em{display:block;font-style:normal;font-size:11px;color:var(--ink-3);margin-top:1px}
+
+.foot{border-top:1px solid var(--line);margin-top:30px;padding-block:22px 30px;font-size:11.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.foot b{color:var(--ink-2);font-weight:600}
+
+/* ---------- capa clicável ---------- */
+.cover.tem-midia{cursor:pointer}
+.lupa{position:absolute;right:14px;bottom:14px;z-index:3;display:inline-flex;align-items:center;gap:6px;
+  background:rgba(15,20,26,.66);color:#fff;border:1px solid rgba(255,255,255,.26);border-radius:999px;
+  padding:5px 11px;font-size:10.5px;font-weight:600;opacity:0;transform:translateY(4px);transition:.18s}
+.cover.tem-midia:hover .lupa,.cover.tem-midia:focus-visible .lupa{opacity:1;transform:none}
+@media (hover:none){ .lupa{opacity:1;transform:none} }
+
+/* ---------- tela de detalhe ---------- */
+.modal{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-start;justify-content:center;
+  background:rgba(10,13,17,.62);backdrop-filter:blur(3px);overflow-y:auto;padding:max(16px,env(safe-area-inset-top,0px)) 16px 40px}
+.modal[hidden]{display:none!important}
+.sheet{background:var(--card);border:1px solid var(--line);border-radius:16px;width:100%;max-width:1060px;
+  box-shadow:0 24px 60px -24px rgba(0,0,0,.5);overflow:hidden;margin-top:12px}
+.sheet-top{position:relative;aspect-ratio:16/6;max-width:100%;display:flex;align-items:flex-end;padding:20px;background:#8f98a3}
+.sheet-top .cover-img{position:absolute;inset:0;background-size:cover;background-position:center}
+.sheet-top::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,17,22,.1) 20%,rgba(13,17,22,.78) 100%)}
+.sheet-top .t{position:relative;z-index:2;min-width:0}
+.sheet-top h2{font-size:26px;font-weight:800;letter-spacing:.02em;text-transform:uppercase;color:#fff;line-height:1.1}
+.sheet-top p{margin-top:7px;font-size:12.5px;color:rgba(255,255,255,.88);display:flex;gap:6px;align-items:flex-start}
+.fechar{position:absolute;top:14px;right:14px;z-index:4;display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:50%;background:rgba(15,20,26,.7);color:#fff;border:1px solid rgba(255,255,255,.26)}
+.fechar:hover{background:rgba(15,20,26,.9)}
+.mtabs{display:flex;gap:7px;flex-wrap:wrap;padding:16px 20px 0}
+.mtab{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12.5px;font-weight:600;color:var(--ink-2)}
+.mtab[aria-selected="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.mtab em{font-style:normal;opacity:.6;margin-left:6px;font-weight:500}
+.mbody{padding:16px 20px 20px}
+.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.gitem{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--card-2);padding:0;display:block;text-align:left}
+.gitem img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--card-2)}
+.gitem span{display:block;padding:8px 10px;font-size:11.5px;color:var(--ink-2);font-weight:600}
+.gitem:hover{border-color:var(--accent)}
+.vitem{display:flex;align-items:center;gap:11px;border:1px solid var(--line);border-radius:10px;padding:13px 14px;
+  background:var(--card);text-decoration:none;font-size:13px;font-weight:600;color:var(--ink)}
+.vitem:hover{border-color:var(--accent)}
+.vitem svg{flex:none;color:var(--accent-ink)}
+.vlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:10px}
+.vazio{font-size:12.5px;color:var(--ink-3);padding:10px 0}
+.pastas{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+.pasta{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--card-2);padding:0;display:block;text-align:left;transition:.16s}
+.pasta img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:var(--card-2)}
+.pasta-i{display:flex;align-items:center;gap:8px;padding:11px 13px}
+.pasta-i svg{flex:none;color:var(--accent-ink)}
+.pasta-i b{font-size:13.5px;font-weight:700}
+.pasta-i em{font-style:normal;margin-left:auto;font-size:11.5px;color:var(--ink-3);font-weight:600}
+.pasta:hover{border-color:var(--accent);transform:translateY(-1px)}
+.voltar{display:inline-flex;align-items:center;gap:7px;background:none;border:0;padding:0 0 12px;font-size:12.5px;font-weight:600;color:var(--accent-ink)}
+.voltar:hover{text-decoration:underline}
+.grupo-t{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:11px}
+.aviso{font-size:12px;color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--accent);border-radius:9px;padding:10px 13px;margin-bottom:14px;line-height:1.45}
+.sem-drive .cover-img{display:none}
+.sem-drive .gitem img,.sem-drive .pasta img{display:none}
+.sem-drive .gitem span{padding:12px 13px}
+.sem-drive .galeria{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+.fonte{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-3)}
+
+/* lightbox */
+.lbox{position:fixed;inset:0;z-index:70;background:rgba(8,10,13,.93);display:flex;align-items:center;justify-content:center;padding:24px}
+.lbox[hidden]{display:none!important}
+.lbox img{max-width:100%;max-height:82vh;object-fit:contain;border-radius:8px}
+.lbox-leg{position:absolute;left:0;right:0;bottom:22px;text-align:center;color:rgba(255,255,255,.85);font-size:12.5px}
+.lnav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:50%;
+  background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;font-size:20px}
+.lnav:hover{background:rgba(255,255,255,.22)}
+.lprev{left:18px} .lnext{right:18px}
+.lclose{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;
+  background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
+
+@media (max-width:920px){ .grid{grid-template-columns:1fr} }
+@media (max-width:620px){
+  .sheet-top{aspect-ratio:16/9} .sheet-top h2{font-size:20px}
+  .galeria{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+  .lnav{width:36px;height:36px} .lprev{left:6px} .lnext{right:6px}
+}
+@media (max-width:560px){
+  .logo-txt b{font-size:20px} .topbar-r b{font-size:13px}
+  .cover-txt h3{font-size:19px} .thead h2{font-size:18px}
+  .thead-r{text-align:left} .ucard{border-right:0}
+  .prog-row{grid-template-columns:92px 1fr 38px}
+}
+@media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:7px}
+</style>
+
+<style>
+:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <a class="logo" href="#portfolio">
+      <svg width="30" height="36" viewBox="0 0 34 40" fill="none" aria-hidden="true">
+        <path d="M4 4v32M30 4v32M4 20h26" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-txt"><b>H LIVING</b><span>EMPREENDIMENTOS</span></span>
+    </a>
+    <div class="topbar-r">
+      <b>Portal do Corretor</b>
+      <span>HLIVING EMPREENDIMENTOS</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="tabs" role="tablist" aria-label="Seções do portal">
+    <button class="tab" role="tab" id="tab-portfolio" aria-controls="view-portfolio" aria-selected="true">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><path d="M2 14V5l5-3 5 3v9M6 14v-4h2v4M9.5 7.5h.01M9.5 10.5h.01M4.5 7.5h.01" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/><path d="M1 14h14" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>
+      Empreendimentos
+    </button>
+    <button class="tab" role="tab" id="tab-tabelas" aria-controls="view-tabelas" aria-selected="false">
+      <svg width="15" height="15" viewBox="0 0 16 16" fill="none"><rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.4" stroke="currentColor" stroke-width="1.35"/><path d="M1.8 6.2h12.4M6.4 6.2v7" stroke="currentColor" stroke-width="1.35"/></svg>
+      Tabela de Vendas
+    </button>
+  </div>
+
+  <section id="view-portfolio" role="tabpanel" aria-labelledby="tab-portfolio">
+    <div class="filters" id="filters" role="group" aria-label="Filtrar por categoria"></div>
+    <p class="meta"><span class="dot"></span> <span id="resumo-geral"></span></p>
+    <div class="grid" id="cards"></div>
+  </section>
+
+  <section id="view-tabelas" role="tabpanel" aria-labelledby="tab-tabelas" hidden>
+    <div class="tnav" id="tnav" role="group" aria-label="Escolher empreendimento"></div>
+    <div class="tmeta">
+      <span>Atualizado em <b>21/10/2026</b></span>
+      <button class="btn" id="copiar" style="padding:7px 13px;font-size:12px">
+        <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="5.5" y="5.5" width="8" height="9" rx="1.3" stroke="currentColor" stroke-width="1.35"/><path d="M10.5 5.5v-3a1 1 0 0 0-1-1h-7a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>
+        Copiar tabela
+      </button>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--ok)"></i>Disponível</span>
+      <span><i style="background:var(--wait)"></i>Fase posterior</span>
+      <span><i style="background:var(--res)"></i>Reservada</span>
+      <span><i style="background:var(--sold)"></i>Vendida</span>
+    </div>
+    <div id="tabelas"></div>
+  </section>
+
+  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div>
+  <div class="lbox" id="lbox" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada"></div>
+
+  <div class="foot">
+    <span>Portal comercial <b>HLiving Empreendimentos</b> · uso interno da equipe de vendas</span>
+    <span>Valores sujeitos a reajuste pelo CUB/SC · confirme a disponibilidade antes de propor</span>
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  var ST = { D:{k:"disp",l:"Disponível",s:"Disponível"}, F:{k:"fase",l:"Fase posterior",s:"Fase"},
+             R:{k:"res",l:"Reservada",s:"Reservada"}, V:{k:"vend",l:"Vendida",s:"Vendida"} };
+
+  var C254 = ("2701|1|2107401.45|R 2702|2|2074087.05|R 2601|1|2091714.45|R 2602|2|2058646.80|R "+
+    "2501|1|2076142.95|R 2502|2|2043322.05|R 2401|1|2063571.69|D 2402|2|2030949.84|D "+
+    "2301|1|2048210.77|D 2302|2|2015831.80|D 2201|1|2032963.39|D 2202|2|2000825.22|D "+
+    "2101|1|2017829.59|D 2102|2|1985931.15|D 2001|1|0|V 2002|2|1920432.45|D "+
+    "1901|1|0|R 1902|2|1909550.73|D 1801|1|1903022.79|D 1802|2|1872300.69|D "+
+    "1701|1|1902244.05|V 1702|2|0|V 1601|1|0|V 1602|2|1847038.38|D "+
+    "1501|1|0|V 1502|2|0|V 1401|1|0|V 1402|2|0|V 1301|1|0|V 1302|2|0|V "+
+    "1201|1|1867174.16|D 1202|2|0|V 1101|1|0|V 1102|2|0|V 1001|1|1834344.56|D 1002|2|0|V "+
+    "901|1|1811626.11|D 902|2|0|V 801|1|0|V 802|2|1807289.35|D 701|1|0|V 702|2|1795304.63|D "+
+    "601|1|0|R 602|2|0|R").split(" ").map(function(r){
+      var p = r.split("|"); return { n:p[0], t:+p[1], v:+p[2]||null, s:p[3] };
+    });
+
+  var ATL_AREA = {1:40,2:70,3:70,4:40,5:30,6:30,7:60,8:60,9:60};
+  var ATL_DISP = {"601":936,"602":1356,"603":1320,"609":1359,"709":1429,"803":1353,"1103":1379,
+    "1105":721,"1203":1392,"1209":1217,"1407":1236,"1408":1236,"1409":1242,"1507":1248,
+    "1508":1248,"1602":1468,"1608":1263,"1702":1489,"1707":1276};
+  var ATL = [];
+  for (var a=6; a<=18; a++) for (var p=1; p<=9; p++){
+    var n = String(a*100+p);
+    ATL.push({ n:n, t:p, v: ATL_DISP[n] ? ATL_DISP[n]*1000 : null, s: ATL_DISP[n] ? "D" : "F", k:true });
+  }
+
+  function u(n,area,desc,s,v){ return { n:n, area:area, desc:desc, s:s, v:v*1000, k:true }; }
+
+  /* foto: deixe a URL da imagem de capa aqui quando tiver (ex.: foto:"capas/2cinco4.jpg") */
+  var DEVS = [
+    { id:"c254", cat:"lanc", badge:"Lançamento", nome:"2CINCO4 Edition", foto:null,
+      local:"Rua 254, nº 703 — Meia Praia, Itapema/SC",
+      ri:"RI R-10-96.103 · Matrícula 96.103 · CRI Itapema/SC",
+      entrega:"março 2031", cub:"CUB R$ 3.171,96 · 01/10/2026",
+      resumo:"Apartamentos de 134 m² privativos, dois por andar, do 6º ao 27º pavimento",
+      detalhe:"Tabela corrigida pelo CUB/SC com acréscimo de 0,75% por pavimento. Tipos 1 e 2 em todos os andares.",
+      tipos:[{n:1,area:134,spec:"134 m² · face mar"},{n:2,area:134,spec:"134 m² · face cidade"}],
+      units:C254,
+      pgto:[{p:"10%",l:"Entrada",v:"nos atos"},{p:"10%",l:"Obra",v:"mar./2027"},
+            {p:"10%",l:"Chaves",v:"mar./2031"},{p:"40%",l:"84 mensais",v:"durante a obra"},
+            {p:"30%",l:"6 anuais",v:"balões"}] },
+
+    { id:"atl", cat:"lanc", badge:"Em obras", nome:"Atlantia Ocean View", foto:null,
+      local:"Av. Gov. Celso Ramos, nº 37, esq. Rua Pedro Reig — Balneário Perequê, Porto Belo/SC",
+      ri:"RI 49.123 · Home Boutique",
+      entrega:"dezembro 2028", cub:"CUB R$ 3.171,96 · 01/10/2026",
+      resumo:"Studios e apartamentos de 30 a 70 m², nove unidades por andar, do 6º ao 18º",
+      detalhe:"Nove tipologias na mesma torre: do studio de 30 m² ao dois dormitórios de 70 m². Fases posteriores com valores a definir.",
+      obra:{ total:39, etapas:[
+        {l:"Estrutural", v:70, det:"Fundação 100% · Estrutura 73% · Alvenaria 38%"},
+        {l:"Instalações", v:10, det:"Elétrica 4% · Hidráulica 16%"},
+        {l:"Acab. interno", v:9, det:"Acabamento interno 9%"},
+        {l:"Acab. externo", v:8, det:"Acabamento externo 8%"}
+      ]},
+      tipos:[1,2,3,4,5,6,7,8,9].map(function(t){ return {n:t,area:ATL_AREA[t],spec:ATL_AREA[t]+" m² privativos"}; }),
+      units:ATL },
+
+    { id:"altos", cat:"pronto", badge:"Pronto", nome:"Altos da Serra", foto:null,
+      local:"Bom Jardim da Serra/SC", entrega:"entrega imediata",
+      resumo:"Terreno de 2.138,47 m² em condomínio fechado na serra catarinense",
+      detalhe:"Quadra 07, Lote 34. Escritura pronta para transferência.",
+      units:[ u("Q07-L34",2138.47,"Terreno · Quadra 07, Lote 34","D",379) ] },
+
+    { id:"flats", cat:"pronto", badge:"Pronto", nome:"Flats For Seasons", foto:null,
+      local:"Itapema/SC", entrega:"entrega imediata",
+      resumo:"Flats compactos de 40 a 44 m² com uma vaga de garagem",
+      detalhe:"Perfil de investidor: locação por temporada já em operação.",
+      units:[ u("403",44.37,"1 vaga de garagem","V",1128), u("1105",40.12,"1 dormitório · 1 vaga","D",1288) ] },
+
+    { id:"duetto", cat:"pronto", badge:"Pronto", nome:"Duetto Home", foto:null,
+      local:"Governador Celso Ramos/SC", entrega:"entrega imediata",
+      resumo:"Apartamento de 70,84 m² com uma suíte e um dormitório",
+      detalhe:"Bloco A, pronto para morar.",
+      units:[ u("103-A",70.84,"1 suíte + 1 dormitório · 1 vaga · Bloco A","D",1247) ] },
+
+    { id:"tropical", cat:"pronto", badge:"Pronto", nome:"Tropical Village", foto:null,
+      local:"R. 408, 298 — Morretes, Itapema/SC", entrega:"entrega imediata",
+      resumo:"Apartamento de 67 m² com dois dormitórios, sendo uma suíte",
+      detalhe:"Duas vagas de garagem. Imóvel vazio, pronto para ocupação.",
+      units:[ u("1902",67,"2 dormitórios sendo 1 suíte · 2 vagas · vazio","D",1034) ] },
+
+    { id:"haute", cat:"pronto", badge:"Pronto", nome:"Haute Les Residence", foto:null,
+      local:"Rua 262, nº 795 — Meia Praia, Itapema/SC", entrega:"entrega imediata",
+      resumo:"Seis unidades de 85 e 97 m² na Meia Praia, todas com duas vagas",
+      detalhe:"Plantas de 1 suíte + 2 demis (97 m²) e 2 suítes (85 m²). Uma unidade semimobiliada.",
+      units:[ u("601",97,"1 suíte + 2 demis · 2 vagas","D",1779),
+              u("701",97,"1 suíte + 2 demis · 2 vagas","V",1803),
+              u("1002",85,"2 suítes · 2 vagas","D",1532),
+              u("1201",97,"Semimobiliado · 1 suíte + 2 demis · 2 vagas","D",2012),
+              u("1202",85,"2 suítes · 2 vagas","D",1567),
+              u("1501",97,"1 suíte + 2 demis · 2 vagas","D",1885) ] },
+
+    { id:"lafayette", cat:"pronto", badge:"Pronto", nome:"Lafayette", foto:null,
+      local:"Rua 252, nº 465 — Meia Praia, Itapema/SC", entrega:"entrega imediata",
+      resumo:"Apartamento de 109 m² com três suítes e duas vagas",
+      detalhe:"Andar alto na Meia Praia.",
+      units:[ u("1202",109,"3 suítes · 2 vagas","D",2866) ] },
+
+    { id:"costamare", cat:"pronto", badge:"Pronto", nome:"Costamare", foto:null,
+      local:"Rua 321, 286 — Meia Praia, Itapema/SC", entrega:"entrega imediata",
+      resumo:"Apartamento mobiliado de 100,25 m² com três suítes",
+      detalhe:"Duas vagas de garagem. Entrega mobiliada.",
+      units:[ u("1001",100.25,"3 suítes · 2 vagas · mobiliado","D",2199) ] },
+
+    { id:"tekoa", cat:"oport", badge:"Oportunidade", nome:"TEKOA", foto:null,
+      local:"Ilhota, Itapema/SC", entrega:"a definir",
+      resumo:"Seis unidades repassadas, de 25,59 a 126,54 m²",
+      detalhe:"Studios de 25 m² e cobertura de 126 m². Imóveis na planta em condições de repasse.",
+      units:[ u("904",126.54,"Cobertura · 126,54 m²","D",2880), u("1202",25.59,"Studio · 25,59 m²","D",482),
+              u("1207",45.44,"45,44 m²","D",810), u("1208",49.59,"49,59 m²","D",883),
+              u("1305",25.59,"Studio · 25,59 m²","D",482), u("1306",25.59,"Studio · 25,59 m²","D",482) ] },
+
+    { id:"villa", cat:"oport", badge:"Oportunidade", nome:"Villa de Capri", foto:null,
+      local:"Av. Nereu Ramos, 3070", entrega:"dezembro 2028",
+      resumo:"Unidade de 202 m² em frente ao mar",
+      detalhe:"Alto padrão. Repasse de contrato na planta.",
+      units:[ u("2501",202,"202 m² privativos","D",7522) ] },
+
+    { id:"cota", cat:"oport", badge:"Oportunidade", nome:"Cota Lancha", foto:null,
+      local:"Itapema/SC", entrega:"disponibilidade imediata",
+      resumo:"Cota de lancha em marina de Itapema",
+      detalhe:"Produto complementar ao portfólio, para cliente com imóvel na região.",
+      units:[ u("01",0,"Cota de embarcação","D",430) ] }
+  ];
+
+  /* ---------------- mídia (Google Drive — pasta "ARQUIVOS IA - LIVI") ----------------
+     Cada item é "idDoArquivo|rótulo". Para trocar/incluir material, basta editar aqui. */
+  function M(capa,fotos,videos,plantas,docs,unidades){
+    return {capa:capa, fotos:fotos||[], unidades:unidades||[], videos:videos||[], plantas:plantas||[], docs:docs||[]};
+  }
+  /* U("601", [ids]) → pastinha de uma unidade, com as fotos numeradas na ordem */
+  function U(nome, ids){
+    return { u:nome, fotos: ids.map(function(id,i){
+      return id + "|Unidade " + nome + " — " + ("0"+(i+1)).slice(-2);
+    }) };
+  }
+  function contaUni(m){ return m.unidades.reduce(function(a,g){ return a + g.fotos.length; }, 0); }
+  var MIDIA = {
+    c254: M("1XT_c0jlXz77ZK9t05N2LJ-UfI9gJF_p2",
+      ["1XT_c0jlXz77ZK9t05N2LJ-UfI9gJF_p2|Fachada 01","1KEcnqoYtEluTozGds_VJVntu9MyJAyOL|Fachada 02",
+       "1Da8dXitQzbhbYUGEAPGGXk1EPf8yczQ4|Fachada 03","1ejC3_pTKwZENrkX4jom0mXgKT60JcxHw|Piscina",
+       "1hx7ZYV56DgsRqqVqPbyl_ku7ohE0vY4D|Gourmet e churrasqueira","1ePXG88JRMXMI_H_QrjqB0BidA2_XEXnF|Hall",
+       "1Z7C98eciZ5Of9qttgzZS3yFpgSmMzymk|Solário e espaço zen","1v-keLn3IJRQF8_5CZRfQWlkQsZ47KPWZ|Espaço kids",
+       "10cyH0It3QQ5gvj3srGVuCI4sR8QxXMix|Sala de massagem","1CcAr6XfIY8J8kPhIi1YWOUYcRL2r_ei2|Salão de festas",
+       "1z8Ku9EQZwe_teKdDjcQZAoyIWwHoGjSj|Salão de jogos","1drKeW2QgCJ8PL14UNCL5wLHo7NfltelP|Terraço com fireplace",
+       "1Aoq-4O0Kbeb_BOn6NfCrd0DVeFBuYsoY|Espaço descanso","1Awr6hPQefHoGmvoYWfkInlhQLUuuguRb|Apartamento Style",
+       "1RkW-FVs_xeSV2L7Jiu8tnYQbPUoJzJaL|Apartamento Gourmet","1BEkYR09aaMScbY_eUCm2ewiArHnIGjLT|Apartamento Office",
+       "1ZpfEcjlFbEV7BaJfZDYU-8IquFU2KiUD|Apartamento Family","1WFAUc_BmDL72HfnCYPPe4MJMUXBTjKQ5|Localização"],
+      [],
+      ["1GIkmbA_xmtZWtK83112mkgnmQqWJ4BeT|Tipologia 08","1vCSH5X-cInFkaLnRNPXK6UTNgMBlDHX7|Tipologia 10",
+       "1E187EnjxlrhpqwuDbckDgR2FXLhHkL4_|Tipologia 12","1zMKzTuUVfaf9lrg57jU4oxeJpFzGR-I5|Tipologia 14",
+       "12-gj93lbYwlxJq1tWHxItOZBKlgMz6X8|Prancha 3","1M5-xZzH_JS7euthuCKTrJ2_hfJVXExju|Prancha 2"],
+      ["1IiOA0Y5Ol2QX7wjEf0R7sH9LyBO0Ru05|Book digital 2CINCO4"]),
+
+    atl: M("1Kqv5hTftNa4IesSqWTy4XsHAxL0B9g8i",
+      ["1Kqv5hTftNa4IesSqWTy4XsHAxL0B9g8i|Fachada 02","1W4MfEjUnyIvTLW9jg7tm1bemoN6bcbCZ|Fachada 03",
+       "1J7_lx3Lu7mlz97lPD5TCEnmU9jDJBJSX|Fachada 01","1f3szcovBGDYJr4-z_Ltlum6QXZbHd63p|Acesso",
+       "19xYD3shsdlXO_TUxqEHYTXGVRi6Qby8K|Fonte","1QloBklSTDR1aCrZHri5H_PQpuXJ-jXNr|Hall",
+       "1Op05AxmHE_7SpRDFYAamsJ-r5SqW8SjF|Coworking","1L6F4p5ckAo3jE4G8au5j2QWx7Jq_Uiv7|Pranchário",
+       "1828ZkaH5bZUJV_v-thzA1ybgCVwSerYD|Academia","1yU25v11uI7LFos495FDHaHLejwB4txS8|Bike share",
+       "13XH5bRUzBkZ-dXhz5TXZngpXROGf4OUz|Lavanderia","11Qp4bmq8pW84vmV5CFg1HF8MRfpdKm6k|Mercearia",
+       "1RFANM95jdLaU3eTnGqFNod0HjtGo3MOM|Delivery","1R5hBabQNgpTiUzOkeHDp_I675ag4y2VM|Pub e jogos",
+       "1YyyhYU8T89UekfxKBJH1lKbuBgKsTsAm|Localização"],
+      ["1LWe36viLZhJz98sY6vv6c0ojHqAwCIvQ|Decorado Atlantia","1ZkBBwTxY1KWRTJKyVdgCpSNhPGiHWoCU|Fachada 01",
+       "1udpmMRfz8BLhGxknO40ZHGpecE2TjIO7|Fachada 02","1HW5Y5066JzTdKBCUCizWZdenenOpX9YH|Acesso",
+       "1EVI87pnIPV7pI621F9aVih9FunLgQCXA|Piscina","1GIEhIFE2ufvdZFw5czElkT7PLDFfwes0|Bar da piscina",
+       "1pa3Ch5XPVgdrVNrjviKCKnitFgxJHRKj|Hall","1lczqtxUorrmwVlQBkE4ERhurrL5F3Bpc|Spa",
+       "1MGSbEy0x1wL6-x6zssTQ-YYzMIGuGlfy|Filme com localização","1MVrTIV3JlJeqadxmd1_NrzKZJpmeSjCy|Filme institucional"],
+      [],
+      ["1PbIphHAg6kkpXDLsqTuGV_DI5TPPvakM|Apresentação oficial Atlantia"]),
+
+    haute: M("1Ip-CIBVHODeoFe2iW1T_xV_QkcYdRsXN",
+      [
+       "1Ip-CIBVHODeoFe2iW1T_xV_QkcYdRsXN|Piscina 1","1Z7K9expfJvGIIbDKmDrnMK9tFrZAv5uQ|Piscina 2",
+       "1Xz_xyFFplvHgRg8Pw1YaNekLcrVOdGsp|Piscina 3","1Xw6Llg7p1St_WXcnCkmdkvnDKYvnJS2p|Piscina 6",
+       "1GogH3pKdy1_FB6-QWEzRYe6SRqftk0yr|Piscina 7","1w6kXr5lzx4wq5TNvpXJ-JYOPjnxuNYXK|Playground 1",
+       "1fLRHiq5QUuUd4zvr3ExRGruBl368fVjW|Playground 2","1gkQ_5pLxO1z9-v9LHkquHOhm8v3WmXYU|Playground 5",
+       "1uq8dthQP1TPddBClsRuylLfE0G9IubY6|Playground 7","10iF96aZClxfykOhNwMaClMC808YyAwVt|Pub 01",
+       "1zyCp8NP6055XAusz6Oxpk38HQAJsPFZA|Pub 02","1ICzeM1ZJMO5nFTnMoaF28c78cXLEDYc7|Pub 03",
+       "1U6cwtG-pJDEJyZg5WmBqk867v2EJY1ZT|Pub 04","18Pv-37VsBwC8LsrMYVOZdBo2c7r5p5vz|Pub 05",
+       "1sZMC1gCfzI_Ro2kRNWD2jjs8Ztg5lh36|Pub 06","1S8yoOccUqk80MuiGeD8q9L25ajMLVbat|Área de churrasco 1",
+       "1ZYpoHq6oue-c2sMIRKGER8I7s6zm533x|Área de churrasco 2","1O0nwJkOF66Tnl01xIelo1UQzHe9jlVVz|Área de churrasco 4",
+       "1TYos_MfNV6z94fLuYxWiq9VpCOdus76u|Brinquedoteca 2","18bcZvUzh5wmcuST9QTiPR58jepggTsXu|Brinquedoteca 5",
+       "1MUyTfR59nwz2Vk79TF-hPkgowJdcYk8U|Brinquedoteca 8","175kdUUBNiKiqGJFRYyIfc5NOJPRrhdtw|Academia 1",
+       "1z92_peMA5pmDnHz3ezghP1tXQxrGCTfY|Academia 2"],
+      ["11ABaNRFexAFZUrjnSCgWT2YQ-nzTrbiU|Haute pronto",
+       "1JY_8ovZ0bDWibloAc2ZoYyV9g2uDjMaZ|Vídeo da unidade 601","1mcf1RR6gUKjcgWrp9HtSyyaJBXPpsLvK|Unidade 601 — versão curta",
+       "1eaFzihddV2stIlDLwy8NlHH0R7kvxavG|Vídeo da unidade 701","1Nba-XkrNtllriX83cZyF7Ku3W17SghaD|Vídeo da unidade 1002",
+       "10BPRhHMzgV38CGK9vqPkAqeGNRAg2OGG|Vídeo da unidade 1501"],
+      ["1vcJUvVNzbAh5qBE5l9jZC2GJ0oIQ8P3-|Planta 601","18b3hCczRxbTTTfs9g_BmIBwnvwlKfeyF|Planta 701",
+       "1sNz0yyOYKpvhcWdk4sqLQKnv6NMqUOa8|Planta 1002","1COvm5c0C8Ly3D27LNY8dGnXiLwk6g-VD|Planta 1501"],
+      ["1lUjv-eyEiPgCKbSQH1_IqevQfrqzcGte|Descritivo Haute"],
+      [U("601",["1LUQnVACWK2dYeaFKucd4e9SdHnd_cJU3","10Lde56Bs0LUZUTbh_dojE5_voLkFpXVe","1j95Y_ZjQ3yPQ9dHn5kx6bu6G2I2FSiLH",
+         "1nioeEGroxEk-7XOKAny82qNaPesNkHCp","1nqoklNwoBtzx_HGxs8qY1UTsvmU2TBHr","1eSqOnHauu7jmwG3AQziB4oDW2TrYHfmW",
+         "1rQYmgfK-KzFcr8DB0lQjWwk_skp6wdRZ","1hgZS8VkkYYABKFU4uKM5nmd-FRznnnJM","1Ol3HMVxrPczDnGvcxBKse5VEdvSLhbKc",
+         "1befuCIM_xF09o7ZIL_l1tJhK_qjFEAY8","1CRdvmy0OoCy1mQNDYmMo68k99LQVdH3T","1kD5jW-Z4-81iQsIwdsw3HJqyzg--Se9T",
+         "14O3j6ZVi0pJyqkmTBU79HDO6NydjyS8Q","1JCTRAv3rTlJiswaiw7zCHqkGYUGF_5oM"]),
+       U("701",["15yJ3BTWgL9D_PX50OM1CMeSHgx5N1uf1","1Ksp869zGF9xou5ZxCviH16VDGVfcXB_K","1m6k63fNBaHBP9EwDMcvlwhYXG_WjrBGZ",
+         "1J6Lr6lAcBbY7RLlty6Kl4YWiCAP_4mCn","1XD229u_BqoPnf6am3zt1H4E6Tub1B_og","1L8iSZ6_2KNLmnfnB2IHQJjwguhpL9jii",
+         "15reLmwmZfvG4w-MOIES13Q7xa0ZQ5cYp"]),
+       U("1002",["1Fx3ViB5DpWNbDzFbjtgEF6VT78GSrDWh","1j9ByHZso7zt556Z3d00QGZZyd9-1jYfG","1ajhX5h6uVhX0OIn_8l56VitQHtDUw6_-",
+         "1hLiSeKOqC68dINRrXXXtjtH8ozKqZxxn","12MuZGmoSWl1HCV_pdI2IDmhHzQYbMmfP","14-aXvl_oEEOoD1dYMeLNXr8wKyNMf0JW",
+         "1KKHjXfgX9krPgM2rkQ_jdvkh5XRnDvtt","1nJzJgDaGX7dBGWIPSmzDDztCVfDiuGWP","1FJ1qReHveyFbE5abFuLgDxMC-TH8O1vn",
+         "1FvhEABFheJt56ZqGFpPR7yMM7a5OdiYF","1cLXgyeCD_SdLx69kUi_QeRPAhO3s3-hI","1zcP-FEFaU2scivl3u6fcVgrNUc_2GMYQ",
+         "1fDrHn8sizXh928PuXoLJJnKRI-c61UJf","1TCQeu5m0e9uVs3D5ORWiKi_EALg01_dJ","1Yj1hvO5XBPHkCkujqdcLHGlmedGEadLw",
+         "1Y4WAfNMaS2TNbtxN8Q5jT-QiUBdjE42l","14B-qpcuw3jsOh8DSvbdme-4RfPYKfXcg","101fWWCqG3lhzoutfIIYxvZmYTCcZ3IRs",
+         "1YwiFeZMC4TKEwkpU7ypYw538f8keAVtu"]),
+       U("1201",["1Hjr5CLUTYEjaj-WTd0nLESvmYLTd7is2","1fSFvz6FaJLltT3X3XclX3HvxT-wclSod","1_k1CNJOMb-8GuUa8Q9UByHJk9B302FXH",
+         "1ZknOy0345bnBk-P-QAOIUxIK3Ac6JUiv","1sYw59hj5r3VmmTFKXwRdYWnBWNzrofL5","10yExAcBnenBNrBroRMl8mP2jS_7T9IYd",
+         "1tuoCR3CteDOqAEe8CekYpj_g9tkVS1JJ","1LejkLxukK1UffG9yRGWgiSRUUOzhvZvh"]),
+       U("1202",["1x-Om1Ef99h9Kf7zJm6g2TBoPytXe6Xdw","1Iy9FSvZYboQgypFTQe-W6Ayyp3O5_xgb","17u11ZyVv_dxRNrXMw394djj-bW3B6Hrj",
+         "1nCO_nXAokY3Jfw1qVNpfs9J89Vv5BVSu","1W1srcTrSWmKqQU0DvqATmE8bNA1lQsCz","1lOWQka8DVCUCL1vnmLfxwbqVUHwDiBeU",
+         "1QZI0MAWhguF5BYTqYCJbrDh4Rpr2NaIW","1ktDD8DKrMa_sCHQSQuzLuWPbiBSnEM67"])]),
+
+    lafayette: M("10RpI4nCinWCEc7iZOBJ8T3mXQN4-g0SY",
+      ["10RpI4nCinWCEc7iZOBJ8T3mXQN4-g0SY|Lazer 620","1flexs_fD3NqQx-N1yf9_G9c-4yRSNikS|Lazer 463",
+       "1jGUgKF9hg4ucMoTZaQdVxUmXH2D6qE4Z|Lazer 459","1wjEbRKOOUe-1THyE-Yj4D9Z1qWpFwsvo|Lazer 437",
+       "1PyD2ufMlnh5B6OJT2uxai1W5rzzAkjIa|Lazer 425","1lCxmOaflAlGI1QuLF4GBJVxY_xoSmzSx|Lazer 562",
+       "1H6UM494kpOrd7oRHETny2h4lcY1kqjBc|Lazer 565","1LJGm1thiPdNhsEZ7Jlx2GOTV6YaZPdjh|Lazer 492",
+       "1G1y8R4UVW4TZ8KvMEEM17K-1yM1MPRgK|Lazer 554","1PC_9NVxqwFwIsCy1F8gWuCNYJnSOEuZp|Lazer 624",
+       "1yfoU7zY4PsABFw3ZK9b8glOz8QzCVEn3|Lazer 617","1-naShbTIzfmJCml0ZQoKuGwSIDMngEW3|Lazer 622",
+       "1NkfPvnqPRD2od40r8bnb6KDLjuadhAq_|Lazer 587","1W5aDUq8_3JLFxQWCstBfXPe0zC6T8ioY|Lazer 595"],
+      ["1qyu_PjzMPszOBiSVVeEc2Y4kQKsWg4gh|Lafayette pronto","17E7tha5cQg53Ten2NLxqPZSSf4pgrppB|Decorado Lafayette"],
+      [], []),
+
+    flats: M("1KEleVRgj9LjytLUx_TGAhFOcqwg0ceOl",
+      ["1nhRuZ6w3mJHS5tz2nwRmSizJSlagsaMW|Unidade 1105 \u2014 01","1WsBwYa8cQ9_OlZ_XGzSPDPCb2fvhS5pf|Unidade 1105 \u2014 02",
+       "1k6yX5AECJ7j5DRtAmFY2DUcbwPet70Ox|Unidade 1105 \u2014 03","1vM9eCHUNBo76y_PqeqvNhF_gj_UAlYgm|Unidade 1105 \u2014 04",
+       "1OkWCw819RLlJdjNJXeTzuj-c7xBWoV_5|Unidade 1105 \u2014 05","16663dm2WeOYckDMyXhfzLlv1eO1Q7cZ-|Unidade 1105 \u2014 06",
+       "1t6imv1EhiOMjuxNx8kiMcpnZZNxBT98D|Unidade 1105 \u2014 07","1EYbSj8-sibq-182poDq9xObJuCdmfNH9|Unidade 1105 \u2014 08",
+       "1e1x6K4cG2qixWN2FBMtr6XTs4OfmxjOG|Unidade 1105 \u2014 09","10xIuz-5qjJAUix1VZvj6uor2LxbZtLG4|Unidade 1105 \u2014 10",
+       "1arm7ueDlrmqbabDD-NeBHKzVjMdm5S87|Unidade 1105 \u2014 11","1DdmDXqEbkZfsDxJ2fedThA6W4IijIVFG|Flats 05 e 10",
+       "1KEleVRgj9LjytLUx_TGAhFOcqwg0ceOl|Lazer 1","1TE23p84eACV3FEzL5LMLRTiw1C72_it9|Lazer 2",
+       "1geh_m-aix4f5Vbeoi3gn48OgoAFRczHG|Lazer 3","14IybZBvFM7XSbGYDlum0WppApyaew951|Lazer 4",
+       "1LweNbMqIUkeyMCG7sH33JP4wgH6BHNk9|Lazer 5","1c1VhxjlBv1hftolCVRDbWzq12v0jKUP0|Lazer 6",
+       "1V9dDT_AZhWrGfT4F5wHrLB3HMnm1Je9_|Lazer 7","1Ogk096Te2HC0K5Z8YHt2mPtHD93tKeFX|Lazer 8",
+       "1VPax7TqT_c-mQMd7fT85wwW4JDoBdtHn|Lazer 9"],
+      ["1y60IwFevhIvyphNw_A3PXDz6dtJHP0Hl|V\u00eddeo da unidade 1105",
+       "1n_6_vg9HL1BJRnUoAx-HCuxOd2KtEsmp|Flats For Seasons","1oJHNP4JIk5iQWHCIRIxo8SKYTkG4SDJh|Lazer"],
+      [], []),
+    tropical: M("1PE1Ec_QpS9lGwEtnkL5nZ-rQBKPt2Jxv",
+      ["1PE1Ec_QpS9lGwEtnkL5nZ-rQBKPt2Jxv|Lazer 1","1E24DJYMJOoXDRKvPOvw6IEUa8kxD-hyS|Lazer 2",
+       "1rznN8RHNitECimoYVv53SQn5_Un9aRha|Lazer 3","10xHhffMlOlh985Hr9WvDepCPRsmY6Vo9|Lazer 4",
+       "1cqr6EkhxC1icdaziABjiQFSJR4UfWg4-|Lazer 5","18mOJWrcal_7D_42g57m4JgBM27y4krjx|Apartamento 1",
+       "191MAkrLF3HHhU4j2P381lcOe1oZuxhuu|Apartamento 2","1tkiHjTNlqFQhFZwG2vQtwW1a70fWuyUv|Apartamento 3",
+       "1ocRli14Gsw8brPSuzdxJOLCya27OqN3d|Apartamento 4","1TzZ4dpxQ9uQ31NHqaKQywXhPwdZGrlFf|Apartamento 5"],
+      [], [], []),
+
+    duetto: M("1q_9uFh-CkW-qj8CBgt49n9PFV1sju35T",
+      ["1q_9uFh-CkW-qj8CBgt49n9PFV1sju35T|Imagem 1","1c_kzFecqpA4podA1r_-vt7V6C7U0uRL8|Imagem 2",
+       "1-W3JEPi7GEVTWLfueSEFJtms8amEBtnz|Imagem 3","1F9ro7fN6_QXy1xEYMpd16yYNzBFWa9XA|Imagem 4",
+       "1vuatWw5aZs9d7HYrYJM-iUK8_bKs3G6-|Imagem 5"],
+      [], [], ["1q1tt0YYfQ5gDvpx18LKB5cO472rOnlHK|Apresentação Duetto Home"]),
+
+    altos: M("1OfnqgFiqwxKpcDIObb8vbWTYJ1YJIC7D",
+      ["1OfnqgFiqwxKpcDIObb8vbWTYJ1YJIC7D|Terreno 01","1eUBYEZCH3WDHf5vl3_utKS8W7FQCj51k|Terreno 02",
+       "1uqzzMt349TD6tJ2B3n5-3aYXDD1QH7T5|Terreno 03"],
+      ["180jPfFEUzNCHrqRwo7-ngZN89UN3RDZJ|Vídeo do terreno"], [], []),
+
+    cota: M("17n7QtVBjeuMfsUqKy4rumDWckQgnyuyN",
+      ["17n7QtVBjeuMfsUqKy4rumDWckQgnyuyN|Lancha 1","1e3PmI08w5An2Pq3Ek44d4KxL6vOL0gAL|Lancha 2",
+       "1NoBT4Sc6RjI8swg0F7e0f6UvxXVSLMvx|Lancha 3","18-BZYxhLTjE5tE8LVk5xVgTJ6rV_1FD3|Lancha 4"],
+      ["1GPNGOpzukriG5UpXPhzO5rWwnucZb6X-|Vídeo da lancha"], [], []),
+
+    tekoa: M(null, [], [], [], ["1l-W7CSuV848C2lJAHng4twn5Auvi7MG3|Apresentação comercial TEKOÁ"])
+  };
+  DEVS.forEach(function(d){ d.midia = MIDIA[d.id] || null; });
+
+  /* ---------------- leitura ao vivo do servidor da HLiving ----------------
+     Os dados abaixo (DEVS) são a cópia de 21/10/2026 e funcionam sozinhos.
+     Se o servidor responder, preços, status, CUB e condições são substituídos pelos atuais.
+     Fotos, andamento de obra e textos descritivos ficam sempre aqui — não existem no servidor. */
+  var API = "https://hliving-proxy.jefearq.workers.dev?action=getAll";
+  var DE_PARA = { "2cinco4":"c254", "emp_1789495520655":"atl", "altos":"altos", "forseasons":"flats",
+    "gcr":"duetto", "pronto_1785419252229":"tropical", "pronto_1785776998570":"haute",
+    "pronto_1787255765841":"lafayette", "pronto_1789044237996":"costamare",
+    "op_1787319381095":"tekoa", "op_1787591125745":"villa", "op_1787777349085":"cota" };
+  var ST_SERV = { disp:"D", fase:"F", vend:"V", res:"R", pre:"F" };
+  var FONTE = { vivo:false, quando:"21/10/2026" };
+
+  function acha(id){ return DEVS.filter(function(d){ return d.id === id; })[0]; }
+  function moeda(v){ return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+  function aplicaUnidades(d, lista, comArea){
+    if (!lista || !lista.length) return;
+    d.units = lista.map(function(x){
+      var o = { n:String(x.n), v:(+x.v)||null, s:ST_SERV[x.s] || "F" };
+      if (comArea){ o.area = (+x.area)||0; o.desc = x.desc || ""; }
+      else { o.t = +x.t; }
+      return o;
+    });
+  }
+
+  function aplicarServidor(dados){
+    // 2CINCO4 vem na raiz do payload
+    var c = acha("c254");
+    if (c && dados.empreendimento){
+      var e = dados.empreendimento;
+      if (e.local) c.local = e.local;
+      if (e.ri) c.ri = "RI " + e.ri + (e.matricula ? " · Matrícula " + e.matricula : "");
+      if (e.cub) c.cub = "CUB R$ " + moeda(e.cub) + (e.cubData ? " · " + e.cubData : "");
+      aplicaUnidades(c, dados.unidades, false);
+    }
+    if (c && dados.pagamento){
+      var p = dados.pagamento;
+      c.pgto = [ {p:p.pctEntrada+"%", l:"Entrada", v:String(p.venEntrada||"")},
+                 {p:p.pctObra+"%", l:"Obra", v:p.venObra},
+                 {p:p.pctChave+"%", l:"Chaves", v:p.venChave},
+                 {p:p.pctMensal+"%", l:p.qtMensal+" mensais", v:"durante a obra"},
+                 {p:p.pctAnual+"%", l:p.qtAnual+" anuais", v:"balões"} ];
+    }
+    // lançamentos, prontos e oportunidades vêm em listas
+    var vis = dados.visibilidade || {};
+    var ocultos = [];
+    [].concat(dados.lancamentos||[], dados.prontos||[], dados.pre||[]).forEach(function(x){
+      var meu = DE_PARA[x.id];
+      if (!meu) return;
+      var d = acha(meu);
+      if (!d) return;
+      var ligado = x.ativo !== false && vis[x.id] !== false;
+      if (!ligado){ ocultos.push(meu); return; }
+      if (x.local) d.local = x.local;
+      if (x.cub) d.cub = "CUB R$ " + moeda(x.cub) + (x.cubData ? " · " + x.cubData : "");
+      aplicaUnidades(d, x.unidades, !d.tipos);
+    });
+    // some com o que o admin desligou
+    if (ocultos.length) DEVS = DEVS.filter(function(d){ return ocultos.indexOf(d.id) === -1; });
+  }
+
+  function carregar(){
+    if (!window.fetch) return;
+    var fim = false;
+    setTimeout(function(){ fim = true; }, 9000);
+    fetch(API, { cache:"no-store" })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function(dados){
+        if (fim || !dados || !dados.empreendimento) return;
+        aplicarServidor(dados);
+        var ag = new Date();
+        FONTE.vivo = true;
+        FONTE.quando = ag.toLocaleDateString("pt-BR") + " às " +
+          ag.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+        renderCards(); renderTabelas();
+      })
+      .catch(function(){ /* segue com a cópia local */ });
+  }
+
+  var CATS = [ {k:"todos",l:"Todos"}, {k:"lanc",l:"Lançamentos"}, {k:"pronto",l:"Prontos"}, {k:"oport",l:"Oportunidades"} ];
+
+  /* ---------------- helpers ---------------- */
+  function brl(v){ return "R$ " + Math.round(v).toLocaleString("pt-BR"); }
+  function brlK(v){ return "R$ " + Math.round(v/1000).toLocaleString("pt-BR") + " mil"; }
+  // 2CINCO4 tem valor exato na tabela; os demais só têm precisão de milhar
+  function preco(d, v){ return d.id==="c254" ? brl(v) : brlK(v); }
+  function milhoes(v){ return "R$ " + (v/1e6).toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1}) + " mi"; }
+  function area(a){ return a.toLocaleString("pt-BR",{maximumFractionDigits:2}) + " m²"; }
+  /* Drive: imagem renderizada e link de visualização do arquivo */
+  function img(id, w){ return "https://drive.google.com/thumbnail?id=" + id + "&sz=w" + (w||1000); }
+  function dv(id){ return "https://drive.google.com/file/d/" + id + "/view"; }
+  function parts(s){ var i = s.indexOf("|"); return { id:s.slice(0,i), t:s.slice(i+1) }; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  function stats(d){
+    var o = {total:d.units.length, D:0, F:0, R:0, V:0, min:null, vgv:0};
+    d.units.forEach(function(x){
+      o[x.s] = (o[x.s]||0)+1;
+      if (x.s==="D" && x.v){ o.vgv += x.v; if (o.min===null || x.v<o.min) o.min = x.v; }
+    });
+    return o;
+  }
+
+  var PIN = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M8 14.5s5-4.3 5-8a5 5 0 1 0-10 0c0 3.7 5 8 5 8Z" stroke="currentColor" stroke-width="1.35"/><circle cx="8" cy="6.4" r="1.8" stroke="currentColor" stroke-width="1.35"/></svg>';
+  var CAL = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="2" y="3.2" width="12" height="11" rx="1.5" stroke="currentColor" stroke-width="1.35"/><path d="M2 6.6h12M5.4 1.8v2.4M10.6 1.8v2.4" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+  var CAM = '<svg width="11" height="11" viewBox="0 0 16 16" fill="none"><rect x="1.6" y="4.4" width="12.8" height="9.2" rx="1.6" stroke="currentColor" stroke-width="1.4"/><circle cx="8" cy="9" r="2.4" stroke="currentColor" stroke-width="1.4"/><path d="M5.6 4.4 6.6 2.6h2.8l1 1.8" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+  var BARS = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M2 13V7M6 13V3M10 13V9M14 13V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  var HELM = '<svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M1.6 11.4h12.8M3.2 11.4V8.6a4.8 4.8 0 0 1 9.6 0v2.8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M6.6 4.2V2.9a.9.9 0 0 1 .9-.9h1a.9.9 0 0 1 .9.9v1.3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M1.2 11.4h13.6a.6.6 0 0 1 .6.6v1a.6.6 0 0 1-.6.6H1.2a.6.6 0 0 1-.6-.6v-1a.6.6 0 0 1 .6-.6Z" stroke="currentColor" stroke-width="1.4"/></svg>';
+  var GALERIA = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><rect x="1.8" y="3.4" width="12.4" height="9.2" rx="1.5" stroke="currentColor" stroke-width="1.35"/><circle cx="5.6" cy="6.6" r="1.1" stroke="currentColor" stroke-width="1.2"/><path d="M2.4 11.6 6 8.6l2.4 2 2-1.6 3.2 2.6" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg>';
+  var PLAY = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.35"/><path d="M6.6 5.6 10.6 8l-4 2.4V5.6Z" fill="currentColor"/></svg>';
+  var DOC = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M9 1.8H4.6a1.2 1.2 0 0 0-1.2 1.2v10a1.2 1.2 0 0 0 1.2 1.2h6.8a1.2 1.2 0 0 0 1.2-1.2V5.4L9 1.8Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="M8.8 2v3.4h3.5M5.8 9h4.4M5.8 11.2h3" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg>';
+  var XIS = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  var PASTA = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M1.8 4.2a1.2 1.2 0 0 1 1.2-1.2h2.7l1.3 1.6h5.2a1.2 1.2 0 0 1 1.2 1.2v6.2a1.2 1.2 0 0 1-1.2 1.2H3a1.2 1.2 0 0 1-1.2-1.2V4.2Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg>';
+  var SETA = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M9.6 3.4 5 8l4.6 4.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  /* ---------------- cards ---------------- */
+  function obraBlock(d){
+    if (!d.obra) return "";
+    return '<div><div class="prog-h">'+HELM+'Andamento da obra</div><div class="prog">'+
+      d.obra.etapas.map(function(e){
+        return '<div class="prog-row" title="'+esc(e.det||e.l)+'"><span>'+esc(e.l)+'</span>'+
+          '<span class="bar"><i style="width:'+e.v+'%"></i></span>'+
+          '<b class="num">'+e.v+'%</b></div>';
+      }).join("")+'</div>'+
+      '<p class="prog-note">Total da obra <b class="num">'+d.obra.total+'%</b> · medição da engenharia em 21/10/2026</p></div>';
+  }
+
+  function progBlock(d, s){
+    var rows = [["Disponíveis",s.D],["Fase posterior",s.F],["Reservadas",s.R],["Vendidas",s.V]]
+                 .filter(function(r){ return r[1]>0; });
+    if (s.total < 2 || rows.length < 2) return "";
+    return '<div><div class="prog-h">'+BARS+'Composição da tabela</div><div class="prog">'+
+      rows.map(function(r){
+        var pct = Math.round(r[1]/s.total*100);
+        return '<div class="prog-row"><span>'+r[0]+'</span>'+
+          '<span class="bar"><i style="width:'+pct+'%"></i></span>'+
+          '<b class="num">'+pct+'%</b></div>';
+      }).join("")+'</div></div>';
+  }
+
+  function cardHTML(d){
+    var s = stats(d);
+    var val = s.min ? preco(d, s.min) : "sob consulta";
+    var mapa = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(d.local);
+    var cid = d.midia && d.midia.capa;
+    var capa = '<div class="facade"></div>' + (cid
+      ? '<div class="cover-img" style="background-image:url(\'' + img(cid, 1200) + '\')"></div>'
+      : '<span class="nofoto">'+CAM+'foto a enviar</span>');
+    var n = d.midia ? (d.midia.fotos.length + contaUni(d.midia) + d.midia.videos.length + d.midia.plantas.length + d.midia.docs.length) : 0;
+    var selo = d.obra
+      ? '<span class="badge">'+HELM+'obra '+d.obra.total+'%</span>'
+      : '<span class="badge">'+esc(d.badge)+'</span>';
+    return '<article class="emp">'+
+      '<div class="cover'+(n?' tem-midia':'')+'"'+(n?' role="button" tabindex="0" data-abrir="'+d.id+'" aria-label="Abrir material de '+esc(d.nome)+'"':'')+'>'+ capa + selo +
+        (n ? '<span class="lupa">'+GALERIA+n+' arquivos</span>' : '')+
+        '<div class="cover-txt"><h3>'+esc(d.nome)+'</h3>'+
+        '<p>'+PIN+'<span>'+esc(d.local)+'</span></p></div>'+
+      '</div>'+
+      '<div class="emp-body">'+
+        '<div><p class="resumo">'+esc(d.resumo)+'</p>'+
+        '<p class="detalhe" style="margin-top:7px">'+esc(d.detalhe)+'</p></div>'+
+        (d.obra ? obraBlock(d) : progBlock(d, s))+
+        '<div class="emp-foot">'+
+          '<span class="entrega">'+CAL+esc(d.entrega)+'</span>'+
+          '<span class="preco"><span class="disp num">'+s.D+' '+(s.D===1?"disponível":"disponíveis")+'</span>'+
+          '<span class="val num"><small>a partir de </small>'+val+'</span></span>'+
+        '</div>'+
+      '</div>'+
+      '<div class="acoes">'+
+        '<button class="btn btn-main" data-goto="'+d.id+'">'+
+          '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.4" stroke="currentColor" stroke-width="1.35"/><path d="M1.8 6.2h12.4M6.4 6.2v7" stroke="currentColor" stroke-width="1.35"/></svg>'+
+          'Ver tabela completa</button>'+
+        (n ? '<button class="btn btn-doc" data-abrir="'+d.id+'">'+GALERIA+'Fotos e documentos</button>' : '')+
+        '<a class="btn" href="'+esc(mapa)+'" target="_blank" rel="noopener">'+PIN+'Ver no mapa</a>'+
+      '</div>'+
+    '</article>';
+  }
+
+  var filtro = "todos";
+  function visiveis(){ return DEVS.filter(function(d){ return filtro==="todos" || d.cat===filtro; }); }
+  function renderCards(){
+    var vs = visiveis();
+    document.getElementById("cards").innerHTML = vs.map(cardHTML).join("");
+    var ag = vs.reduce(function(a,d){ var s=stats(d); a.t+=s.total; a.d+=s.D; a.v+=s.vgv; return a; }, {t:0,d:0,v:0});
+    document.getElementById("resumo-geral").innerHTML =
+      '<b>'+vs.length+'</b> empreendimentos · <b>'+ag.d+'</b> de '+ag.t+' unidades disponíveis · '+
+      '<b>'+milhoes(ag.v)+'</b> em VGV disponível · ' +
+      (FONTE.vivo ? 'sincronizado em ' + FONTE.quando : 'cópia de ' + FONTE.quando + ' (servidor não respondeu)');
+    var pt = document.querySelector(".meta .dot");
+    if (pt) pt.style.background = FONTE.vivo ? "var(--ok)" : "var(--wait)";
+  }
+  document.getElementById("filters").innerHTML = CATS.map(function(c){
+    var n = c.k==="todos" ? DEVS.length : DEVS.filter(function(d){ return d.cat===c.k; }).length;
+    return '<button class="chip" data-cat="'+c.k+'" aria-pressed="'+(c.k==="todos")+'">'+c.l+'<em class="num">'+n+'</em></button>';
+  }).join("");
+  document.getElementById("filters").addEventListener("click", function(e){
+    var b = e.target.closest("[data-cat]"); if(!b) return;
+    filtro = b.dataset.cat;
+    [].forEach.call(this.querySelectorAll(".chip"), function(c){ c.setAttribute("aria-pressed", c===b); });
+    renderCards();
+  });
+  renderCards();
+
+  /* ---------------- tabela de vendas ---------------- */
+  function tabelaHTML(d){
+    var s = stats(d);
+    var val = s.min ? preco(d, s.min) : "sob consulta";
+    var corpo;
+
+    if (d.tipos){
+      var cols = d.tipos.map(function(t){
+        var us = d.units.filter(function(x){ return x.t===t.n; })
+                        .sort(function(a,b){ return (+b.n)-(+a.n); });
+        var livres = us.filter(function(x){ return x.s==="D"; }).length;
+        return '<div class="tipo">'+
+          '<div class="tipo-h"><b>TIPO '+t.n+'</b><span>'+esc(t.spec)+'</span>'+
+          '<em class="num">'+livres+' '+(livres===1?"disponível":"disponíveis")+'</em></div>'+
+          us.map(function(x){
+            if (x.s==="D") return '<div class="u free"><span class="u-n num">'+x.n+'</span>'+
+              '<span class="u-v num">'+preco(d, x.v)+'</span></div>';
+            return '<div class="u taken"><span class="u-n num">'+x.n+'</span>'+
+              '<span class="u-s s-'+ST[x.s].k+'">'+ST[x.s].s+'</span></div>';
+          }).join("")+
+        '</div>';
+      }).join("");
+      corpo = '<div class="tscroll"><div class="tipos" style="grid-template-columns:repeat('+d.tipos.length+',minmax(156px,1fr))">'+cols+'</div></div>';
+    } else {
+      corpo = '<div class="ulist">'+ d.units.map(function(x){
+        return '<div class="ucard">'+
+          '<div class="ucard-top"><b>Unidade '+esc(x.n)+'</b><span class="v num">'+preco(d, x.v)+'</span></div>'+
+          (x.area ? '<p class="m num">'+area(x.area)+'</p>' : '')+
+          '<p class="d">'+esc(x.desc)+'</p>'+
+          '<span class="pill p-'+ST[x.s].k+'">'+ST[x.s].l+'</span>'+
+        '</div>';
+      }).join("") + '</div>';
+    }
+
+    var pgto = d.pgto ? '<div class="pgto"><div class="pgto-h">Condições de pagamento</div><div class="pgto-g">'+
+      d.pgto.map(function(p){ return '<div class="pgto-i"><b class="num">'+p.p+'</b><span>'+esc(p.l)+'</span><em>'+esc(p.v)+'</em></div>'; }).join("")+
+      '</div></div>' : "";
+
+    return '<div class="tcard">'+
+      '<div class="thead">'+
+        '<div><h2>'+esc(d.nome)+'</h2>'+
+        '<p class="sub">'+PIN+'<span>'+esc(d.local)+'</span></p>'+
+        (d.ri ? '<p class="ri">'+esc(d.ri)+'</p>' : '')+
+        (d.cub ? '<p class="ri">'+esc(d.cub)+'</p>' : '')+'</div>'+
+        '<div class="thead-r"><p class="e">Entrega: <b>'+esc(d.entrega)+'</b></p>'+
+        '<p class="d num">'+s.D+' de '+s.total+' '+(s.total===1?"disponível":"disponíveis")+'</p>'+
+        '<p class="p num"><small>a partir de </small>'+val+'</p></div>'+
+      '</div>'+ corpo + pgto +
+    '</div>';
+  }
+
+  var atual = DEVS[0].id;
+  function renderTabelas(){
+    document.getElementById("tnav").innerHTML = DEVS.map(function(d){
+      return '<button class="chip" data-dev="'+d.id+'" aria-pressed="'+(d.id===atual)+'">'+esc(d.nome)+'</button>';
+    }).join("");
+    var d = DEVS.filter(function(x){ return x.id===atual; })[0];
+    document.getElementById("tabelas").innerHTML = tabelaHTML(d);
+  }
+  document.getElementById("tnav").addEventListener("click", function(e){
+    var b = e.target.closest("[data-dev]"); if(!b) return;
+    atual = b.dataset.dev; renderTabelas();
+  });
+  renderTabelas();
+
+  /* ---------------- abas ---------------- */
+  var tabs = { portfolio:["tab-portfolio","view-portfolio"], tabelas:["tab-tabelas","view-tabelas"] };
+  function show(which){
+    Object.keys(tabs).forEach(function(k){
+      var on = k===which;
+      document.getElementById(tabs[k][0]).setAttribute("aria-selected", on);
+      document.getElementById(tabs[k][1]).hidden = !on;
+    });
+    try { if (location.hash.replace("#","") !== which) history.replaceState(null,"","#"+which); } catch(err){}
+  }
+  document.getElementById("tab-portfolio").addEventListener("click", function(){ show("portfolio"); });
+  document.getElementById("tab-tabelas").addEventListener("click", function(){ show("tabelas"); });
+  document.addEventListener("click", function(e){
+    var b = e.target.closest("[data-goto]"); if(!b) return;
+    atual = b.dataset.goto; renderTabelas(); show("tabelas");
+    window.scrollTo({ top:0, behavior:"smooth" });
+  });
+  show(location.hash.replace("#","")==="tabelas" ? "tabelas" : "portfolio");
+  carregar();
+
+  /* ---------------- tela de detalhe ---------------- */
+  var modal = document.getElementById("modal"), lbox = document.getElementById("lbox");
+  var mDev = null, mAba = "fotos", mUnidade = null, lFotos = [], lIdx = 0, voltarFoco = null;
+
+  function abas(d){
+    var m = d.midia;
+    return [ {k:"fotos", l:m.unidades.length ? "Lazer" : "Fotos", n:m.fotos.length},
+             {k:"unidades", l:"Unidades", n:contaUni(m)},
+             {k:"videos", l:"Vídeos", n:m.videos.length},
+             {k:"plantas", l:"Plantas", n:m.plantas.length},
+             {k:"docs", l:"Catálogo", n:m.docs.length} ].filter(function(a){ return a.n > 0; });
+  }
+
+  /* Alguns ambientes (como um link publicado na Claude) bloqueiam imagens de fora.
+     Quando isso acontece, as miniaturas somem e cada item vira um link para o arquivo no Drive. */
+  var semDrive = false;
+  (function(){
+    var teste = new Image();
+    teste.onerror = function(){
+      semDrive = true;
+      document.documentElement.classList.add("sem-drive");
+      if (mDev) pintaModal();
+    };
+    teste.src = img("1Kqv5hTftNa4IesSqWTy4XsHAxL0B9g8i", 80);
+  })();
+  function avisoDrive(){
+    return semDrive ? '<p class="aviso">As fotos estão no Drive da HLiving e não abrem dentro deste link. '+
+      'Clique em qualquer item para ver no Drive — as tabelas e os valores abaixo estão completos.</p>' : '';
+  }
+
+  function galeria(itens){
+    return '<div class="galeria">'+ itens.map(function(s, i){
+      var p = parts(s);
+      return '<button class="gitem" data-foto="'+i+'">'+
+        '<img loading="lazy" src="'+img(p.id, 700)+'" alt="'+esc(p.t)+'">'+
+        '<span>'+esc(p.t)+'</span></button>';
+    }).join("") +'</div>';
+  }
+
+  function conteudoAba(d){
+    var m = d.midia, itens = m[mAba] || [];
+
+    if (mAba === "unidades"){
+      if (!m.unidades.length) return '<p class="vazio">Nada aqui ainda.</p>';
+      var g = mUnidade && m.unidades.filter(function(x){ return x.u === mUnidade; })[0];
+      if (g) return '<button class="voltar" data-voltar>'+SETA+'Todas as unidades</button>'+
+                    '<p class="grupo-t">Unidade '+esc(g.u)+' · '+g.fotos.length+' fotos</p>'+ galeria(g.fotos);
+      return '<div class="pastas">'+ m.unidades.map(function(x){
+        var cp = parts(x.fotos[0]);
+        return '<button class="pasta" data-pasta="'+esc(x.u)+'">'+
+          '<img loading="lazy" src="'+img(cp.id, 600)+'" alt="Unidade '+esc(x.u)+'">'+
+          '<span class="pasta-i">'+PASTA+'<b>Unidade '+esc(x.u)+'</b>'+
+          '<em class="num">'+x.fotos.length+' fotos</em></span></button>';
+      }).join("") +'</div>';
+    }
+
+    if (!itens.length) return '<p class="vazio">Nada aqui ainda.</p>';
+    if (mAba === "videos" || mAba === "docs"){
+      var ic = mAba === "videos" ? PLAY : DOC;
+      return '<div class="vlist">'+ itens.map(function(s){
+        var p = parts(s);
+        return '<a class="vitem" href="'+dv(p.id)+'" target="_blank" rel="noopener">'+ic+'<span>'+esc(p.t)+'</span></a>';
+      }).join("") +'</div>';
+    }
+    return galeria(itens);
+  }
+
+  function pintaModal(){
+    var d = mDev, m = d.midia, s = stats(d);
+    var cid = m.capa || (m.fotos[0] ? parts(m.fotos[0]).id : null);
+    var val = s.min ? preco(d, s.min) : "sob consulta";
+    modal.innerHTML =
+      '<div class="sheet" role="document">'+
+        '<div class="sheet-top">'+
+          '<div class="facade"></div>'+
+        (cid ? '<div class="cover-img" style="background-image:url(\''+img(cid,1600)+'\')"></div>' : '')+
+          '<button class="fechar" data-fechar aria-label="Fechar">'+XIS+'</button>'+
+          '<div class="t"><h2 id="modal-titulo">'+esc(d.nome)+'</h2>'+
+          '<p>'+PIN+'<span>'+esc(d.local)+'</span></p></div>'+
+        '</div>'+
+        '<div class="mtabs" role="tablist">'+ abas(d).map(function(a){
+          return '<button class="mtab" role="tab" data-aba="'+a.k+'" aria-selected="'+(a.k===mAba)+'">'+a.l+'<em class="num">'+a.n+'</em></button>';
+        }).join("") +'</div>'+
+        '<div class="mbody">'+ avisoDrive() + conteudoAba(d) +
+          '<p class="fonte">Entrega '+esc(d.entrega)+' · '+s.D+' de '+s.total+' '+(s.total===1?"unidade disponível":"unidades disponíveis")+
+          ' · a partir de '+val+'. Material hospedado no Drive da HLiving.</p>'+
+        '</div>'+
+        '<div class="acoes" style="padding:0 20px 20px">'+
+          '<button class="btn btn-main" data-goto="'+d.id+'" data-fechar>'+
+          '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.4" stroke="currentColor" stroke-width="1.35"/><path d="M1.8 6.2h12.4M6.4 6.2v7" stroke="currentColor" stroke-width="1.35"/></svg>'+
+          'Ver tabela completa</button>'+
+        '</div>'+
+      '</div>';
+    if (mAba === "unidades"){
+      var gl = mUnidade && m.unidades.filter(function(x){ return x.u === mUnidade; })[0];
+      lFotos = gl ? gl.fotos : [];
+    } else {
+      lFotos = (mAba === "videos" || mAba === "docs") ? [] : (m[mAba] || []);
+    }
+  }
+
+  function abrir(id){
+    var d = DEVS.filter(function(x){ return x.id===id; })[0];
+    if (!d || !d.midia) return;
+    mDev = d;
+    mUnidade = null;
+    var as = abas(d);
+    mAba = as.length ? as[0].k : "fotos";
+    pintaModal();
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+    var b = modal.querySelector(".fechar"); if (b) b.focus();
+  }
+  function fechar(){
+    modal.hidden = true; lbox.hidden = true;
+    document.body.style.overflow = "";
+    if (voltarFoco && voltarFoco.focus) voltarFoco.focus();
+    voltarFoco = null;
+  }
+
+  function pintaLbox(){
+    var p = parts(lFotos[lIdx]);
+    lbox.innerHTML =
+      '<button class="lclose" data-lfechar aria-label="Fechar">'+XIS+'</button>'+
+      (lFotos.length > 1 ? '<button class="lnav lprev" data-lpasso="-1" aria-label="Anterior">&#8249;</button>' : '')+
+      '<img src="'+img(p.id, 1600)+'" alt="'+esc(p.t)+'">'+
+      (lFotos.length > 1 ? '<button class="lnav lnext" data-lpasso="1" aria-label="Próxima">&#8250;</button>' : '')+
+      '<p class="lbox-leg">'+esc(p.t)+' · '+(lIdx+1)+' de '+lFotos.length+'</p>';
+  }
+
+  document.addEventListener("click", function(e){
+    var ab = e.target.closest("[data-abrir]");
+    if (ab){ voltarFoco = ab; abrir(ab.dataset.abrir); return; }
+
+    if (e.target.closest("[data-lfechar]")){ lbox.hidden = true; return; }
+    var passo = e.target.closest("[data-lpasso]");
+    if (passo){ lIdx = (lIdx + (+passo.dataset.lpasso) + lFotos.length) % lFotos.length; pintaLbox(); return; }
+    if (e.target === lbox){ lbox.hidden = true; return; }
+
+    var aba = e.target.closest("[data-aba]");
+    if (aba){ mAba = aba.dataset.aba; mUnidade = null; pintaModal(); return; }
+    var pasta = e.target.closest("[data-pasta]");
+    if (pasta){ mUnidade = pasta.dataset.pasta; pintaModal(); return; }
+    if (e.target.closest("[data-voltar]")){ mUnidade = null; pintaModal(); return; }
+    var foto = e.target.closest("[data-foto]");
+    if (foto && lFotos.length){
+      if (semDrive){ window.open(dv(parts(lFotos[+foto.dataset.foto]).id), "_blank", "noopener"); return; }
+      lIdx = +foto.dataset.foto; pintaLbox(); lbox.hidden = false; return;
+    }
+    if (e.target.closest("[data-fechar]") || e.target === modal){ fechar(); return; }
+  });
+
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape"){ if (!lbox.hidden) lbox.hidden = true; else if (!modal.hidden) fechar(); return; }
+    if (!lbox.hidden && lFotos.length > 1){
+      if (e.key === "ArrowRight"){ lIdx = (lIdx+1) % lFotos.length; pintaLbox(); }
+      if (e.key === "ArrowLeft"){ lIdx = (lIdx-1+lFotos.length) % lFotos.length; pintaLbox(); }
+    }
+    var ab = e.target.closest && e.target.closest("[data-abrir]");
+    if (ab && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); voltarFoco = ab; abrir(ab.dataset.abrir); }
+  });
+
+  /* ---------------- copiar ---------------- */
+  document.getElementById("copiar").addEventListener("click", function(){
+    var d = DEVS.filter(function(x){ return x.id===atual; })[0];
+    var linhas = [d.nome, d.local, "Entrega: "+d.entrega, ""];
+    d.units.forEach(function(x){
+      linhas.push([x.n, (x.t?("Tipo "+x.t):(x.desc||"")), (x.s==="D"&&x.v)?preco(d,x.v):"—", ST[x.s].l].join("\t"));
+    });
+    var txt = linhas.join("\n");
+    var btn = this, antes = btn.innerHTML;
+    function ok(){ btn.textContent = "Copiado"; setTimeout(function(){ btn.innerHTML = antes; }, 1800); }
+    try { navigator.clipboard.writeText(txt).then(ok, function(){ ok(); }); } catch(err){ ok(); }
+  });
+})();
+</script>
+
+</body>
+</html>
