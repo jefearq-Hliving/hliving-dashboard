@@ -633,13 +633,24 @@ img{max-width:100%}
   var FONTE = { vivo:false, quando:"21/10/2026" };
 
   function acha(id){ return DEVS.filter(function(d){ return d.id === id; })[0]; }
-  function moeda(v){ return Number(v).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  /* o servidor manda número ora como 3171.96, ora como "3171,96" ou "3.171,96" */
+  function numero(v){
+    if (typeof v === "number") return v;
+    var s = String(v == null ? "" : v).trim();
+    if (!s) return NaN;
+    if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+    return parseFloat(s.replace(/\./g, "").replace(",", "."));
+  }
+  function moeda(v){
+    var n = numero(v);
+    return isFinite(n) ? n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}) : String(v);
+  }
 
   function aplicaUnidades(d, lista, comArea){
     if (!lista || !lista.length) return;
     d.units = lista.map(function(x){
-      var o = { n:String(x.n), v:(+x.v)||null, s:ST_SERV[x.s] || "F" };
-      if (comArea){ o.area = (+x.area)||0; o.desc = x.desc || ""; }
+      var o = { n:String(x.n), v:numero(x.v)||null, s:ST_SERV[x.s] || "F" };
+      if (comArea){ o.area = numero(x.area)||0; o.desc = x.desc || ""; }
       else { o.t = +x.t; }
       return o;
     });
