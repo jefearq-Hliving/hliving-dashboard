@@ -55,7 +55,9 @@ a{color:inherit}
 .logo-txt{display:flex;flex-direction:column;line-height:1}
 .logo-txt b{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:.07em;color:var(--ink)}
 .logo-txt span{font-size:8.5px;letter-spacing:.4em;color:var(--accent-ink);margin-top:4px;font-weight:600}
-.topbar-r{text-align:right;line-height:1.25}
+.topbar-r{text-align:right;line-height:1.25;margin-left:auto}
+.admin-link{flex:none;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:600;color:var(--ink-2);text-decoration:none;transition:.16s}
+.admin-link:hover{border-color:var(--accent);color:var(--accent-ink)}
 .topbar-r b{display:block;font-size:15px;font-weight:700;letter-spacing:-.01em}
 .topbar-r span{display:block;font-size:9px;letter-spacing:.26em;color:var(--accent-ink);font-weight:600;margin-top:3px}
 
@@ -284,6 +286,7 @@ a{color:inherit}
 }
 @media (max-width:560px){
   .logo-txt b{font-size:20px} .topbar-r b{font-size:13px}
+  .admin-link{padding:7px} .admin-link span{display:none}
   .cover-txt h3{font-size:19px} .thead h2{font-size:18px}
   .thead-r{text-align:left} .ucard{border-right:0}
   .prog-row{grid-template-columns:92px 1fr 38px}
@@ -304,6 +307,7 @@ a{color:inherit}
       <b>Portal do Corretor</b>
       <span>HLIVING EMPREENDIMENTOS</span>
     </div>
+    <a class="admin-link" href="hliving-tabelas.html#admin" title="Painel Admin" aria-label="Painel Admin"><svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><rect x="3" y="7" width="10" height="7.2" rx="1.6" stroke="currentColor" stroke-width="1.35"/><path d="M5.4 7V5.2a2.6 2.6 0 0 1 5.2 0V7" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg><span>Admin</span></a>
   </div>
 </header>
 

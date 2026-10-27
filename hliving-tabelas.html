@@ -4288,6 +4288,11 @@ document.addEventListener('DOMContentLoaded', function(){
   renderHome();
   carregarDoSheets();
   buscarCUBSinduscon();
+  // Atalho do Portal do Corretor: hliving-tabelas.html#admin já abre o login do painel
+  if(location.hash === '#admin'){
+    history.replaceState(null, '', location.pathname + location.search);
+    openLogin('home');
+  }
 });
 </script>
 </body>
