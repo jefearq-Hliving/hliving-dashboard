@@ -211,6 +211,12 @@ a{color:inherit}
 .ed-status:empty{display:none}
 .ed-status.ok{color:var(--ok)} .ed-status.erro{color:var(--sold)}
 .ed-ocupado{opacity:.6;pointer-events:none}
+/* painel das tabelas (preços, unidades e CUB) aberto dentro do portal */
+.ed-sheet-tb{max-width:1180px;height:calc(100vh - 32px);height:calc(100dvh - 32px)}
+.ed-tb{position:relative;flex:1 1 auto;min-height:0;background:var(--card)}
+.ed-tb>.ed-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;text-align:center}
+.ed-tb iframe{position:relative;display:block;width:100%;height:100%;border:0;background:#fff;opacity:0;transition:opacity .2s}
+.ed-tb iframe.ok{opacity:1}
 @media (max-width:560px){
   .ed{padding:0}
   .ed-sheet{max-width:none;height:100vh;height:100dvh;max-height:none;border-radius:0;border:0}
@@ -1423,7 +1429,8 @@ a{color:inherit}
 
 
   /* ---------------- editor do portal (admin) ----------------
-     Só aparece quando o servidor do portal responde (PORTAL_OK). A senha é a mesma do painel das
+     O Admin abre um menu com o painel das tabelas (preços, unidades e CUB) e o editor de textos e mídia.
+     O editor só aparece quando o servidor do portal responde (PORTAL_OK). A senha é a mesma do painel das
      tabelas: o servidor do portal confere com o servidor principal e devolve um token próprio, de 12h.
      Aqui só fica esse token (sessionStorage), com nome diferente do token do painel das tabelas. */
   var TOKEN_KEY = "hliving_portal_token";
@@ -1488,8 +1495,8 @@ a{color:inherit}
   function edMenu(){
     return edHead("Portal do Corretor · HLiving") +
       '<div class="ed-menu"><p class="ed-hint">O que você quer editar?</p>' +
-      '<a class="ed-op" href="hliving-tabelas.html#admin"><b>Preços, unidades e disponibilidade</b>' +
-        '<span>Abre o painel das tabelas. O portal atualiza sozinho com o que for salvo lá.</span></a>' +
+      '<a class="ed-op" href="hliving-tabelas.html#admin" data-ed="tabelas"><b>Preços, unidades e CUB</b>' +
+        '<span>O painel das tabelas, aqui dentro do portal: valores, disponibilidade, condições, reajuste e atualização do CUB.</span></a>' +
       '<button class="ed-op" data-ed="editar"><b>Textos, capas e fotos do portal</b>' +
         '<span>Título e descrição dos cards, capa, enquadramento, fotos, plantas, vídeos e catálogo.</span></button></div>';
   }
@@ -1583,10 +1590,38 @@ a{color:inherit}
         '<p class="ed-status ' + edStatus.c + '" role="status">' + esc(edStatus.t) + '</p>' +
       '</div>';
   }
+  /* Preços, unidades e CUB: o próprio painel das tabelas (mesmo arquivo, mesma senha, mesmo servidor),
+     aberto numa janela dentro do portal. Se algo for gravado lá, o portal recarrega ao fechar. */
+  var tbCarregou = false, tbVigia = false, tbSalvou = false;
+  function edTabelas(){
+    return edHead("Preços, unidades e CUB · painel das tabelas") +
+      '<div class="ed-tb"><p class="ed-hint">Abrindo o painel das tabelas…</p>' +
+      '<iframe src="hliving-tabelas.html#admin" title="Painel das tabelas"></iframe></div>';
+  }
+  function edVigiaTabelas(){
+    var fr = ed.querySelector(".ed-tb iframe");
+    tbCarregou = false; tbVigia = false;
+    if (!fr) return;
+    fr.addEventListener("load", function(){
+      tbCarregou = true; fr.classList.add("ok");
+      try {
+        var w = fr.contentWindow, f0 = w.fetch;
+        if (typeof f0 !== "function"){ tbVigia = false; return; }
+        if (f0._portal){ tbVigia = true; return; }
+        var f1 = function(u, o){
+          try { if (o && String(o.method || "").toUpperCase() === "POST" && String(o.body || "").indexOf('"action":"login"') === -1) tbSalvou = true; } catch(e){}
+          return f0.apply(w, arguments);
+        };
+        f1._portal = true; w.fetch = f1; tbVigia = true;
+      } catch(e){ tbVigia = false; }
+    });
+  }
+
   function edPinta(foco){
-    var cb = ed.querySelector(".ed-body"), st = cb ? cb.scrollTop : 0;
-    ed.innerHTML = '<div class="ed-sheet" role="document">' +
-      (edView === "login" ? edLogin() : edView === "form" && ED ? edForm() : edMenu()) + '</div>';
+    var cb = ed.querySelector(".ed-body"), st = cb ? cb.scrollTop : 0, tb = edView === "tabelas";
+    ed.innerHTML = '<div class="ed-sheet' + (tb ? ' ed-sheet-tb' : '') + '" role="document">' +
+      (tb ? edTabelas() : edView === "login" ? edLogin() : edView === "form" && ED ? edForm() : edMenu()) + '</div>';
+    if (tb) edVigiaTabelas();
     var nb = ed.querySelector(".ed-body"); if (nb) nb.scrollTop = st;
     var f = foco ? ed.querySelector(foco) : null;
     if (!f) f = edView === "login" ? ed.querySelector("#ed-senha") : ed.querySelector(".ed-x");
@@ -1603,7 +1638,9 @@ a{color:inherit}
   }
   function edFechar(){
     if (edSujo && !window.confirm("Sair sem publicar as alterações?")) return;
+    var recarrega = edView === "tabelas" && tbCarregou && (tbSalvou || !tbVigia);
     ed.hidden = true; ed.innerHTML = ""; document.body.style.overflow = ""; edSujo = false;
+    if (recarrega){ location.reload(); return; }     // traz os preços e o CUB que acabaram de ser salvos
     if (adminLink) adminLink.focus();
   }
   function edEntrarFormulario(){
@@ -1664,15 +1701,22 @@ a{color:inherit}
     edAviso("Publicado. Em outros aparelhos pode levar até 1 minuto para aparecer.", "ok");
   }
 
+  function novaAba(e){ return e.ctrlKey || e.metaKey || e.shiftKey || e.altKey; }
   if (adminLink) adminLink.addEventListener("click", function(e){
-    if (!PORTAL_OK) return;     // servidor do portal não respondeu: segue direto para o painel das tabelas
-    e.preventDefault(); edAbrir("menu");
+    if (novaAba(e)) return;     // Ctrl/Cmd+clique abre o painel das tabelas numa aba própria
+    e.preventDefault();
+    tbSalvou = false;
+    edAbrir(PORTAL_OK ? "menu" : "tabelas");   // sem o servidor do portal, só existe o painel das tabelas
   });
   ed.addEventListener("click", function(e){
-    if (e.target === ed){ edFechar(); return; }
+    if (e.target === ed){ if (edView !== "tabelas") edFechar(); return; }   // no painel, só o X fecha
     var a = e.target.closest("[data-ed]");
     if (a){
       var k = a.getAttribute("data-ed");
+      if (k === "tabelas"){
+        if (novaAba(e)) return;
+        e.preventDefault(); tbSalvou = false; edView = "tabelas"; edPinta(); return;
+      }
       if (k === "fechar") edFechar();
       else if (k === "editar"){ if (token()) edEntrarFormulario(); else { edMsg = ""; edView = "login"; edPinta(); } }
       else if (k === "salvar") edSalvar();
