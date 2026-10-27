@@ -12,21 +12,27 @@ do servidor de preços:
 | Código | [`servidor-portal/worker.js`](servidor-portal/worker.js) (cópia do que está publicado) |
 
 **O sistema de preços não muda.** O servidor principal (`hliving-proxy.jefearq.workers.dev`), o Apps
-Script e a planilha continuam iguais, e o portal nunca grava neles.
+Script e a planilha continuam iguais. O editor de textos e mídia nunca grava neles; o painel das tabelas,
+aberto dentro do portal, grava como sempre gravou.
 
 ## Senha
 
-É a mesma do painel das tabelas, e não fica escrita em lugar nenhum:
+O **Admin** do portal pede a senha primeiro. Só depois de entrar aparecem as opções. É a mesma senha do
+painel das tabelas, e ela não fica escrita em lugar nenhum. Um login vale para as duas opções:
 
-1. O editor envia a senha ao servidor do portal.
-2. O servidor do portal repassa a senha para a ação `login` do servidor principal, a mesma checagem que
-   o painel das tabelas usa. Se a senha mudar lá (inclusive pela recuperação de senha), muda aqui também.
-3. Se estiver certa, o servidor do portal cria um token próprio, válido por 12h, e o guarda no KV
-   (`sess:<token>`). O token do servidor principal não é guardado nem devolvido.
-4. Após 10 senhas erradas do mesmo IP, os logins ficam bloqueados por 15 minutos.
+1. O portal envia a senha para a ação `login` do servidor principal, como o próprio painel das tabelas
+   faz. Senha errada para aqui, com uma única tentativa contada.
+2. Com a senha certa, o token devolvido fica em `sessionStorage` como `hliving_token`, o mesmo nome que
+   o painel usa. Por isso o painel das tabelas abre já logado dentro do portal. Ele só abre direto depois
+   que os dados do servidor chegam; se não chegarem, pede a senha como sempre.
+3. Em seguida o portal envia a senha ao servidor do portal, que confere de novo na ação `login` do
+   servidor principal e cria um token próprio, válido por 12h, guardado no KV (`sess:<token>`). O token do
+   servidor principal não é guardado nem devolvido por ele.
+4. No servidor do portal, após 10 senhas erradas do mesmo IP, os logins ficam bloqueados por 15 minutos.
 
-O navegador guarda só o token do portal, em `sessionStorage` (`hliving_portal_token`). Esse nome é
-diferente do token do painel das tabelas, para um não atrapalhar o outro.
+O navegador guarda os dois tokens só nesta aba (`hliving_token` e `hliving_portal_token`), mais a hora do
+login (`hliving_admin_em`). Depois de 11h, ou pelo botão **Sair**, o Admin volta a pedir a senha. Se a
+senha mudar no painel das tabelas (inclusive pela recuperação de senha), muda aqui também.
 
 ## Endpoints
 
@@ -63,8 +69,8 @@ O servidor valida tudo isso, tirando `<` e `>`. O portal valida de novo antes de
 
 - Ao abrir, o portal busca os preços no servidor principal (`getAll`) e as edições no servidor do portal
   (`getPortal`), cada um por conta própria: se um cair, o outro continua valendo.
-- Se o servidor do portal responder, o **Admin** mostra duas opções: *Preços, unidades e CUB* e o editor.
-  Se não responder, o Admin abre direto o painel das tabelas e o portal mostra o que está escrito no
+- Depois do login, o **Admin** mostra duas opções: *Preços, unidades e CUB* e o editor. Se o servidor do
+  portal não responder, só a primeira aparece, com um aviso, e o portal mostra o que está escrito no
   `portal.html`.
 - *Preços, unidades e CUB* é o próprio `hliving-tabelas.html#admin`, aberto numa janela dentro do portal:
   mesma senha, mesmas telas e mesmas gravações no servidor principal. Ao fechar, se algo foi salvo lá,
@@ -102,7 +108,8 @@ que ele já tem, e copiar o valor da chave `portal`. Depois, trocar `PORTAL_API`
 
 ## Teste rápido
 
-1. Portal → **Admin** → *Textos, capas e fotos do portal* → senha do painel das tabelas.
-2. Mudar o título de um empreendimento → **Salvar e publicar**. A página recarrega, o editor reabre com
-   *Publicado* e o card mostra o título novo.
-3. **Restaurar original** → **Salvar e publicar**. O card volta ao texto do `portal.html`.
+1. Portal → **Admin** → senha do painel das tabelas → aparecem as duas opções.
+2. *Preços, unidades e CUB* abre o painel das tabelas já logado.
+3. *Textos, capas e fotos do portal*: mudar o título de um empreendimento → **Salvar e publicar**. A página
+   recarrega, o editor reabre com *Publicado* e o card mostra o título novo.
+4. **Restaurar original** → **Salvar e publicar**. O card volta ao texto do `portal.html`.

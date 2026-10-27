@@ -166,6 +166,8 @@ a{color:inherit}
 .ed-op:hover{border-color:var(--accent);background:var(--accent-soft)}
 .ed-op b{display:block;font-size:14.5px}
 .ed-op span{display:block;font-size:12.5px;color:var(--ink-2);margin-top:3px}
+.ed-sair{justify-self:end;margin-top:2px;padding:6px 12px;border:0;background:none;font:inherit;font-size:12.5px;font-weight:600;color:var(--ink-3);border-radius:8px}
+.ed-sair:hover{color:var(--ink);background:var(--card-2)}
 .ed-login{padding:24px 20px;display:grid;gap:12px;max-width:380px;margin:0 auto}
 .ed-hint{font-size:12px;color:var(--ink-3)}
 .ed-erro{font-size:12.5px;font-weight:600;color:var(--sold);min-height:1.2em}
@@ -1428,12 +1430,19 @@ a{color:inherit}
   });
 
 
-  /* ---------------- editor do portal (admin) ----------------
-     O Admin abre um menu com o painel das tabelas (preços, unidades e CUB) e o editor de textos e mídia.
-     O editor só aparece quando o servidor do portal responde (PORTAL_OK). A senha é a mesma do painel das
-     tabelas: o servidor do portal confere com o servidor principal e devolve um token próprio, de 12h.
-     Aqui só fica esse token (sessionStorage), com nome diferente do token do painel das tabelas. */
+  /* ---------------- área administrativa (Admin) ----------------
+     O Admin pede a senha primeiro (a mesma do painel das tabelas). Com ela certa, abre o menu com o painel
+     das tabelas (preços, unidades e CUB) e o editor de textos e mídia. Um login vale para os dois:
+       • o servidor das tabelas devolve o token do painel, guardado com o mesmo nome que o painel usa
+         (hliving_token), então o painel abre já logado;
+       • só depois disso o servidor do portal é chamado e devolve o token do editor (hliving_portal_token).
+     Os dois tokens ficam só nesta aba (sessionStorage). O editor só aparece quando o servidor do portal responde. */
   var TOKEN_KEY = "hliving_portal_token";
+  var TOKEN_TAB = "hliving_token";
+  var LOGIN_EM = "hliving_admin_em";
+  var SESSAO_MS = 11 * 60 * 60 * 1000;       // um pouco menos que as 12h das sessões nos servidores
+  var API_TAB = "https://hliving-proxy.jefearq.workers.dev";
+  var edVoltar = "";                          // depois do login, voltar ao formulário (sessão venceu no meio da edição)
   var ed = document.getElementById("editor");
   var adminLink = document.querySelector(".admin-link");
   var ED = null, edDev = null, edView = "menu", edSujo = false, edMsg = "", edStatus = { t:"", c:"" };
@@ -1443,6 +1452,27 @@ a{color:inherit}
 
   function token(){ try { return sessionStorage.getItem(TOKEN_KEY) || ""; } catch(e){ return ""; } }
   function guardaToken(t){ try { if (t) sessionStorage.setItem(TOKEN_KEY, t); else sessionStorage.removeItem(TOKEN_KEY); } catch(e){} }
+  function tokenTab(){ try { return sessionStorage.getItem(TOKEN_TAB) || ""; } catch(e){ return ""; } }
+  function sair(){ try { [TOKEN_KEY, TOKEN_TAB, LOGIN_EM].forEach(function(k){ sessionStorage.removeItem(k); }); } catch(e){} }
+  function logado(){
+    var em = 0; try { em = +sessionStorage.getItem(LOGIN_EM) || 0; } catch(e){}
+    if (!em) return false;
+    if (Date.now() - em > SESSAO_MS){ sair(); return false; }
+    return !!(tokenTab() || token());
+  }
+  /* Senha errada gera uma única tentativa, no servidor das tabelas, como no próprio painel. */
+  function entrar(senha){
+    return fetch(API_TAB, { method:"POST", headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ action:"login", data:{ senha:senha } }) })
+      .then(function(r){ return r.json(); })
+      .then(function(res){
+        if (!res || !res.ok || !res.token) return { ok:false, msg:"Senha incorreta." };
+        try { sessionStorage.setItem(TOKEN_TAB, res.token); sessionStorage.setItem(LOGIN_EM, String(Date.now())); } catch(e){}
+        return postApi("login", { senha:senha })
+          .then(function(p){ guardaToken(p && p.ok && p.token ? p.token : ""); }, function(){ guardaToken(""); })
+          .then(function(){ return { ok:true }; });
+      }, function(){ return { ok:false, msg:"Sem conexão com o servidor. Tente de novo." }; });
+  }
   function postApi(action, data){
     return fetch(PORTAL_API, { method:"POST", headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({ action:action, data:data, token:token() }) })
@@ -1497,11 +1527,14 @@ a{color:inherit}
       '<div class="ed-menu"><p class="ed-hint">O que você quer editar?</p>' +
       '<a class="ed-op" href="hliving-tabelas.html#admin" data-ed="tabelas"><b>Preços, unidades e CUB</b>' +
         '<span>O painel das tabelas, aqui dentro do portal: valores, disponibilidade, condições, reajuste e atualização do CUB.</span></a>' +
-      '<button class="ed-op" data-ed="editar"><b>Textos, capas e fotos do portal</b>' +
-        '<span>Título e descrição dos cards, capa, enquadramento, fotos, plantas, vídeos e catálogo.</span></button></div>';
+      (PORTAL_OK
+        ? '<button class="ed-op" data-ed="editar"><b>Textos, capas e fotos do portal</b>' +
+            '<span>Título e descrição dos cards, capa, enquadramento, fotos, plantas, vídeos e catálogo.</span></button>'
+        : '<p class="ed-hint">O editor de textos, capas e fotos está fora do ar no momento. Os preços seguem funcionando.</p>') +
+      '<button type="button" class="ed-sair" data-ed="sair">Sair</button></div>';
   }
   function edLogin(){
-    return edHead("Textos, capas e fotos do portal") +
+    return edHead("Portal do Corretor · HLiving") +
       '<form class="ed-login" data-ed-form="login">' +
         '<label class="ed-f"><span>Senha de acesso</span><input type="password" id="ed-senha" autocomplete="current-password" required></label>' +
         '<p class="ed-hint">A mesma senha do painel das tabelas.</p>' +
@@ -1678,7 +1711,7 @@ a{color:inherit}
       .then(function(res){
         if (res && res.error === "auth"){
           guardaToken(""); edMsg = "Sua sessão expirou. Entre de novo para publicar."; edOcupado(false);
-          edView = "login"; edPinta(); return;
+          edVoltar = "form"; edView = "login"; edPinta(); return;     // o que foi editado continua guardado em ED
         }
         if (!res || !res.ok){ edOcupado(false); edAviso("Não consegui publicar. Nada foi alterado no portal; tente de novo.", "erro"); return; }
         edSujo = false;
@@ -1705,8 +1738,8 @@ a{color:inherit}
   if (adminLink) adminLink.addEventListener("click", function(e){
     if (novaAba(e)) return;     // Ctrl/Cmd+clique abre o painel das tabelas numa aba própria
     e.preventDefault();
-    tbSalvou = false;
-    edAbrir(PORTAL_OK ? "menu" : "tabelas");   // sem o servidor do portal, só existe o painel das tabelas
+    tbSalvou = false; edVoltar = ""; edMsg = "";
+    edAbrir(logado() ? "menu" : "login");      // primeiro a senha; as opções só aparecem depois de entrar
   });
   ed.addEventListener("click", function(e){
     if (e.target === ed){ if (edView !== "tabelas") edFechar(); return; }   // no painel, só o X fecha
@@ -1718,7 +1751,11 @@ a{color:inherit}
         e.preventDefault(); tbSalvou = false; edView = "tabelas"; edPinta(); return;
       }
       if (k === "fechar") edFechar();
-      else if (k === "editar"){ if (token()) edEntrarFormulario(); else { edMsg = ""; edView = "login"; edPinta(); } }
+      else if (k === "sair"){ sair(); edSujo = false; edFechar(); }
+      else if (k === "editar"){
+        if (token()) edEntrarFormulario();
+        else { edMsg = "Entre de novo para editar textos, capas e fotos."; edVoltar = "form"; edView = "login"; edPinta(); }
+      }
       else if (k === "salvar") edSalvar();
       else if (k === "add") edAdicionar();
       else if (k === "restaurar"){
@@ -1770,16 +1807,13 @@ a{color:inherit}
     campo.value = "";
     if (!senha) return;
     edOcupado(true);
-    postApi("login", { senha:senha })
-      .then(function(res){
-        edOcupado(false);
-        if (res && res.ok && res.token){ guardaToken(res.token); edMsg = ""; edEntrarFormulario(); return; }
-        edMsg = res && res.error === "tentativas" ? "Muitas tentativas erradas. Espere 15 minutos e tente de novo."
-              : res && res.error === "upstream" ? "O servidor das tabelas não respondeu. Tente de novo em instantes."
-              : "Senha incorreta.";
-        edPinta();
-      })
-      .catch(function(){ edOcupado(false); edMsg = "Sem conexão com o servidor."; edPinta(); });
+    entrar(senha).then(function(r){
+      edOcupado(false);
+      if (!r.ok){ edMsg = r.msg; edPinta(); return; }
+      edMsg = "";
+      if (edVoltar === "form" && token()){ edVoltar = ""; edEntrarFormulario(); return; }   // volta para a edição
+      edVoltar = ""; edView = "menu"; edPinta();
+    });
   });
   document.addEventListener("keydown", function(e){ if (e.key === "Escape" && !ed.hidden) edFechar(); });
 

@@ -1983,10 +1983,12 @@ async function carregarDoSheets(){
     } catch(e){}
     ocultarLoading();
     toast('Dados sincronizados','ok');
+    return true;
   } catch(err){
     ocultarLoading();
     renderHome();
     toast('Sem conexao: '+err.message,'erro');
+    return false;
   }
 }
 
@@ -4286,12 +4288,16 @@ document.addEventListener('DOMContentLoaded', function(){
   atualizarHeader();
   renderUnits();
   renderHome();
-  carregarDoSheets();
+  const carregando = carregarDoSheets();
   buscarCUBSinduscon();
-  // Atalho do Portal do Corretor: hliving-tabelas.html#admin já abre o login do painel
+  // Atalho do Portal do Corretor: hliving-tabelas.html#admin abre o painel.
+  // Se o login já foi feito no portal (token nesta aba), o painel abre direto, mas só depois que os dados
+  // do servidor chegarem; se não chegarem, pede a senha como sempre.
   if(location.hash === '#admin'){
     history.replaceState(null, '', location.pathname + location.search);
-    openLogin('home');
+    if(_token){
+      carregando.then(ok => { if(ok && _token){ _loginCtx = 'home'; openAdmin(); } else openLogin('home'); });
+    } else openLogin('home');
   }
 });
 </script>
