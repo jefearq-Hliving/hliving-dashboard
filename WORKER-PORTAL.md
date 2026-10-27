@@ -63,9 +63,13 @@ O servidor valida tudo isso, tirando `<` e `>`. O portal valida de novo antes de
 
 - Ao abrir, o portal busca os preços no servidor principal (`getAll`) e as edições no servidor do portal
   (`getPortal`), cada um por conta própria: se um cair, o outro continua valendo.
-- Se o servidor do portal responder, o **Admin** mostra duas opções: o painel das tabelas e o editor.
-  Se não responder, o Admin vai direto para o painel das tabelas e o portal mostra o que está escrito no
+- Se o servidor do portal responder, o **Admin** mostra duas opções: *Preços, unidades e CUB* e o editor.
+  Se não responder, o Admin abre direto o painel das tabelas e o portal mostra o que está escrito no
   `portal.html`.
+- *Preços, unidades e CUB* é o próprio `hliving-tabelas.html#admin`, aberto numa janela dentro do portal:
+  mesma senha, mesmas telas e mesmas gravações no servidor principal. Ao fechar, se algo foi salvo lá,
+  o portal recarrega para mostrar os preços e o CUB novos. Ctrl/Cmd+clique no Admin abre o painel numa
+  aba própria.
 - O KV leva até 1 minuto para espalhar uma gravação pelo mundo. O navegador que publicou usa o que
   acabou de publicar por 2 minutos (`sessionStorage`, chave `portal_recem`).
 
