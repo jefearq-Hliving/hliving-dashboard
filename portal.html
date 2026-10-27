@@ -149,7 +149,75 @@ a{color:inherit}
   box-shadow:0 8px 22px -8px rgba(8,40,20,.6),0 2px 5px rgba(0,0,0,.14);transition:transform .16s,background .16s,opacity .16s}
 .wa-float:hover{background:var(--wa-hover);transform:translateY(-2px)}
 .wa-float svg{flex:none}
-#modal:not([hidden]) ~ .wa-float, #lbox:not([hidden]) ~ .wa-float{opacity:0;pointer-events:none}
+#modal:not([hidden]) ~ .wa-float, #lbox:not([hidden]) ~ .wa-float, #editor:not([hidden]) ~ .wa-float{opacity:0;pointer-events:none}
+
+/* ---------- edição do portal (admin): textos, capa e mídia ---------- */
+.ed{position:fixed;inset:0;z-index:62;display:flex;align-items:flex-start;justify-content:center;
+  background:rgba(10,13,17,.62);backdrop-filter:blur(3px);overflow:hidden;padding:max(16px,env(safe-area-inset-top,0px)) 16px 16px}
+.ed[hidden]{display:none}
+.ed-sheet{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;width:100%;max-width:760px;
+  max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow:hidden;box-shadow:0 24px 60px -24px rgba(0,0,0,.5)}
+.ed-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;background:var(--dark);color:#fff;flex:none}
+.ed-head b{display:block;font-size:16px;font-weight:700}
+.ed-head span{display:block;font-size:11.5px;color:rgba(255,255,255,.72);margin-top:2px}
+.ed-x{flex:none;width:34px;height:34px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.28);color:#fff}
+.ed-menu{padding:20px;display:grid;gap:10px}
+.ed-op{display:block;width:100%;text-align:left;padding:16px 18px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);text-decoration:none;transition:.16s}
+.ed-op:hover{border-color:var(--accent);background:var(--accent-soft)}
+.ed-op b{display:block;font-size:14.5px}
+.ed-op span{display:block;font-size:12.5px;color:var(--ink-2);margin-top:3px}
+.ed-login{padding:24px 20px;display:grid;gap:12px;max-width:380px;margin:0 auto}
+.ed-hint{font-size:12px;color:var(--ink-3)}
+.ed-erro{font-size:12.5px;font-weight:600;color:var(--sold);min-height:1.2em}
+.ed-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 20px 8px}
+.ed-sec{padding:16px 0;border-top:1px solid var(--line)}
+.ed-sec:first-child{border-top:0;padding-top:0}
+.ed-sec h3{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700;margin-bottom:10px}
+.ed-f{display:block;margin-bottom:12px}
+.ed-f>span{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+.ed-f small{display:block;font-size:11px;color:var(--ink-3);margin-top:4px}
+.ed input[type=text],.ed input[type=password],.ed textarea,.ed select{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--card-2);border:1px solid var(--line-2);border-radius:9px;padding:9px 11px}
+.ed textarea{min-height:76px;resize:vertical}
+.ed input:disabled{opacity:.55}
+.ed-prev{position:relative;aspect-ratio:16/6;border-radius:12px;overflow:hidden;background:#8f98a3;display:flex;align-items:flex-end;padding:16px;margin-bottom:14px}
+.ed-prev .cover-img{transition:none}
+.ed-prev::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,17,22,0) 34%,rgba(13,17,22,.82) 100%)}
+.ed-prev .t{position:relative;z-index:2;color:#fff;min-width:0}
+.ed-prev .t b{display:block;font-size:19px;font-weight:800;text-transform:uppercase;letter-spacing:.02em;line-height:1.1}
+.ed-prev .t span{display:block;font-size:12.5px;opacity:.92;margin-top:5px}
+.ed-capas{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;max-height:230px;overflow-y:auto;padding:3px}
+.ed-capa{position:relative;aspect-ratio:4/3;border-radius:8px;overflow:hidden;border:2px solid transparent;padding:0;background:var(--card-2) center/cover no-repeat}
+.ed-capa[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+.ed-capa i{position:absolute;left:0;right:0;bottom:0;font-style:normal;font-size:10px;font-weight:600;color:#fff;text-align:left;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.72));padding:10px 6px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-range{display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--ink-3);margin-top:12px}
+.ed-range input{flex:1;accent-color:var(--accent)}
+.ed-grp{font-size:11.5px;font-weight:700;color:var(--ink-2);margin:14px 0 6px}
+.ed-grp:first-of-type{margin-top:0}
+.ed-list{display:flex;flex-direction:column;gap:6px}
+.ed-row{display:flex;align-items:center;gap:10px;padding:6px 8px;border:1px solid var(--line);border-radius:10px}
+.ed-row.off{opacity:.5}
+.ed-row .th{flex:none;width:44px;height:33px;border-radius:6px;background:var(--card-2) center/cover no-repeat;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--ink-3)}
+.ed-row .lg{flex:1;min-width:0;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-row .lg em{font-style:normal;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-left:7px;color:var(--accent-ink)}
+.ed-row button{flex:none;font-size:12px;font-weight:600;padding:5px 10px;border-radius:7px;border:1px solid var(--line);background:var(--card);color:var(--ink-2)}
+.ed-row button:hover{border-color:var(--line-2);color:var(--ink)}
+.ed-add{display:grid;grid-template-columns:130px 1fr;gap:8px;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line-2)}
+.ed-add .full{grid-column:1/-1}
+.ed-add-btn{justify-self:start}
+.ed-foot{flex:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:14px 20px max(14px,env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--card)}
+.ed-foot .sp{flex:1}
+.ed-status{flex-basis:100%;font-size:12px;color:var(--ink-3)}
+.ed-status:empty{display:none}
+.ed-status.ok{color:var(--ok)} .ed-status.erro{color:var(--sold)}
+.ed-ocupado{opacity:.6;pointer-events:none}
+@media (max-width:560px){
+  .ed{padding:0}
+  .ed-sheet{max-width:none;height:100vh;height:100dvh;max-height:none;border-radius:0;border:0}
+  .ed-head{padding-top:max(16px,env(safe-area-inset-top,0px))}
+  .ed-foot .btn[data-ed="fechar"]{display:none}
+  .ed-add{grid-template-columns:1fr} .ed-prev{aspect-ratio:16/9}
+}
 
 /* ---------- tabela de vendas ---------- */
 .tnav{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 12px}
@@ -349,6 +417,7 @@ a{color:inherit}
 
   <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div>
   <div class="lbox" id="lbox" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada"></div>
+  <div class="ed" id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="ed-titulo"></div>
   <a class="wa-float" id="wa-float" target="_blank" rel="noopener" aria-label="Falar com a HLiving no WhatsApp" title="Falar com a HLiving no WhatsApp">
     <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.3c3.3 0 6 2.3 6 5.1s-2.7 5.1-6 5.1c-.8 0-1.6-.1-2.3-.4l-3.2 1.3.9-2.7C2.5 9.8 2 8.6 2 7.4 2 4.6 4.7 2.3 8 2.3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.6 7.4h.01M8 7.4h.01M10.4 7.4h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
     <span>WhatsApp</span>
@@ -678,6 +747,77 @@ a{color:inherit}
   };
   DEVS.forEach(function(d){ d.midia = MIDIA[d.id] || null; });
 
+  /* ---------------- textos e mídia editados pelo admin ----------------
+     O servidor guarda só o que mudou em relação ao que está escrito aqui (BASE).
+     Tudo o que chega do servidor passa pelas mesmas validações antes de ir para a tela. */
+  var PORTAL = null;        // { v:1, devs:{ id:{resumo,detalhe,entrega,badge,capa,pos,ocultar,add} } }
+  var PORTAL_OK = false;    // o servidor já aceita edições do portal (getAll traz "portal")
+  var LIM = { resumo:140, detalhe:420, entrega:60, badge:28, leg:80 };
+  var TIPOS = ["fotos","videos","plantas","docs"];
+  var BASE = {};
+  DEVS.forEach(function(d){
+    var m = d.midia;
+    BASE[d.id] = { resumo:d.resumo||"", detalhe:d.detalhe||"", entrega:d.entrega||"", badge:d.badge||"",
+      capa: m ? m.capa : null, pos: m && m.pos ? m.pos : null,
+      fotos: m ? m.fotos.slice() : [], videos: m ? m.videos.slice() : [],
+      plantas: m ? m.plantas.slice() : [], docs: m ? m.docs.slice() : [],
+      unidades: m ? m.unidades.map(function(g){ return { u:g.u, fotos:g.fotos.slice() }; }) : [] };
+  });
+  function idDe(s){ return String(s).slice(0, String(s).indexOf("|")); }
+  function limpaTxt(v, max){
+    return typeof v === "string" ? v.replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max) : "";
+  }
+  function okDrive(id){ return typeof id === "string" && /^[A-Za-z0-9_-]{20,80}$/.test(id); }
+  function okPos(p){ var r = typeof p === "string" && /^center (\d{1,3})%$/.exec(p); return !!r && +r[1] <= 100; }
+  function limpaItem(s){
+    if (typeof s !== "string") return null;
+    var i = s.indexOf("|"); if (i < 1) return null;
+    var id = s.slice(0, i), t = limpaTxt(s.slice(i + 1), LIM.leg).replace(/\|/g, "/");
+    return okDrive(id) && t ? id + "|" + t : null;
+  }
+  /* devolve só os campos válidos de uma edição (ou null se não sobrar nada) */
+  function limpaEdicao(id, o){
+    var b = BASE[id];
+    if (!b || !o || typeof o !== "object") return null;
+    var r = {}, add = {}, temAdd = false, conhecidos = {};
+    ["resumo","detalhe","entrega","badge"].forEach(function(k){ var v = limpaTxt(o[k], LIM[k]); if (v) r[k] = v; });
+    TIPOS.forEach(function(t){
+      var l = (o.add && Array.isArray(o.add[t]) ? o.add[t] : []).map(limpaItem).filter(Boolean).slice(0, 100);
+      if (l.length){ add[t] = l; temAdd = true; }
+      b[t].concat(l).forEach(function(s){ conhecidos[idDe(s)] = 1; });
+    });
+    if (temAdd) r.add = add;
+    b.unidades.forEach(function(g){ conhecidos["u:" + g.u] = 1; g.fotos.forEach(function(s){ conhecidos[idDe(s)] = 1; }); });
+    if (Array.isArray(o.ocultar)){
+      var oc = o.ocultar.filter(function(x){ return typeof x === "string" && conhecidos[x] === 1; }).slice(0, 500);
+      if (oc.length) r.ocultar = oc;
+    }
+    if (typeof o.capa === "string" && conhecidos[o.capa] === 1 && o.capa.indexOf("u:") !== 0) r.capa = o.capa;
+    if (okPos(o.pos)) r.pos = o.pos;
+    return Object.keys(r).length ? r : null;
+  }
+  function aplicaPortal(){
+    var devs = PORTAL && PORTAL.devs;
+    if (!devs || typeof devs !== "object") return;
+    Object.keys(devs).forEach(function(id){
+      var d = acha(id), o = limpaEdicao(id, devs[id]);
+      if (!d || !o) return;
+      ["resumo","detalhe","entrega","badge"].forEach(function(k){ if (o[k]) d[k] = o[k]; });
+      if (!d.midia) d.midia = M(null, [], [], [], []);
+      var m = d.midia, oc = o.ocultar || [];
+      if (!m._portal){
+        m._portal = true; m._oc = oc;
+        TIPOS.forEach(function(t){
+          m[t] = m[t].filter(function(s){ return oc.indexOf(idDe(s)) === -1; }).concat((o.add && o.add[t]) || []);
+        });
+        m.unidades = m.unidades.filter(function(g){ return oc.indexOf("u:" + g.u) === -1; });
+      }
+      if (o.capa){ m.capa = o.capa; m._capaPortal = true; }
+      else if (m.capa && oc.indexOf(m.capa) !== -1){ m.capa = null; m._capaPortal = true; }   // capa original foi ocultada
+      if (o.pos){ m.pos = o.pos; m._capaPortal = true; }
+    });
+  }
+
   /* ---------------- de onde vêm as imagens ----------------
      • Navegador comum (ex.: Vercel): fotos direto do Drive, em alta — modo "drive".
      • Dentro da Claude o Drive é bloqueado: o portal usa as cópias otimizadas publicadas
@@ -710,8 +850,9 @@ a{color:inherit}
       var m = MIDIA[k], x = EXTRA[k];
       if (!m || m._extra) return;
       m._extra = true;
-      m.capa = x.capa; m.pos = x.pos || null;
-      m.fotos = x.fotos.concat(m.fotos);
+      if (!m._capaPortal){ m.capa = x.capa; m.pos = x.pos || null; }
+      var oc = m._oc || [];
+      m.fotos = x.fotos.filter(function(s){ return oc.indexOf(parts(s).id) === -1; }).concat(m.fotos);
     });
   }
 
@@ -813,11 +954,15 @@ a{color:inherit}
       .then(function(dados){
         if (fim || !dados || !dados.empreendimento) return;
         aplicarServidor(dados);
+        PORTAL_OK = Object.prototype.hasOwnProperty.call(dados, "portal");
+        PORTAL = dados.portal && typeof dados.portal === "object" ? dados.portal : null;
+        aplicaPortal();
         var ag = new Date();
         FONTE.vivo = true;
         FONTE.quando = ag.toLocaleDateString("pt-BR") + " às " +
           ag.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
         renderCards(); renderTabelas();
+        edPosCarga();
       })
       .catch(function(){ /* segue com a cópia local */ });
   }
@@ -1241,6 +1386,315 @@ a{color:inherit}
     var ab = e.target.closest && e.target.closest("[data-abrir]");
     if (ab && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); voltarFoco = ab; abrir(ab.dataset.abrir); }
   });
+
+
+  /* ---------------- editor do portal (admin) ----------------
+     Só aparece quando o servidor já aceita edições do portal (PORTAL_OK). A senha é a mesma do
+     painel das tabelas e é validada no Worker — aqui só fica o token da sessão (sessionStorage). */
+  var API_POST = "https://hliving-proxy.jefearq.workers.dev";
+  var ed = document.getElementById("editor");
+  var adminLink = document.querySelector(".admin-link");
+  var ED = null, edDev = null, edView = "menu", edSujo = false, edMsg = "", edStatus = { t:"", c:"" };
+  var VIDEO_ICO = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.3" stroke="currentColor" stroke-width="1.3"/><path d="M6.6 5.6v4.8L10.4 8 6.6 5.6Z" fill="currentColor"/></svg>';
+  var DOC_ICO = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M9 1.8H4.6a1.2 1.2 0 0 0-1.2 1.2v10a1.2 1.2 0 0 0 1.2 1.2h6.8a1.2 1.2 0 0 0 1.2-1.2V5.4L9 1.8Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M9 1.8v3.6h3.6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+  var PASTA_ICO = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M1.8 4.2a1.2 1.2 0 0 1 1.2-1.2h2.7l1.3 1.6h5.2a1.2 1.2 0 0 1 1.2 1.2v6.2a1.2 1.2 0 0 1-1.2 1.2H3a1.2 1.2 0 0 1-1.2-1.2V4.2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
+
+  function token(){ try { return sessionStorage.getItem("hliving_token") || ""; } catch(e){ return ""; } }
+  function guardaToken(t){ try { if (t) sessionStorage.setItem("hliving_token", t); else sessionStorage.removeItem("hliving_token"); } catch(e){} }
+  function postApi(action, data){
+    return fetch(API_POST, { method:"POST", headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ action:action, data:data, token:token() }) })
+      .then(function(r){ return r.json(); });
+  }
+  function thumb(id, w){ return img(id, w) || (okDrive(id) ? driveImg(id, w) : null); }
+  function posY(p){ var r = /^center (\d{1,3})%$/.exec(p || ""); return r ? Math.min(100, +r[1]) : 50; }
+
+  function edCarrega(id){
+    var b = BASE[id], o = (PORTAL && PORTAL.devs && limpaEdicao(id, PORTAL.devs[id])) || {}, a = o.add || {};
+    ED = { id:id, resumo:o.resumo || b.resumo, detalhe:o.detalhe || b.detalhe, entrega:o.entrega || b.entrega,
+           badge:o.badge || b.badge, capa:o.capa || b.capa || null, y:posY(o.pos || b.pos),
+           oc:(o.ocultar || []).slice(), add:{ fotos:(a.fotos||[]).slice(), videos:(a.videos||[]).slice(),
+           plantas:(a.plantas||[]).slice(), docs:(a.docs||[]).slice() } };
+    if (ED.capa && ED.oc.indexOf(ED.capa) !== -1) ED.capa = null;
+    edDev = id; edSujo = false; edStatus = { t:"", c:"" };
+  }
+  /* fotos que podem virar capa: lazer + unidades + adicionadas, sem as ocultas */
+  function edFotos(){
+    var b = BASE[ED.id], out = [];
+    b.fotos.concat(ED.add.fotos).forEach(function(s){ if (ED.oc.indexOf(idDe(s)) === -1) out.push(s); });
+    b.unidades.forEach(function(g){
+      if (ED.oc.indexOf("u:" + g.u) === -1) g.fotos.forEach(function(s){ out.push(s); });
+    });
+    return out;
+  }
+  function edCapaAtual(){
+    if (ED.capa) return ED.capa;
+    var f = edFotos().filter(function(s){ return !/^Localiza/i.test(parts(s).t); })[0];
+    return f ? idDe(f) : null;
+  }
+  function edMonta(){
+    var b = BASE[ED.id], o = {}, add = {}, tem = false;
+    ["resumo","detalhe","entrega","badge"].forEach(function(k){
+      var v = limpaTxt(ED[k], LIM[k]); if (v && v !== b[k]) o[k] = v;
+    });
+    if (ED.capa && ED.capa !== b.capa) o.capa = ED.capa;
+    var pos = "center " + ED.y + "%";
+    if (pos !== (b.pos || "center 50%")) o.pos = pos;
+    if (ED.oc.length) o.ocultar = ED.oc.slice();
+    TIPOS.forEach(function(t){ if (ED.add[t].length){ add[t] = ED.add[t].slice(); tem = true; } });
+    if (tem) o.add = add;
+    return Object.keys(o).length ? o : null;
+  }
+
+  function edHead(sub){
+    return '<div class="ed-head"><div><b id="ed-titulo">Painel Admin</b><span>' + esc(sub) + '</span></div>' +
+      '<button class="ed-x" data-ed="fechar" aria-label="Fechar">' + XIS + '</button></div>';
+  }
+  function edMenu(){
+    return edHead("Portal do Corretor · HLiving") +
+      '<div class="ed-menu"><p class="ed-hint">O que você quer editar?</p>' +
+      '<a class="ed-op" href="hliving-tabelas.html#admin"><b>Preços, unidades e disponibilidade</b>' +
+        '<span>Abre o painel das tabelas. O portal atualiza sozinho com o que for salvo lá.</span></a>' +
+      '<button class="ed-op" data-ed="editar"><b>Textos, capas e fotos do portal</b>' +
+        '<span>Título e descrição dos cards, capa, enquadramento, fotos, plantas, vídeos e catálogo.</span></button></div>';
+  }
+  function edLogin(){
+    return edHead("Textos, capas e fotos do portal") +
+      '<form class="ed-login" data-ed-form="login">' +
+        '<label class="ed-f"><span>Senha de acesso</span><input type="password" id="ed-senha" autocomplete="current-password" required></label>' +
+        '<p class="ed-hint">A mesma senha do painel das tabelas.</p>' +
+        '<p class="ed-erro" role="alert">' + esc(edMsg) + '</p>' +
+        '<button class="btn btn-main" type="submit" style="justify-content:center">Entrar</button>' +
+      '</form>';
+  }
+  function edLinha(s, tipo, extra){
+    var p = parts(s), off = ED.oc.indexOf(p.id) !== -1, th;
+    if (tipo === "videos") th = '<span class="th">' + VIDEO_ICO + '</span>';
+    else if (tipo === "docs") th = '<span class="th">' + DOC_ICO + '</span>';
+    else { var u = thumb(p.id, 200); th = '<span class="th"' + (u ? ' style="background-image:url(\'' + u + '\')"' : '') + '></span>'; }
+    var btn = extra
+      ? '<button type="button" data-ed-rm="' + tipo + ':' + extra.i + '">Remover</button>'
+      : '<button type="button" data-ed-oc="' + esc(p.id) + '" aria-pressed="' + off + '">' + (off ? "Mostrar" : "Ocultar") + '</button>';
+    return '<div class="ed-row' + (off ? ' off' : '') + '">' + th + '<span class="lg">' + esc(p.t) +
+      (extra ? '<em>adicionado</em>' : off ? '<em>oculto</em>' : '') + '</span>' + btn + '</div>';
+  }
+  function edMidia(){
+    var b = BASE[ED.id], h = "", temUni = b.unidades.length > 0;
+    var grupos = [["fotos", temUni ? "Lazer" : "Fotos"], ["unidades", "Unidades"], ["videos", "Vídeos"], ["plantas", "Plantas"], ["docs", "Catálogo"]];
+    grupos.forEach(function(gr){
+      var t = gr[0], linhas = "";
+      if (t === "unidades"){
+        b.unidades.forEach(function(g){
+          var off = ED.oc.indexOf("u:" + g.u) !== -1;
+          linhas += '<div class="ed-row' + (off ? ' off' : '') + '"><span class="th">' + PASTA_ICO + '</span>' +
+            '<span class="lg">Unidade ' + esc(g.u) + ' · ' + g.fotos.length + ' fotos' + (off ? '<em>oculta</em>' : '') + '</span>' +
+            '<button type="button" data-ed-oc="u:' + esc(g.u) + '" aria-pressed="' + off + '">' + (off ? "Mostrar" : "Ocultar") + '</button></div>';
+        });
+      } else {
+        b[t].forEach(function(s){ linhas += edLinha(s, t); });
+        ED.add[t].forEach(function(s, i){ linhas += edLinha(s, t, { i:i }); });
+      }
+      if (linhas) h += '<p class="ed-grp">' + gr[1] + '</p><div class="ed-list">' + linhas + '</div>';
+    });
+    if (!h) h = '<p class="ed-hint">Este empreendimento ainda não tem mídia. Adicione abaixo.</p>';
+    return h +
+      '<div class="ed-add">' +
+        '<select id="ed-add-tipo" aria-label="Tipo de arquivo"><option value="fotos">Foto</option><option value="plantas">Planta</option>' +
+          '<option value="videos">Vídeo</option><option value="docs">Catálogo</option></select>' +
+        '<input type="text" id="ed-add-link" placeholder="Link do arquivo no Drive" aria-label="Link do arquivo no Drive">' +
+        '<input type="text" id="ed-add-leg" class="full" maxlength="' + LIM.leg + '" placeholder="Legenda (ex.: Fachada 04)" aria-label="Legenda">' +
+        '<p class="ed-hint full">No Drive: botão direito no arquivo → Compartilhar → “Qualquer pessoa com o link” → Copiar link.</p>' +
+        '<button type="button" class="btn ed-add-btn" data-ed="add">Adicionar</button>' +
+      '</div>';
+  }
+  function edCapaEstilo(){
+    var c = edCapaAtual(), u = c ? thumb(c, 1200) : null;
+    return u ? 'background-image:url(\'' + u + '\');background-position:center ' + ED.y + '%' : '';
+  }
+  function edForm(){
+    var d = acha(ED.id), capa = edCapaAtual();
+    var opts = DEVS.map(function(x){
+      return '<option value="' + esc(x.id) + '"' + (x.id === ED.id ? ' selected' : '') + '>' + esc(x.nome) + '</option>';
+    }).join("");
+    var capas = edFotos().map(function(s){
+      var p = parts(s), u = thumb(p.id, 300);
+      return '<button type="button" class="ed-capa" data-ed-capa="' + esc(p.id) + '" aria-pressed="' + (p.id === capa) + '" title="' + esc(p.t) + '"' +
+        (u ? ' style="background-image:url(\'' + u + '\')"' : '') + '><i>' + esc(p.t) + '</i></button>';
+    }).join("");
+    return edHead("Textos, capas e fotos do portal") +
+      '<div class="ed-body">' +
+        '<div class="ed-sec"><label class="ed-f"><span>Empreendimento</span><select id="ed-dev">' + opts + '</select></label></div>' +
+        '<div class="ed-sec"><h3>Card</h3>' +
+          '<div class="ed-prev"><div class="facade"></div><div class="cover-img" id="ed-prev-img" style="' + edCapaEstilo() + '"></div>' +
+            '<div class="t"><b>' + esc(d.nome) + '</b><span id="ed-prev-resumo">' + esc(ED.resumo) + '</span></div></div>' +
+          '<label class="ed-f"><span>Título</span><input type="text" data-ed-campo="resumo" maxlength="' + LIM.resumo + '" value="' + esc(ED.resumo) + '"></label>' +
+          '<label class="ed-f"><span>Descrição</span><textarea data-ed-campo="detalhe" maxlength="' + LIM.detalhe + '">' + esc(ED.detalhe) + '</textarea></label>' +
+          '<label class="ed-f"><span>Entrega</span><input type="text" data-ed-campo="entrega" maxlength="' + LIM.entrega + '" value="' + esc(ED.entrega) + '"></label>' +
+          '<label class="ed-f"><span>Selo</span><input type="text" data-ed-campo="badge" maxlength="' + LIM.badge + '" value="' + esc(ED.badge) + '"' + (d.obra ? ' disabled' : '') + '>' +
+            '<small>' + (d.obra ? 'Em obra, o selo mostra o andamento automaticamente.' : 'Aparece no canto da capa, ex.: Lançamento, Pronto, Oportunidade.') + '</small></label>' +
+          '<p class="ed-hint">Campo apagado volta ao texto original.</p>' +
+        '</div>' +
+        '<div class="ed-sec"><h3>Capa</h3>' +
+          (capas ? '<div class="ed-capas" role="group" aria-label="Escolher a foto de capa">' + capas + '</div>' +
+            '<label class="ed-range"><span>Topo</span><input type="range" min="0" max="100" step="1" data-ed-campo="y" value="' + ED.y + '" aria-label="Enquadramento da capa"><span>Base</span></label>'
+            : '<p class="ed-hint">Sem fotos disponíveis para capa. Adicione uma foto em Mídia.</p>') +
+        '</div>' +
+        '<div class="ed-sec"><h3>Mídia</h3>' + edMidia() + '</div>' +
+      '</div>' +
+      '<div class="ed-foot">' +
+        '<button type="button" class="btn" data-ed="restaurar">Restaurar original</button><span class="sp"></span>' +
+        '<button type="button" class="btn" data-ed="fechar">Cancelar</button>' +
+        '<button type="button" class="btn btn-main" data-ed="salvar">Salvar e publicar</button>' +
+        '<p class="ed-status ' + edStatus.c + '" role="status">' + esc(edStatus.t) + '</p>' +
+      '</div>';
+  }
+  function edPinta(foco){
+    var cb = ed.querySelector(".ed-body"), st = cb ? cb.scrollTop : 0;
+    ed.innerHTML = '<div class="ed-sheet" role="document">' +
+      (edView === "login" ? edLogin() : edView === "form" && ED ? edForm() : edMenu()) + '</div>';
+    var nb = ed.querySelector(".ed-body"); if (nb) nb.scrollTop = st;
+    var f = foco ? ed.querySelector(foco) : null;
+    if (!f) f = edView === "login" ? ed.querySelector("#ed-senha") : ed.querySelector(".ed-x");
+    if (f && f.focus) f.focus({ preventScroll:true });
+  }
+  function edAviso(t, c){
+    edStatus = { t:t, c:c || "" };
+    var p = ed.querySelector(".ed-status");
+    if (p){ p.textContent = t; p.className = "ed-status " + (c || ""); }
+  }
+  function edMudou(){ edSujo = true; edAviso("Alterações ainda não publicadas."); }
+  function edAbrir(view){
+    edView = view; ed.hidden = false; document.body.style.overflow = "hidden"; edPinta();
+  }
+  function edFechar(){
+    if (edSujo && !window.confirm("Sair sem publicar as alterações?")) return;
+    ed.hidden = true; ed.innerHTML = ""; document.body.style.overflow = ""; edSujo = false;
+    if (adminLink) adminLink.focus();
+  }
+  function edEntrarFormulario(){
+    if (!edDev || !BASE[edDev] || !acha(edDev)) edDev = DEVS[0].id;
+    if (!ED || ED.id !== edDev) edCarrega(edDev);
+    edView = "form"; edPinta();
+  }
+  function edOcupado(on){
+    var s = ed.querySelector(".ed-sheet"); if (s) s.classList.toggle("ed-ocupado", on);
+  }
+  function edDrive(txt){
+    txt = String(txt || "").trim();
+    if (/\/folders\//.test(txt)) return { erro:"Esse é o link de uma pasta. Abra o arquivo e copie o link dele." };
+    var r = /\/d\/([A-Za-z0-9_-]{20,80})/.exec(txt) || /[?&]id=([A-Za-z0-9_-]{20,80})/.exec(txt) || /^([A-Za-z0-9_-]{20,80})$/.exec(txt);
+    return r ? { id:r[1] } : { erro:"Não reconheci o link. No Drive use Compartilhar → Copiar link." };
+  }
+  function edAdicionar(){
+    var tipo = ed.querySelector("#ed-add-tipo").value, link = ed.querySelector("#ed-add-link").value,
+        leg = limpaTxt(ed.querySelector("#ed-add-leg").value, LIM.leg).replace(/\|/g, "/");
+    var r = edDrive(link);
+    if (r.erro){ edAviso(r.erro, "erro"); ed.querySelector("#ed-add-link").focus(); return; }
+    if (!leg){ edAviso("Escreva uma legenda para o arquivo.", "erro"); ed.querySelector("#ed-add-leg").focus(); return; }
+    var b = BASE[ED.id], ja = false;
+    TIPOS.forEach(function(t){ b[t].concat(ED.add[t]).forEach(function(s){ if (idDe(s) === r.id) ja = true; }); });
+    b.unidades.forEach(function(g){ g.fotos.forEach(function(s){ if (idDe(s) === r.id) ja = true; }); });
+    if (ja){ edAviso("Esse arquivo já está neste empreendimento. Se estiver oculto, use Mostrar.", "erro"); return; }
+    ED.add[tipo].push(r.id + "|" + leg);
+    edMudou(); edPinta('[data-ed="add"]');
+    edAviso("Adicionado. Publique para aparecer no portal.");
+  }
+  function edSalvar(){
+    var o = edMonta();
+    edOcupado(true); edAviso("Publicando…");
+    postApi("savePortal", { id:ED.id, dev:o })
+      .then(function(res){
+        if (res && res.error === "auth"){
+          guardaToken(""); edMsg = "Sua sessão expirou. Entre de novo para publicar."; edOcupado(false);
+          edView = "login"; edPinta(); return;
+        }
+        if (!res || !res.ok){ edOcupado(false); edAviso("Não consegui publicar. Nada foi alterado no portal; tente de novo.", "erro"); return; }
+        edSujo = false;
+        try { sessionStorage.setItem("portal_editor_reabrir", ED.id); } catch(e){}
+        location.reload();
+      })
+      .catch(function(){ edOcupado(false); edAviso("Sem conexão com o servidor. Nada foi publicado.", "erro"); });
+  }
+  /* depois de publicar, a página recarrega com os dados novos e o editor reabre no mesmo empreendimento */
+  function edPosCarga(){
+    var id = null;
+    try { id = sessionStorage.getItem("portal_editor_reabrir"); sessionStorage.removeItem("portal_editor_reabrir"); } catch(e){}
+    if (!id || !PORTAL_OK || !acha(id) || !token()) return;
+    edCarrega(id); edAbrir("form");
+    edAviso("Publicado. O portal já mostra as alterações.", "ok");
+  }
+
+  if (adminLink) adminLink.addEventListener("click", function(e){
+    if (!PORTAL_OK) return;     // servidor ainda sem a edição do portal: segue direto para o painel das tabelas
+    e.preventDefault(); edAbrir("menu");
+  });
+  ed.addEventListener("click", function(e){
+    if (e.target === ed){ edFechar(); return; }
+    var a = e.target.closest("[data-ed]");
+    if (a){
+      var k = a.getAttribute("data-ed");
+      if (k === "fechar") edFechar();
+      else if (k === "editar"){ if (token()) edEntrarFormulario(); else { edMsg = ""; edView = "login"; edPinta(); } }
+      else if (k === "salvar") edSalvar();
+      else if (k === "add") edAdicionar();
+      else if (k === "restaurar"){
+        if (!window.confirm("Voltar este empreendimento ao texto e às fotos originais? Só muda no portal depois de publicar.")) return;
+        var b = BASE[ED.id];
+        ED.resumo = b.resumo; ED.detalhe = b.detalhe; ED.entrega = b.entrega; ED.badge = b.badge;
+        ED.capa = b.capa || null; ED.y = posY(b.pos); ED.oc = []; ED.add = { fotos:[], videos:[], plantas:[], docs:[] };
+        edMudou(); edPinta('[data-ed="restaurar"]'); edAviso("Original restaurado. Publique para aplicar no portal.");
+      }
+      return;
+    }
+    var c = e.target.closest("[data-ed-capa]");
+    if (c){ ED.capa = c.getAttribute("data-ed-capa"); edMudou(); edPinta('[data-ed-capa="' + ED.capa + '"]'); return; }
+    var oc = e.target.closest("[data-ed-oc]");
+    if (oc){
+      var id = oc.getAttribute("data-ed-oc"), i = ED.oc.indexOf(id);
+      if (i === -1){ ED.oc.push(id); if (ED.capa === id) ED.capa = null; } else ED.oc.splice(i, 1);
+      edMudou(); edPinta('[data-ed-oc="' + id + '"]'); return;
+    }
+    var rm = e.target.closest("[data-ed-rm]");
+    if (rm){
+      var q = rm.getAttribute("data-ed-rm").split(":"), lst = ED.add[q[0]], s = lst && lst[+q[1]];
+      if (!s) return;
+      if (ED.capa === idDe(s)) ED.capa = null;
+      lst.splice(+q[1], 1); edMudou(); edPinta(); return;
+    }
+  });
+  ed.addEventListener("input", function(e){
+    var k = e.target.getAttribute("data-ed-campo"); if (!k || !ED) return;
+    if (k === "y"){
+      ED.y = +e.target.value;
+      var im = ed.querySelector("#ed-prev-img"); if (im) im.style.backgroundPosition = "center " + ED.y + "%";
+    } else {
+      ED[k] = e.target.value;
+      if (k === "resumo"){ var pr = ed.querySelector("#ed-prev-resumo"); if (pr) pr.textContent = e.target.value; }
+    }
+    edMudou();
+  });
+  ed.addEventListener("change", function(e){
+    if (e.target.id !== "ed-dev") return;
+    var novo = e.target.value;
+    if (edSujo && !window.confirm("Trocar de empreendimento sem publicar as alterações?")){ e.target.value = ED.id; return; }
+    edCarrega(novo); edPinta("#ed-dev");
+  });
+  ed.addEventListener("submit", function(e){
+    if (!e.target.matches('[data-ed-form="login"]')) return;
+    e.preventDefault();
+    var campo = ed.querySelector("#ed-senha"), senha = campo.value;
+    campo.value = "";
+    if (!senha) return;
+    edOcupado(true);
+    postApi("login", { senha:senha })
+      .then(function(res){
+        edOcupado(false);
+        if (res && res.ok && res.token){ guardaToken(res.token); edMsg = ""; edEntrarFormulario(); }
+        else { edMsg = "Senha incorreta."; edPinta(); }
+      })
+      .catch(function(){ edOcupado(false); edMsg = "Sem conexão com o servidor."; edPinta(); });
+  });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape" && !ed.hidden) edFechar(); });
 
   /* ---------------- copiar ---------------- */
   document.getElementById("copiar").addEventListener("click", function(){
