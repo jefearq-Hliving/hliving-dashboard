@@ -1,57 +1,50 @@
-# Edição do portal pelo Admin — ajuste no Worker
+# Servidor do editor do Portal do Corretor
 
-O `portal.html` já tem um editor de **textos, capa, enquadramento e mídia** dos cards. Ele fica
-desligado até o Worker (`hliving-proxy.jefearq.workers.dev`) suportar duas coisas:
+O **Admin → Textos, capas e fotos do portal** grava as edições num servidor só do portal, separado
+do servidor de preços:
 
-1. o campo `portal` na resposta do `getAll`;
-2. a ação `savePortal` no POST.
+| | |
+| --- | --- |
+| Conta Cloudflare | Marketing (`marketing@hliving.com.br`) |
+| Worker | `hliving-portal` |
+| Endereço | https://hliving-portal.bold-resonance-24f8.workers.dev |
+| Armazenamento | KV `hliving-portal`, ligado ao Worker como `PORTAL_KV` |
+| Código | [`servidor-portal/worker.js`](servidor-portal/worker.js) (cópia do que está publicado) |
 
-Assim que o `getAll` passar a trazer `portal`, o botão **Admin** do portal mostra a opção
-*Textos, capas e fotos do portal*. Nada mais precisa mudar no site.
+**O sistema de preços não muda.** O servidor principal (`hliving-proxy.jefearq.workers.dev`), o Apps
+Script e a planilha continuam iguais, e o portal nunca grava neles.
 
-O login é o mesmo do painel das tabelas: o portal chama a ação `login` que já existe e usa o
-token devolvido. Nenhuma senha fica no repositório.
+## Senha
 
-## Contrato
+É a mesma do painel das tabelas, e não fica escrita em lugar nenhum:
 
-### `GET ?action=getAll` — incluir `portal`
+1. O editor envia a senha ao servidor do portal.
+2. O servidor do portal repassa a senha para a ação `login` do servidor principal, a mesma checagem que
+   o painel das tabelas usa. Se a senha mudar lá (inclusive pela recuperação de senha), muda aqui também.
+3. Se estiver certa, o servidor do portal cria um token próprio, válido por 12h, e o guarda no KV
+   (`sess:<token>`). O token do servidor principal não é guardado nem devolvido.
+4. Após 10 senhas erradas do mesmo IP, os logins ficam bloqueados por 15 minutos.
 
-```json
-{
-  "empreendimento": { "...": "como hoje" },
-  "portal": {
-    "v": 1,
-    "devs": {
-      "tekoa": {
-        "resumo": "Seis unidades repassadas no TEKOÁ, frente mar",
-        "capa": "1O3HDTi3ZT2r2V8F9FddOPeNQk7BqX5Ux",
-        "pos": "center 20%",
-        "ocultar": ["1_NZ4DHmLOLO4g7FUuvpcBh0A7BQkwu4d", "u:701"],
-        "add": { "fotos": ["1AbCdEfGhIjKlMnOpQrStUvWxYz012345|Fachada 04"] }
-      }
-    }
-  }
-}
-```
+O navegador guarda só o token do portal, em `sessionStorage` (`hliving_portal_token`). Esse nome é
+diferente do token do painel das tabelas, para um não atrapalhar o outro.
 
-- A **presença da chave** `portal` é o que liga o editor. Sem nada salvo, devolva `"portal": { "v": 1, "devs": {} }`.
-- Cada empreendimento guarda **só o que mudou** em relação ao que está escrito no `portal.html`.
-- As chaves de `devs` são os ids do portal: `c254`, `atl`, `altos`, `flats`, `duetto`, `tropical`,
-  `haute`, `lafayette`, `costamare`, `tekoa`, `villa`, `cota`.
+## Endpoints
 
-### `POST` — ação `savePortal`
+| Chamada | Resposta |
+| --- | --- |
+| `GET ?action=getPortal` | `{ "v": 1, "devs": { … }, "em": "<data da última gravação>" }` |
+| `POST { "action": "login", "data": { "senha": "…" } }` | `{ ok: true, token }` · `{ ok: false }` · `{ ok: false, error: "tentativas" }` (429) · `{ ok: false, error: "upstream" }` (502, servidor principal fora do ar) |
+| `POST { "action": "savePortal", "token": "…", "data": { "id": "tekoa", "dev": { … } } }` | `{ ok: true }` · `{ error: "auth" }` (token ausente ou vencido) · `{ ok: false, error: "<motivo>" }` |
 
-Mesmo formato das outras gravações:
+- `dev: null` apaga a edição daquele empreendimento (botão *Restaurar original*).
+- O CORS só libera `https://hliving-dashboard.vercel.app` e `https://tabelas.hliving.com.br`.
+- Tudo fica numa única chave do KV, `portal`, e cada gravação troca um empreendimento por vez.
 
-```json
-{ "action": "savePortal", "token": "<token do login>", "data": { "id": "tekoa", "dev": { "...": "..." } } }
-```
+## O que é guardado (`devs.<id>`)
 
-- `dev: null` = apagar a edição daquele empreendimento (botão *Restaurar original*).
-- Respostas: `{ "ok": true }` · `{ "error": "auth" }` (token ausente ou expirado — o portal pede login de novo) · `{ "ok": false, "error": "<motivo>" }`.
-- Salva **um empreendimento por vez**, então duas pessoas editando empreendimentos diferentes não se sobrescrevem.
-
-## Campos de `dev`
+Só o que mudou em relação ao que está escrito no `portal.html`. Os ids são os do portal: `c254`,
+`atl`, `altos`, `flats`, `duetto`, `tropical`, `haute`, `lafayette`, `costamare`, `tekoa`, `villa`,
+`cota`.
 
 | Campo | Tipo | Regra |
 | --- | --- | --- |
@@ -59,91 +52,53 @@ Mesmo formato das outras gravações:
 | `detalhe` | texto | descrição, até 420 |
 | `entrega` | texto | até 60 |
 | `badge` | texto | selo da capa, até 28 |
-| `capa` | id | id de uma foto que já existe no empreendimento (ou adicionada) |
-| `pos` | texto | `center N%`, N de 0 a 100 |
+| `capa` | id | id de uma foto do empreendimento (ou de uma adicionada) |
+| `pos` | texto | `center N%`, com N de 0 a 100 |
 | `ocultar` | lista de ids | fotos, vídeos, plantas, catálogo, ou `u:<unidade>` para a galeria inteira de uma unidade; até 500 |
 | `add` | objeto | `fotos`, `videos`, `plantas`, `docs`: listas de `"<id do Drive>\|<legenda>"`, até 100 cada |
 
-O portal já valida tudo isso antes de enviar e de novo antes de exibir (incluindo tirar `<` e `>`),
-mas o Worker **deve validar também** — o cliente não é confiável.
+O servidor valida tudo isso, tirando `<` e `>`. O portal valida de novo antes de exibir.
 
-## Código de referência
+## Como o portal usa
 
-Escrito para Cloudflare Workers com KV (`env.HLIVING_KV`). Se as gravações de hoje vão para a
-planilha (Apps Script), a lógica é a mesma: uma aba `portal` com uma linha por empreendimento
-(`id`, `json`, `atualizadoEm`). Uma linha por empreendimento também fica longe do limite de
-50.000 caracteres por célula do Google Sheets.
+- Ao abrir, o portal busca os preços no servidor principal (`getAll`) e as edições no servidor do portal
+  (`getPortal`), cada um por conta própria: se um cair, o outro continua valendo.
+- Se o servidor do portal responder, o **Admin** mostra duas opções: o painel das tabelas e o editor.
+  Se não responder, o Admin vai direto para o painel das tabelas e o portal mostra o que está escrito no
+  `portal.html`.
+- O KV leva até 1 minuto para espalhar uma gravação pelo mundo. O navegador que publicou usa o que
+  acabou de publicar por 2 minutos (`sessionStorage`, chave `portal_recem`).
 
-`tokenValido` e `json` são marcadores: use **a mesma checagem de token e a mesma resposta** que as
-outras ações de gravação já usam.
+## Manutenção
 
-```js
-// ---- Portal do Corretor: textos, capas e mídia ----
-const PORTAL_ID = /^[a-z0-9_]{2,32}$/;
-const PORTAL_TXT = { resumo: 140, detalhe: 420, entrega: 60, badge: 28 };
-const PORTAL_TIPOS = ['fotos', 'videos', 'plantas', 'docs'];
-const PORTAL_REF = /^[A-Za-z0-9_\-\/.:]{2,120}$/;            // ids do Drive, v-..., f/..., u:<unidade>
-const PORTAL_ITEM = /^[A-Za-z0-9_-]{20,80}\|[^|<>]{1,80}$/;  // "<id do Drive>|<legenda>"
-const limpa = (v, max) => typeof v === 'string'
-  ? v.replace(/[<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, max) : '';
+**Atualizar o código do servidor.** Cloudflare (conta Marketing) → Workers & Pages → `hliving-portal` →
+*Edit code* → colar o conteúdo de `servidor-portal/worker.js` → *Deploy*. Depois, guardar a mesma
+versão aqui no repositório.
 
-function validaPortalDev(dev) {
-  if (dev === null) return null;
-  if (!dev || typeof dev !== 'object' || Array.isArray(dev)) throw new Error('dev');
-  if (JSON.stringify(dev).length > 50000) throw new Error('tamanho');
-  const out = {};
-  for (const k of Object.keys(PORTAL_TXT)) { const v = limpa(dev[k], PORTAL_TXT[k]); if (v) out[k] = v; }
-  if (typeof dev.capa === 'string' && PORTAL_REF.test(dev.capa) && !dev.capa.startsWith('u:')) out.capa = dev.capa;
-  const p = typeof dev.pos === 'string' && /^center (\d{1,3})%$/.exec(dev.pos);
-  if (p && +p[1] <= 100) out.pos = dev.pos;
-  if (Array.isArray(dev.ocultar)) {
-    const oc = dev.ocultar.filter(x => typeof x === 'string' && PORTAL_REF.test(x)).slice(0, 500);
-    if (oc.length) out.ocultar = oc;
-  }
-  if (dev.add && typeof dev.add === 'object') {
-    const add = {};
-    for (const t of PORTAL_TIPOS) {
-      const l = (Array.isArray(dev.add[t]) ? dev.add[t] : []).filter(s => typeof s === 'string' && PORTAL_ITEM.test(s)).slice(0, 100);
-      if (l.length) add[t] = l;
-    }
-    if (Object.keys(add).length) out.add = add;
-  }
-  return Object.keys(out).length ? out : null;
-}
+**Voltar uma versão.** Aba *Deployments* do Worker → versão anterior → *Rollback*.
 
-// No roteador de POST, junto das outras ações:
-if (action === 'savePortal') {
-  if (!(await tokenValido(body.token, env))) return json({ error: 'auth' });
-  const id = body.data && body.data.id;
-  if (typeof id !== 'string' || !PORTAL_ID.test(id)) return json({ ok: false, error: 'id' });
-  let dev;
-  try { dev = validaPortalDev(body.data.dev); } catch (e) { return json({ ok: false, error: e.message }); }
-  if (dev) await env.HLIVING_KV.put('portal:' + id, JSON.stringify(dev));
-  else await env.HLIVING_KV.delete('portal:' + id);
-  return json({ ok: true });
-}
+**Ver ou copiar as edições salvas.** Abrir `https://hliving-portal.bold-resonance-24f8.workers.dev/?action=getPortal`,
+ou ir em Storage & databases → Workers KV → `hliving-portal` → chave `portal`.
 
-// No getAll, junto dos outros campos da resposta:
-const devs = {};
-for (const k of (await env.HLIVING_KV.list({ prefix: 'portal:' })).keys) {
-  const v = await env.HLIVING_KV.get(k.name);
-  if (v) devs[k.name.slice('portal:'.length)] = JSON.parse(v);
-}
-resposta.portal = { v: 1, devs };
-```
+**Desligar o editor.** Escolha um dos dois:
 
-Se o Worker restringe as origens no CORS, o portal grava das mesmas origens que o painel das
-tabelas (`hliving-dashboard.vercel.app` e `tabelas.hliving.com.br`).
+- No `portal.html`, apagar a linha `carregarPortal();`.
+- Na Cloudflare, desativar o endereço `workers.dev` do Worker (Settings → Domains & Routes).
 
-## Como testar depois de publicar
+Nos dois casos o editor some do Admin e o portal volta a mostrar só o que está no `portal.html`. As
+edições continuam guardadas no KV.
 
-1. Abrir o portal → **Admin**. Devem aparecer duas opções; a segunda é *Textos, capas e fotos do portal*.
-2. Entrar com a senha do painel das tabelas.
-3. Escolher um empreendimento, mudar o título e clicar em **Salvar e publicar**. A página recarrega
-   e o editor reabre com *Publicado*; o card já mostra o título novo para qualquer visitante.
-4. **Restaurar original** + **Salvar e publicar** apaga a edição e o card volta ao texto do `portal.html`.
+**Limites do plano gratuito do KV.** São 100 mil leituras e mil gravações por dia. Cada visita ao
+portal faz 1 leitura. Cada publicação, login ou senha errada faz 1 gravação.
 
-## Como desligar
+## Se um dia for juntar com o servidor principal
 
-Tirar `portal` da resposta do `getAll`. O editor some e o portal volta a mostrar só o que está
-escrito no `portal.html`. As edições salvas continuam guardadas no Worker.
+Basta levar `getPortal` e `savePortal` para o Worker do servidor principal, usando a checagem de token
+que ele já tem, e copiar o valor da chave `portal`. Depois, trocar `PORTAL_API` no `portal.html`.
+
+## Teste rápido
+
+1. Portal → **Admin** → *Textos, capas e fotos do portal* → senha do painel das tabelas.
+2. Mudar o título de um empreendimento → **Salvar e publicar**. A página recarrega, o editor reabre com
+   *Publicado* e o card mostra o título novo.
+3. **Restaurar original** → **Salvar e publicar**. O card volta ao texto do `portal.html`.

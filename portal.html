@@ -748,10 +748,12 @@ a{color:inherit}
   DEVS.forEach(function(d){ d.midia = MIDIA[d.id] || null; });
 
   /* ---------------- textos e mídia editados pelo admin ----------------
-     O servidor guarda só o que mudou em relação ao que está escrito aqui (BASE).
+     Ficam num servidor próprio do portal (Cloudflare, conta Marketing, worker "hliving-portal"),
+     separado do servidor de preços. Ele guarda só o que mudou em relação ao que está escrito aqui (BASE).
      Tudo o que chega do servidor passa pelas mesmas validações antes de ir para a tela. */
+  var PORTAL_API = "https://hliving-portal.bold-resonance-24f8.workers.dev";
   var PORTAL = null;        // { v:1, devs:{ id:{resumo,detalhe,entrega,badge,capa,pos,ocultar,add} } }
-  var PORTAL_OK = false;    // o servidor já aceita edições do portal (getAll traz "portal")
+  var PORTAL_OK = false;    // o servidor do portal respondeu: o Admin mostra o editor
   var LIM = { resumo:140, detalhe:420, entrega:60, badge:28, leg:80 };
   var TIPOS = ["fotos","videos","plantas","docs"];
   var BASE = {};
@@ -954,17 +956,48 @@ a{color:inherit}
       .then(function(dados){
         if (fim || !dados || !dados.empreendimento) return;
         aplicarServidor(dados);
-        PORTAL_OK = Object.prototype.hasOwnProperty.call(dados, "portal");
-        PORTAL = dados.portal && typeof dados.portal === "object" ? dados.portal : null;
-        aplicaPortal();
         var ag = new Date();
         FONTE.vivo = true;
         FONTE.quando = ag.toLocaleDateString("pt-BR") + " às " +
           ag.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
         renderCards(); renderTabelas();
-        edPosCarga();
       })
       .catch(function(){ /* segue com a cópia local */ });
+  }
+
+  /* Edições do portal. O servidor leva até 1 minuto para espalhar uma gravação pelo mundo; por isso,
+     o que acabou de ser publicado neste navegador (portal_recem) vale por 2 minutos sobre o que chegar. */
+  var RECEM = "portal_recem";
+  function recentes(p){
+    var r = null, agora = Date.now(), resta = {};
+    try { r = JSON.parse(sessionStorage.getItem(RECEM) || "null"); } catch(e){}
+    if (!r || typeof r !== "object") return p;
+    Object.keys(r).forEach(function(id){
+      var x = r[id];
+      if (!x || typeof x.em !== "number" || agora - x.em > 120000 || !BASE[id]) return;
+      resta[id] = x;
+      if (x.dev) p.devs[id] = x.dev; else delete p.devs[id];
+    });
+    try { if (Object.keys(resta).length) sessionStorage.setItem(RECEM, JSON.stringify(resta)); else sessionStorage.removeItem(RECEM); } catch(e){}
+    return p;
+  }
+  function carregarPortal(){
+    if (!window.fetch) return;
+    var fim = false;
+    setTimeout(function(){ fim = true; }, 9000);
+    fetch(PORTAL_API + "?action=getPortal", { cache:"no-store" })
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+      .then(function(p){
+        if (fim || !p || typeof p !== "object" || !p.devs || typeof p.devs !== "object" || Array.isArray(p.devs)) return;
+        PORTAL = recentes(p); PORTAL_OK = true;
+        aplicaPortal();
+        renderCards(); renderTabelas();
+        if (mDev && !modal.hidden) pintaModal();
+        edPosCarga();
+      })
+      .catch(function(){   /* sem o servidor do portal: fica o que está escrito aqui e o Admin vai direto às tabelas */
+        try { sessionStorage.removeItem("portal_editor_reabrir"); } catch(e){}
+      });
   }
 
   var CATS = [ {k:"todos",l:"Todos"}, {k:"lanc",l:"Lançamentos"}, {k:"pronto",l:"Prontos"}, {k:"oport",l:"Oportunidades"} ];
@@ -1210,6 +1243,7 @@ a{color:inherit}
   });
   show(location.hash.replace("#","")==="tabelas" ? "tabelas" : "portfolio");
   carregar();
+  carregarPortal();
 
   /* ---------------- tela de detalhe ---------------- */
   var modal = document.getElementById("modal"), lbox = document.getElementById("lbox");
@@ -1389,9 +1423,10 @@ a{color:inherit}
 
 
   /* ---------------- editor do portal (admin) ----------------
-     Só aparece quando o servidor já aceita edições do portal (PORTAL_OK). A senha é a mesma do
-     painel das tabelas e é validada no Worker — aqui só fica o token da sessão (sessionStorage). */
-  var API_POST = "https://hliving-proxy.jefearq.workers.dev";
+     Só aparece quando o servidor do portal responde (PORTAL_OK). A senha é a mesma do painel das
+     tabelas: o servidor do portal confere com o servidor principal e devolve um token próprio, de 12h.
+     Aqui só fica esse token (sessionStorage), com nome diferente do token do painel das tabelas. */
+  var TOKEN_KEY = "hliving_portal_token";
   var ed = document.getElementById("editor");
   var adminLink = document.querySelector(".admin-link");
   var ED = null, edDev = null, edView = "menu", edSujo = false, edMsg = "", edStatus = { t:"", c:"" };
@@ -1399,10 +1434,10 @@ a{color:inherit}
   var DOC_ICO = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M9 1.8H4.6a1.2 1.2 0 0 0-1.2 1.2v10a1.2 1.2 0 0 0 1.2 1.2h6.8a1.2 1.2 0 0 0 1.2-1.2V5.4L9 1.8Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M9 1.8v3.6h3.6" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
   var PASTA_ICO = '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M1.8 4.2a1.2 1.2 0 0 1 1.2-1.2h2.7l1.3 1.6h5.2a1.2 1.2 0 0 1 1.2 1.2v6.2a1.2 1.2 0 0 1-1.2 1.2H3a1.2 1.2 0 0 1-1.2-1.2V4.2Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>';
 
-  function token(){ try { return sessionStorage.getItem("hliving_token") || ""; } catch(e){ return ""; } }
-  function guardaToken(t){ try { if (t) sessionStorage.setItem("hliving_token", t); else sessionStorage.removeItem("hliving_token"); } catch(e){} }
+  function token(){ try { return sessionStorage.getItem(TOKEN_KEY) || ""; } catch(e){ return ""; } }
+  function guardaToken(t){ try { if (t) sessionStorage.setItem(TOKEN_KEY, t); else sessionStorage.removeItem(TOKEN_KEY); } catch(e){} }
   function postApi(action, data){
-    return fetch(API_POST, { method:"POST", headers:{ "Content-Type":"application/json" },
+    return fetch(PORTAL_API, { method:"POST", headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({ action:action, data:data, token:token() }) })
       .then(function(r){ return r.json(); });
   }
@@ -1610,7 +1645,12 @@ a{color:inherit}
         }
         if (!res || !res.ok){ edOcupado(false); edAviso("Não consegui publicar. Nada foi alterado no portal; tente de novo.", "erro"); return; }
         edSujo = false;
-        try { sessionStorage.setItem("portal_editor_reabrir", ED.id); } catch(e){}
+        try {
+          var r = JSON.parse(sessionStorage.getItem(RECEM) || "null") || {};
+          r[ED.id] = { dev:o, em:Date.now() };
+          sessionStorage.setItem(RECEM, JSON.stringify(r));
+          sessionStorage.setItem("portal_editor_reabrir", ED.id);
+        } catch(e){}
         location.reload();
       })
       .catch(function(){ edOcupado(false); edAviso("Sem conexão com o servidor. Nada foi publicado.", "erro"); });
@@ -1621,11 +1661,11 @@ a{color:inherit}
     try { id = sessionStorage.getItem("portal_editor_reabrir"); sessionStorage.removeItem("portal_editor_reabrir"); } catch(e){}
     if (!id || !PORTAL_OK || !acha(id) || !token()) return;
     edCarrega(id); edAbrir("form");
-    edAviso("Publicado. O portal já mostra as alterações.", "ok");
+    edAviso("Publicado. Em outros aparelhos pode levar até 1 minuto para aparecer.", "ok");
   }
 
   if (adminLink) adminLink.addEventListener("click", function(e){
-    if (!PORTAL_OK) return;     // servidor ainda sem a edição do portal: segue direto para o painel das tabelas
+    if (!PORTAL_OK) return;     // servidor do portal não respondeu: segue direto para o painel das tabelas
     e.preventDefault(); edAbrir("menu");
   });
   ed.addEventListener("click", function(e){
@@ -1689,8 +1729,11 @@ a{color:inherit}
     postApi("login", { senha:senha })
       .then(function(res){
         edOcupado(false);
-        if (res && res.ok && res.token){ guardaToken(res.token); edMsg = ""; edEntrarFormulario(); }
-        else { edMsg = "Senha incorreta."; edPinta(); }
+        if (res && res.ok && res.token){ guardaToken(res.token); edMsg = ""; edEntrarFormulario(); return; }
+        edMsg = res && res.error === "tentativas" ? "Muitas tentativas erradas. Espere 15 minutos e tente de novo."
+              : res && res.error === "upstream" ? "O servidor das tabelas não respondeu. Tente de novo em instantes."
+              : "Senha incorreta.";
+        edPinta();
       })
       .catch(function(){ edOcupado(false); edMsg = "Sem conexão com o servidor."; edPinta(); });
   });
