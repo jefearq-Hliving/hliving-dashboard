@@ -4283,6 +4283,43 @@ document.addEventListener('DOMContentLoaded', function(){
   });
 });
 
+// Atalho vindo do portfólio (index.html): abre direto a tela de proposta de uma
+// unidade, sem o corretor ter que procurar o empreendimento na mão. O portfólio
+// só manda o id do empreendimento no servidor e o número da unidade; quem
+// descobre em qual das quatro telas ela mora é esta função, para o link
+// continuar valendo se o empreendimento mudar de categoria.
+function abrirUnidadePorLink(empId, num){
+  num = String(num);
+  const tem = e => e && Array.isArray(e.unidades) && e.unidades.some(u => String(u.n) === num);
+
+  // 2CINCO4 vem na raiz do payload e não entra em nenhuma das listas
+  if(empId === '2cinco4'){
+    if(!units.some(u => String(u.n) === num)) return false;
+    abrirEmpreendimento();
+    openUnit(num);
+    return true;
+  }
+  const iEmp = empreendimentos.findIndex(e => e.id === empId);
+  if(iEmp > -1 && tem(empreendimentos[iEmp])){
+    abrirEmpSecundario(iEmp);
+    abrirDetalheEmp2(num);
+    return true;
+  }
+  const iPr = PRONTOS.findIndex(e => e.id === empId);
+  if(iPr > -1 && tem(PRONTOS[iPr])){
+    abrirProntos(iPr);
+    abrirDetalhePronto(num, empId);
+    return true;
+  }
+  const op = PRE_LANCAMENTOS.find(e => e.id === empId);
+  if(op && tem(op)){
+    abrirOportunidades(empId);
+    abrirDetalheOp(num, empId);
+    return true;
+  }
+  return false;
+}
+
 document.addEventListener('DOMContentLoaded', function(){
   empreendimentos = [ATLANTIA];
   atualizarHeader();
@@ -4298,6 +4335,18 @@ document.addEventListener('DOMContentLoaded', function(){
     if(_token){
       carregando.then(ok => { if(ok && _token){ _loginCtx = 'home'; openAdmin(); } else openLogin('home'); });
     } else openLogin('home');
+  }
+
+  // Atalho do portfólio: hliving-tabelas.html#u=<empreendimento>:<unidade>.
+  // Espera os dados do servidor antes de abrir, senão a unidade ainda não existe.
+  const alvo = location.hash.match(/^#u=([^:]+):(.+)$/);
+  if(alvo){
+    const empId = decodeURIComponent(alvo[1]), num = decodeURIComponent(alvo[2]);
+    history.replaceState(null, '', location.pathname + location.search);
+    carregando.then(() => {
+      if(!abrirUnidadePorLink(empId, num))
+        toast('Unidade ' + num + ' não está mais disponível neste empreendimento.', 'erro');
+    });
   }
 });
 </script>

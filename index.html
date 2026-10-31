@@ -260,6 +260,14 @@ a{color:inherit}
 .u.free .u-n{color:var(--ink-2)}
 .u.taken{background:var(--card-2)}
 .u.taken .u-n{opacity:.7}
+a.u{text-decoration:none;color:inherit;cursor:pointer}
+a.u .u-go{flex:none;color:var(--accent-ink);opacity:.55;font-weight:700}
+a.u:hover{background:var(--accent-soft)}
+a.u:hover .u-go{opacity:1}
+a.ucard{display:block;text-decoration:none;color:inherit;cursor:pointer}
+a.ucard:hover{background:var(--accent-soft)}
+.ucard-go{display:block;margin-top:8px;font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--accent-ink)}
+.legend-dica{margin:-4px 0 14px;font-size:12px;color:var(--ink-3)}
 .u-s{font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;text-align:right;white-space:nowrap}
 .s-res{color:var(--res)} .s-vend{color:var(--sold)} .s-fase{color:var(--wait)}
 
@@ -427,6 +435,7 @@ a{color:inherit}
       <span><i style="background:var(--res)"></i>Reservada</span>
       <span><i style="background:var(--sold)"></i>Vendida</span>
     </div>
+    <p class="legend-dica">Toque numa unidade disponível para abrir a proposta dela no Portal do Corretor.</p>
     <div id="tabelas"></div>
   </section>
 
@@ -891,6 +900,15 @@ a{color:inherit}
   /* Unidades que o servidor ainda lista, mas que não entram no portal. */
   var OCULTAR = { haute: ["701"] };
 
+  /* Portal do Corretor: cada unidade disponível abre a proposta dela lá.
+     DE_PARA vai do id do servidor para o nosso; o link precisa do caminho inverso. */
+  var PARA_SERV = {};
+  Object.keys(DE_PARA).forEach(function(k){ PARA_SERV[DE_PARA[k]] = k; });
+  function linkProposta(d, n){
+    var sid = PARA_SERV[d.id];
+    return sid ? "hliving-tabelas.html#u=" + encodeURIComponent(sid) + ":" + encodeURIComponent(n) : "";
+  }
+
   function acha(id){ return DEVS.filter(function(d){ return d.id === id; })[0]; }
   /* o servidor manda número ora como 3171.96, ora como "3171,96" ou "3.171,96" */
   function numero(v){
@@ -1189,8 +1207,14 @@ a{color:inherit}
           '<div class="tipo-h"><b>TIPO '+t.n+'</b><span>'+esc(t.spec)+'</span>'+
           '<em class="num">'+livres+' '+(livres===1?"disponível":"disponíveis")+'</em></div>'+
           us.map(function(x){
-            if (x.s==="D") return '<div class="u free"><span class="u-n num">'+x.n+'</span>'+
-              '<span class="u-v num">'+preco(d, x.v)+'</span></div>';
+            if (x.s==="D") {
+              var href = linkProposta(d, x.n);
+              var dentro = '<span class="u-n num">'+x.n+'</span>'+
+                '<span class="u-v num">'+preco(d, x.v)+'</span>';
+              return href
+                ? '<a class="u free" href="'+href+'" title="Gerar proposta da unidade '+esc(x.n)+'">'+dentro+'<span class="u-go">\u203A</span></a>'
+                : '<div class="u free">'+dentro+'</div>';
+            }
             return '<div class="u taken"><span class="u-n num">'+x.n+'</span>'+
               '<span class="u-s s-'+ST[x.s].k+'">'+ST[x.s].s+'</span></div>';
           }).join("")+
@@ -1199,12 +1223,14 @@ a{color:inherit}
       corpo = '<div class="tscroll"><div class="tipos" style="grid-template-columns:repeat('+d.tipos.length+',minmax(156px,1fr))">'+cols+'</div></div>';
     } else {
       corpo = '<div class="ulist">'+ d.units.map(function(x){
-        return '<div class="ucard">'+
-          '<div class="ucard-top"><b>Unidade '+esc(x.n)+'</b><span class="v num">'+preco(d, x.v)+'</span></div>'+
+        var hrefC = x.s==="D" ? linkProposta(d, x.n) : "";
+        var dentroC = '<div class="ucard-top"><b>Unidade '+esc(x.n)+'</b><span class="v num">'+preco(d, x.v)+'</span></div>'+
           (x.area ? '<p class="m num">'+area(x.area)+(d.id !== "altos" && !/privativ/i.test(x.desc||"") ? ' privativos' : '')+'</p>' : '')+
           '<p class="d">'+esc(x.desc)+'</p>'+
-          '<span class="pill p-'+ST[x.s].k+'">'+ST[x.s].l+'</span>'+
-        '</div>';
+          '<span class="pill p-'+ST[x.s].k+'">'+ST[x.s].l+'</span>';
+        return hrefC
+          ? '<a class="ucard" href="'+hrefC+'" title="Gerar proposta da unidade '+esc(x.n)+'">'+dentroC+'<span class="ucard-go">Gerar proposta \u203A</span></a>'
+          : '<div class="ucard">'+dentroC+'</div>';
       }).join("") + '</div>';
     }
 
