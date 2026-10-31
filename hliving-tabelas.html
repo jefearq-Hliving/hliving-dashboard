@@ -1196,7 +1196,7 @@ function openUnit(num){
     <div class="sec-title">Gerar proposta</div>
     <div class="field-wrap"><label class="field-label">Nome do cliente</label><input type="text" id="cli-nome" placeholder="Nome completo" autocomplete="name"></div>
     <div class="field-wrap"><label class="field-label">CPF</label><input type="text" id="cli-cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14" inputmode="numeric"></div>
-    <div class="field-wrap"><label class="field-label">Corretor responsável</label><input type="text" id="cli-corretor" placeholder="Seu nome"></div>
+    ${camposCorretor('')}
     <div style="display:flex;gap:6px;margin-bottom:14px">
       <button id="btn-padrao" onclick="setModo('padrao')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--hl-dark);background:var(--hl-dark);color:#fff;font-size:12px;font-weight:600;cursor:pointer">Padrão</button>
       <button id="btn-custom" onclick="setModo('custom')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border-strong);background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer">Personalizada ✦</button>
@@ -1231,6 +1231,44 @@ function closeUnit(){
   document.getElementById('main-view').style.display='block';
   window.scrollTo(0,0);
 }
+// ─── CORRETOR ────────────────────────────────────────
+// Nome e CRECI valem para as quatro telas de proposta e ficam salvos neste
+// aparelho, para o corretor não redigitar a cada proposta. Se o navegador
+// bloquear o armazenamento, os campos só vêm vazios — nada quebra.
+var CORRETOR_KEY = 'hliving_corretor';
+function corretorSalvo(){
+  try { return JSON.parse(localStorage.getItem(CORRETOR_KEY)) || {}; } catch(e){ return {}; }
+}
+function salvarCorretor(nome, creci){
+  try { localStorage.setItem(CORRETOR_KEY, JSON.stringify({ nome:nome||'', creci:creci||'' })); } catch(e){}
+}
+function attrEsc(v){
+  return String(v == null ? '' : v).replace(/[&<>"]/g, function(c){
+    return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c];
+  });
+}
+// Os dois campos do formulário, já preenchidos com o que ficou salvo.
+function camposCorretor(pref){
+  var c = corretorSalvo();
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">'
+    + '<div class="field-wrap" style="margin:0"><label class="field-label">Corretor respons\u00e1vel</label>'
+    + '<input type="text" id="' + pref + 'cli-corretor" placeholder="Seu nome" value="' + attrEsc(c.nome) + '"></div>'
+    + '<div class="field-wrap" style="margin:0"><label class="field-label">CRECI</label>'
+    + '<input type="text" id="' + pref + 'cli-creci" placeholder="00000-F" value="' + attrEsc(c.creci) + '"></div>'
+    + '</div>';
+}
+// Lê os dois campos, guarda para a próxima proposta e devolve a linha que sai no papel.
+// A aspa simples vira a tipográfica porque o nome é interpolado em onclick mais abaixo.
+function leCorretor(pref){
+  var n = document.getElementById(pref + 'cli-corretor');
+  var c = document.getElementById(pref + 'cli-creci');
+  var limpa = function(v){ return String(v||'').trim().replace(/[\\"]/g, '').replace(/'/g, '\u2019'); };
+  var nome = limpa(n && n.value), creci = limpa(c && c.value);
+  salvarCorretor(nome, creci);
+  if (!nome) return '[Corretor]';
+  return creci ? nome + ' \u00b7 CRECI ' + creci : nome;
+}
+
 // ─── PROPOSTA ─────────────────────────────────────────────────────
 function setModo(modo){
   const ic=modo==='custom';
@@ -1244,7 +1282,7 @@ function setModo(modo){
 function gerarProposta(num,tipo,vgvPadrao,andar){
   const nome=document.getElementById('cli-nome').value||'[Nome do cliente]';
   const cpf=document.getElementById('cli-cpf').value||'[CPF]';
-  const corretor=document.getElementById('cli-corretor').value||'[Corretor]';
+  const corretor=leCorretor('');
   const isCustom=window._modoCustom||false;
   const today=new Date().toLocaleDateString('pt-BR');
   const area=document.getElementById('proposta-area');
@@ -1328,7 +1366,7 @@ function memoriaCalculoTexto(itens, vgv){
 function compartilharWhatsApp(num,tipo,vgv,andar){
   const nome=document.getElementById('cli-nome').value||'[Nome do cliente]';
   const cpf=document.getElementById('cli-cpf').value||'[CPF]';
-  const corretor=document.getElementById('cli-corretor').value||'[Corretor]';
+  const corretor=leCorretor('');
   const today=new Date().toLocaleDateString('pt-BR');
   const p=calcP(vgv);
   const f=v=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
@@ -2254,7 +2292,7 @@ function abrirDetalhePronto(num,empId){
     <div class="sec-title">Gerar proposta</div>
     <div class="field-wrap"><label class="field-label">Nome do cliente</label><input type="text" id="pr-cli-nome" placeholder="Nome completo" autocomplete="name"></div>
     <div class="field-wrap"><label class="field-label">CPF</label><input type="text" id="pr-cli-cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14" inputmode="numeric"></div>
-    <div class="field-wrap"><label class="field-label">Corretor responsável</label><input type="text" id="pr-cli-corretor" placeholder="Seu nome"></div>
+    ${camposCorretor('pr-')}
     <div style="display:flex;gap:6px;margin-bottom:14px">
       <button id="pr-btn-padrao" onclick="setModoPronto('padrao')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--hl-dark);background:var(--hl-dark);color:#fff;font-size:12px;font-weight:600;cursor:pointer">Padrão</button>
       <button id="pr-btn-custom" onclick="setModoPronto('custom')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--border-strong);background:transparent;color:var(--text-2);font-size:12px;font-weight:600;cursor:pointer">Personalizada ✦</button>
@@ -2309,7 +2347,7 @@ function gerarPropostaPronto(num,empId,vgvPadrao){
   const p=e.pgto;
   const nome=document.getElementById('pr-cli-nome').value||'[Nome do cliente]';
   const cpf=document.getElementById('pr-cli-cpf').value||'[CPF]';
-  const corretor=document.getElementById('pr-cli-corretor').value||'[Corretor]';
+  const corretor=leCorretor('pr-');
   const today=new Date().toLocaleDateString('pt-BR');
   const fmt2=v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
   const s='font-size:10px;padding:4px 0;display:flex;justify-content:space-between;border-bottom:0.5px solid var(--border)';
@@ -2370,7 +2408,7 @@ function enviarWhatsAppPronto(){
   const e=PRONTOS.find(x=>x.id===document.querySelector('#prontos-detail-view .det-sub')&&x)||PRONTOS[0];
   const nome=document.getElementById('pr-cli-nome').value||'[Nome do cliente]';
   const cpf=document.getElementById('pr-cli-cpf').value||'[CPF]';
-  const corretor=document.getElementById('pr-cli-corretor').value||'[Corretor]';
+  const corretor=leCorretor('pr-');
   const vgv=parseFloat(document.getElementById('pr-vgv-custom').value)||0;
   const entrada=parseFloat(document.getElementById('pr-entrada-custom').value)||0;
   const chave=parseFloat(document.getElementById('pr-chave-custom').value)||0;
@@ -2990,7 +3028,7 @@ function abrirDetalheEmp2(num){
     <div class="sec-title">Gerar proposta</div>
     <div class="field-wrap"><label class="field-label">Nome do cliente</label><input type="text" id="e2-cli-nome" placeholder="Nome completo" autocomplete="name"></div>
     <div class="field-wrap"><label class="field-label">CPF</label><input type="text" id="e2-cli-cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14" inputmode="numeric"></div>
-    <div class="field-wrap"><label class="field-label">Corretor responsável</label><input type="text" id="e2-cli-corretor" placeholder="Seu nome"></div>
+    ${camposCorretor('e2-')}
 
     <div style="display:flex;gap:6px;margin-bottom:14px">
       <button id="e2-btn-padrao" onclick="setModoEmp2('padrao')" style="flex:1;padding:8px;border-radius:8px;border:1.5px solid var(--hl-dark);background:var(--hl-dark);color:#fff;font-size:12px;font-weight:600;cursor:pointer">Padrão</button>
@@ -3051,7 +3089,7 @@ function gerarPropostaEmp2(num,tipo,vgvPadrao,andar,area,vista,desc){
   const e=_empAtivo;
   const nome=document.getElementById('e2-cli-nome').value||'[Nome do cliente]';
   const cpf=document.getElementById('e2-cli-cpf').value||'[CPF]';
-  const corretor=document.getElementById('e2-cli-corretor').value||'[Corretor]';
+  const corretor=leCorretor('e2-');
   const today=new Date().toLocaleDateString('pt-BR');
   const isCustom=window._modoEmp2Custom||false;
   const area2=document.getElementById('e2-proposta-area');
@@ -3736,7 +3774,7 @@ function abrirDetalheOp(num,empId){
     <div class="sec-title">Gerar proposta</div>
     <div class="field-wrap"><label class="field-label">Nome do cliente</label><input type="text" id="op-cli-nome" placeholder="Nome completo" autocomplete="name"></div>
     <div class="field-wrap"><label class="field-label">CPF</label><input type="text" id="op-cli-cpf" placeholder="000.000.000-00" oninput="maskCPF(this)" maxlength="14" inputmode="numeric"></div>
-    <div class="field-wrap"><label class="field-label">Corretor responsável</label><input type="text" id="op-cli-corretor" placeholder="Seu nome"></div>
+    ${camposCorretor('op-')}
     <button class="generate-btn" onclick="gerarPropostaOp('${u.n}','${e.id}',${u.v||0})"><i class="ti ti-file-text" style="font-size:17px"></i>Gerar proposta</button>
     <div id="op-proposta-area"></div>`;
 
@@ -3757,7 +3795,7 @@ function gerarPropostaOp(num,empId,vgvPadrao){
   const u=e.unidades.find(x=>x.n===num);
   const nome=document.getElementById('op-cli-nome').value.trim();
   const cpf=document.getElementById('op-cli-cpf').value.trim();
-  const corretor=document.getElementById('op-cli-corretor').value.trim();
+  const corretor=leCorretor('op-');
   if(!nome){toast('Informe o nome do cliente','erro');return;}
   const fmt2=v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
   const p=e.pgto||{};
@@ -4290,31 +4328,38 @@ document.addEventListener('DOMContentLoaded', function(){
 // continuar valendo se o empreendimento mudar de categoria.
 function abrirUnidadePorLink(empId, num){
   num = String(num);
-  const tem = e => e && Array.isArray(e.unidades) && e.unidades.some(u => String(u.n) === num);
+  // As telas de detalhe procuram a unidade com ===, então repassamos o número do jeito
+  // que ele está guardado (o servidor ora manda "601", ora 601) e não o texto da URL.
+  const achaU = e => (e && Array.isArray(e.unidades))
+    ? e.unidades.find(u => String(u.n) === num) : null;
 
   // 2CINCO4 vem na raiz do payload e não entra em nenhuma das listas
   if(empId === '2cinco4'){
-    if(!units.some(u => String(u.n) === num)) return false;
+    const u = units.find(x => String(x.n) === num);
+    if(!u) return false;
     abrirEmpreendimento();
-    openUnit(num);
+    openUnit(u.n);
     return true;
   }
   const iEmp = empreendimentos.findIndex(e => e.id === empId);
-  if(iEmp > -1 && tem(empreendimentos[iEmp])){
+  const uEmp = iEmp > -1 ? achaU(empreendimentos[iEmp]) : null;
+  if(uEmp){
     abrirEmpSecundario(iEmp);
-    abrirDetalheEmp2(num);
+    abrirDetalheEmp2(uEmp.n);
     return true;
   }
   const iPr = PRONTOS.findIndex(e => e.id === empId);
-  if(iPr > -1 && tem(PRONTOS[iPr])){
+  const uPr = iPr > -1 ? achaU(PRONTOS[iPr]) : null;
+  if(uPr){
     abrirProntos(iPr);
-    abrirDetalhePronto(num, empId);
+    abrirDetalhePronto(uPr.n, empId);
     return true;
   }
   const op = PRE_LANCAMENTOS.find(e => e.id === empId);
-  if(op && tem(op)){
+  const uOp = op ? achaU(op) : null;
+  if(uOp){
     abrirOportunidades(empId);
-    abrirDetalheOp(num, empId);
+    abrirDetalheOp(uOp.n, empId);
     return true;
   }
   return false;

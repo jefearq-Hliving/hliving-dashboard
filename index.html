@@ -377,6 +377,28 @@ a.ucard:hover{background:var(--accent-soft)}
 }
 @media (prefers-reduced-motion:reduce){ *{transition:none!important;animation:none!important} }
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:7px}
+/* ---- Enviar proposta: botao e seletor de unidade ---- */
+.btn-prop{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.btn-prop:hover{border-color:var(--accent-ink);color:var(--accent-ink)}
+.sheet-prop{max-width:560px;margin-top:6vh}
+.prop-top{position:relative;padding:22px 52px 18px 22px;border-bottom:1px solid var(--line)}
+.prop-et{font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--accent-ink)}
+.prop-top h2{margin-top:6px;font-size:19px;font-weight:800;letter-spacing:.01em;color:var(--ink)}
+.prop-sub{margin-top:7px;font-size:12.5px;color:var(--ink-3);line-height:1.5}
+.prop-body{max-height:62vh;overflow:auto}
+.prop-lista{display:flex;flex-direction:column}
+.prop-u{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:12px;padding:13px 22px;
+  border-bottom:1px solid var(--line);text-decoration:none;color:inherit;transition:.14s}
+.prop-u:last-child{border-bottom:0}
+.prop-u:hover{background:var(--accent-soft)}
+.prop-u-n{font-size:14px;font-weight:800;color:var(--ink);min-width:46px}
+.prop-u-d{font-size:12px;color:var(--ink-3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prop-u-v{font-size:13.5px;font-weight:800;color:var(--ink);white-space:nowrap}
+.prop-u-go{color:var(--accent-ink);font-weight:800;opacity:.55}
+.prop-u:hover .prop-u-go{opacity:1}
+.prop-vazio{padding:22px;font-size:13px;color:var(--ink-3);line-height:1.6}
+@media(max-width:560px){.prop-u{grid-template-columns:auto 1fr auto;gap:9px;padding:12px 16px}
+  .prop-u-d{display:none}.prop-top{padding:18px 48px 15px 16px}}
 </style>
 
 <header class="topbar">
@@ -441,6 +463,7 @@ a.ucard:hover{background:var(--accent-soft)}
 
   <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div>
   <div class="lbox" id="lbox" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada"></div>
+  <div class="modal" id="prop" hidden role="dialog" aria-modal="true" aria-labelledby="prop-titulo"></div>
   <div class="ed" id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="ed-titulo"></div>
   <a class="wa-float" id="wa-float" target="_blank" rel="noopener" aria-label="Falar com a HLiving no WhatsApp" title="Falar com a HLiving no WhatsApp">
     <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.3c3.3 0 6 2.3 6 5.1s-2.7 5.1-6 5.1c-.8 0-1.6-.1-2.3-.4l-3.2 1.3.9-2.7C2.5 9.8 2 8.6 2 7.4 2 4.6 4.7 2.3 8 2.3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.6 7.4h.01M8 7.4h.01M10.4 7.4h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
@@ -1127,6 +1150,19 @@ a.ucard:hover{background:var(--accent-soft)}
     return p ? parts(p).id : null;
   }
 
+  /* Enviar proposta: so aparece quando o empreendimento existe no Portal e tem
+     pelo menos uma unidade disponivel para propor. */
+  var PROP = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">'+
+    '<path d="M9 1.8H4.2a1.4 1.4 0 0 0-1.4 1.4v9.6a1.4 1.4 0 0 0 1.4 1.4h7.6a1.4 1.4 0 0 0 1.4-1.4V6z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>'+
+    '<path d="M9 1.8V6h4.2M5.6 9h4.8M5.6 11.4h3.2" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  function livresDe(d){ return d.units.filter(function(x){ return x.s==="D"; }); }
+  function temProposta(d){ return !!PARA_SERV[d.id] && livresDe(d).length > 0; }
+  function btnProposta(d, extra){
+    return temProposta(d)
+      ? '<button class="btn btn-prop" data-proposta="'+d.id+'"'+(extra||"")+'>'+PROP+'Enviar proposta</button>'
+      : "";
+  }
+
   function cardHTML(d){
     var s = stats(d);
     var val = s.min ? preco(d, s.min) : "sob consulta";
@@ -1160,6 +1196,7 @@ a.ucard:hover{background:var(--accent-soft)}
         '<button class="btn btn-main" data-goto="'+d.id+'">'+
           '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.4" stroke="currentColor" stroke-width="1.35"/><path d="M1.8 6.2h12.4M6.4 6.2v7" stroke="currentColor" stroke-width="1.35"/></svg>'+
           'Ver tabela completa</button>'+
+        btnProposta(d)+
         (n ? '<button class="btn btn-doc" data-abrir="'+d.id+'">'+GALERIA+'Fotos e documentos</button>' : '')+
         '<a class="btn" href="'+esc(mapa)+'" target="_blank" rel="noopener">'+PIN+'Ver no mapa</a>'+
         '<a class="btn btn-wa" href="'+esc(waLink(d))+'" target="_blank" rel="noopener" aria-label="Falar sobre '+esc(d.nome)+' no WhatsApp">'+WA+'Falar no WhatsApp</a>'+
@@ -1392,6 +1429,7 @@ a.ucard:hover{background:var(--accent-soft)}
           '<button class="btn btn-main" data-goto="'+d.id+'" data-fechar>'+
           '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1.8" y="2.8" width="12.4" height="10.4" rx="1.4" stroke="currentColor" stroke-width="1.35"/><path d="M1.8 6.2h12.4M6.4 6.2v7" stroke="currentColor" stroke-width="1.35"/></svg>'+
           'Ver tabela completa</button>'+
+        btnProposta(d)+
         '</div>'+
       '</div>';
     if (mAba === "unidades"){
@@ -1462,6 +1500,72 @@ a.ucard:hover{background:var(--accent-soft)}
     if (ab && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); voltarFoco = ab; abrir(ab.dataset.abrir); }
   });
 
+
+  /* ---------------- enviar proposta ----------------
+     A proposta sempre sai de uma unidade (o VGV vem dela), entao o botao do portfolio
+     abre a lista das disponiveis daquele empreendimento. Cada linha leva para a tela de
+     proposta da unidade no Portal, que ja traz as condicoes desta tabela e o modo
+     Personalizada. */
+  var prop = document.getElementById("prop"), pDev = null, pVolta = null;
+
+  function ordemUni(a, b){
+    var x = parseFloat(a.n), y = parseFloat(b.n);
+    if (isFinite(x) && isFinite(y) && x !== y) return x - y;
+    return String(a.n).localeCompare(String(b.n), "pt-BR", { numeric:true });
+  }
+  function detalheUni(d, x){
+    var t = x.t ? ("Tipo " + x.t) : (x.desc || "");
+    if (x.area) t = (t ? t + " \u00b7 " : "") + area(x.area);
+    return t;
+  }
+  function pintaProp(){
+    var d = pDev, livres = livresDe(d).slice().sort(ordemUni);
+    prop.innerHTML =
+      '<div class="sheet sheet-prop" role="document">'+
+        '<div class="prop-top">'+
+          '<button class="fechar" data-pfechar aria-label="Fechar">'+XIS+'</button>'+
+          '<p class="prop-et">Enviar proposta</p>'+
+          '<h2 id="prop-titulo">'+esc(d.nome)+'</h2>'+
+          '<p class="prop-sub">Escolha a unidade. A proposta abre no Portal do Corretor j\u00e1 com as condi\u00e7\u00f5es desta tabela, e l\u00e1 d\u00e1 para gerar no modo Padr\u00e3o ou Personalizada.</p>'+
+        '</div>'+
+        '<div class="prop-body">'+
+          (livres.length
+            ? '<div class="prop-lista">'+ livres.map(function(x){
+                var det = detalheUni(d, x);
+                return '<a class="prop-u" href="'+linkProposta(d, x.n)+'">'+
+                  '<span class="prop-u-n num">'+esc(x.n)+'</span>'+
+                  '<span class="prop-u-d">'+esc(det)+'</span>'+
+                  '<span class="prop-u-v num">'+(x.v ? preco(d, x.v) : "sob consulta")+'</span>'+
+                  '<span class="prop-u-go">\u203A</span>'+
+                '</a>';
+              }).join("") +'</div>'
+            : '<p class="prop-vazio">Nenhuma unidade dispon\u00edvel neste empreendimento agora.</p>')+
+        '</div>'+
+      '</div>';
+  }
+  function abrirProp(id){
+    var d = DEVS.filter(function(x){ return x.id===id; })[0];
+    if (!d || !temProposta(d)) return;
+    modal.hidden = true; lbox.hidden = true;          // veio de dentro do material: fecha o modal
+    pDev = d; pintaProp();
+    prop.hidden = false;
+    document.body.style.overflow = "hidden";
+    var b = prop.querySelector(".fechar"); if (b) b.focus();
+  }
+  function fecharProp(){
+    prop.hidden = true;
+    document.body.style.overflow = "";
+    if (pVolta && pVolta.focus) pVolta.focus();
+    pVolta = null;
+  }
+  document.addEventListener("click", function(e){
+    var b = e.target.closest("[data-proposta]");
+    if (b){ e.preventDefault(); pVolta = b; abrirProp(b.getAttribute("data-proposta")); return; }
+    if (e.target.closest("[data-pfechar]") || e.target === prop) fecharProp();
+  });
+  document.addEventListener("keydown", function(e){
+    if (e.key === "Escape" && !prop.hidden) fecharProp();
+  });
 
   /* ---------------- área administrativa (Admin) ----------------
      O Admin pede a senha primeiro (a mesma do painel das tabelas). Com ela certa, abre o menu com o painel
