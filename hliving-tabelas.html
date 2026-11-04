@@ -4255,9 +4255,15 @@ function salvarEdicaoPronto(){
   const tipo  = document.getElementById('pr-edit-pgto-tipo').value;
   const ent   = parseFloat(document.getElementById('pr-edit-entrada').value)||0;
   const chv   = parseFloat(document.getElementById('pr-edit-chave').value)||0;
-  e.pgto = { tipo, reajuste: document.getElementById('pr-edit-reajuste').value||'',
+  // Reforcos: campo vazio ou 0 quer dizer "sem reforco". Antes, vazio virava 6 e o primeiro save
+  // de um pronto sem reforco (Tropical, Lafayette, Costamare) inventava 6 parcelas anuais.
+  // Campos que este formulario nao edita (ex.: venEntrada "Atos") sao preservados.
+  const qtAn = parseInt(document.getElementById('pr-edit-qt-anual').value);
+  const base = Object.assign({}, e.pgto||{});
+  delete base.entrada; delete base.chave; delete base.pctEntrada; delete base.pctChave;
+  e.pgto = Object.assign(base, { tipo, reajuste: document.getElementById('pr-edit-reajuste').value||'',
     qtMensal: parseInt(document.getElementById('pr-edit-qt-mensal').value)||48,
-    qtAnual:  parseInt(document.getElementById('pr-edit-qt-anual').value)||6 };
+    qtAnual:  Number.isNaN(qtAn) ? 0 : qtAn });
   if(tipo==='fixo'){ e.pgto.entrada=ent; e.pgto.chave=chv; }
   else{ e.pgto.pctEntrada=ent; e.pgto.pctChave=chv; }
   if(_editProntoImgB64){ e.img=_editProntoImgB64; _editProntoImgB64=null; }

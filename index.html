@@ -611,7 +611,13 @@ a.ucard:hover{background:var(--accent-soft)}
       local:"Itapema/SC", entrega:"disponibilidade imediata",
       resumo:"Cota de lancha em marina de Itapema",
       detalhe:"Produto complementar ao portfólio, para cliente com imóvel na região.",
-      units:[ u("01",0,"Cota de embarcação","D",430) ] }
+      units:[ u("01",0,"Cota de embarcação","D",430) ] },
+    { id:"atlter", cat:"oport", badge:"Oportunidade", nome:"Atlântia Ocean View (terceiros)", foto:null,
+      local:"Porto Belo/SC", entrega:"dezembro 2028",
+      resumo:"Três flats de terceiros, de 30 e 40 m², com uma vaga",
+      detalhe:"Unidades revendidas pelos proprietários no Atlântia Ocean View. Condição própria, diferente da tabela da construtora: 30% de entrada e saldo em 48x.",
+      units:[ u("904",40.28,"Flat · 1 vaga de garagem","D",993.465), u("1004",40.28,"Flat · 1 vaga de garagem","D",964.613),
+              u("1106",30.03,"Flat · 1 vaga de garagem","D",723.191) ] }
   ];
 
   /* ---------------- mídia (Google Drive — pasta "ARQUIVOS IA - LIVI") ----------------
@@ -797,6 +803,9 @@ a.ucard:hover{background:var(--accent-soft)}
        "1WN45sHHm9MRIPXVdbI7iM6oHuB0es8qA|Porãngue 01",
        "1DsJZNoeGsUC2K9MjhWJ3c-SoF-cqZwlK|Porãngue 02"], [], [], ["1l-W7CSuV848C2lJAHng4twn5Auvi7MG3|Apresentação comercial TEKOÁ"])
   };
+  /* Atlântia de terceiros: é o mesmo prédio do Atlantia da construtora, então mostra a capa e o lazer
+     dele. As pastas de unidade, plantas e catálogo ficam de fora: são das unidades da construtora. */
+  if (MIDIA.atl){ MIDIA.atlter = M(MIDIA.atl.capa, MIDIA.atl.fotos.slice(), [], [], []); MIDIA.atlter.pos = MIDIA.atl.pos || null; }
   DEVS.forEach(function(d){ d.midia = MIDIA[d.id] || null; });
 
   /* ---------------- textos e mídia editados pelo admin ----------------
@@ -918,7 +927,8 @@ a.ucard:hover{background:var(--accent-soft)}
   var DE_PARA = { "2cinco4":"c254", "emp_1789495520655":"atl", "altos":"altos", "forseasons":"flats",
     "gcr":"duetto", "pronto_1785419252229":"tropical", "pronto_1785776998570":"haute",
     "pronto_1787255765841":"lafayette", "pronto_1789044237996":"costamare",
-    "op_1787319381095":"tekoa", "op_1787591125745":"villa", "op_1787777349085":"cota" };
+    "op_1787319381095":"tekoa", "op_1787591125745":"villa", "op_1787777349085":"cota",
+    "op_1793802019951":"atlter" };
   var ST_SERV = { disp:"D", fase:"F", vend:"V", res:"R", pre:"F" };
   var FONTE = { vivo:false, quando:"23/10/2026" };
   /* Valores confirmados pelo comercial que o servidor ainda não tem.
