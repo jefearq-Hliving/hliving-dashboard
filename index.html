@@ -118,6 +118,11 @@ a{color:inherit}
 .prog-row b{text-align:right;font-weight:700;color:var(--ink);font-size:12px}
 .prog-note{margin-top:10px;font-size:11px;color:var(--ink-3)}
 .prog-note b{color:var(--ink-2);font-weight:700}
+.terc-card{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;padding:11px 13px;border:1px dashed var(--accent);border-radius:10px;background:var(--accent-soft);color:var(--ink);transition:.16s}
+.terc-card:hover{border-style:solid}
+.terc-card b{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);font-weight:800}
+.terc-card span{font-size:13px;font-weight:700}
+.terc-card em{font-style:normal;font-size:11.5px;color:var(--ink-2)}
 .badge svg{color:var(--accent);flex:none}
 
 .emp-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:auto;padding-top:14px}
@@ -288,6 +293,11 @@ a.ucard:hover{background:var(--accent-soft)}
 .pgto-i b{display:block;font-size:18px;font-weight:800;color:var(--accent-ink);letter-spacing:-.02em}
 .pgto-i span{display:block;font-size:11.5px;color:var(--ink-2);margin-top:4px}
 .pgto-i em{display:block;font-style:normal;font-size:11px;color:var(--ink-3);margin-top:1px}
+/* campo "Unidades de terceiros" dentro do empreendimento */
+.terc{border-top:1px solid var(--line)}
+.terc-h{padding:18px 20px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:flex-start;border-bottom:1px solid var(--line);background:var(--accent-soft)}
+.terc-h h3{font-size:15px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
+.terc-h > div:first-child p{font-size:12.5px;color:var(--ink-2);margin-top:6px;max-width:560px;line-height:1.5}
 
 .foot{border-top:1px solid var(--line);margin-top:30px;padding-block:22px 96px;font-size:11.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .foot b{color:var(--ink-2);font-weight:600}
@@ -397,6 +407,10 @@ a.ucard:hover{background:var(--accent-soft)}
 .prop-u-go{color:var(--accent-ink);font-weight:800;opacity:.55}
 .prop-u:hover .prop-u-go{opacity:1}
 .prop-vazio{padding:22px;font-size:13px;color:var(--ink-3);line-height:1.6}
+.prop-grupo{padding:13px 22px 9px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--accent-soft);
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--accent-ink)}
+.prop-grupo span{letter-spacing:0;text-transform:none;font-weight:600;font-size:11.5px;color:var(--ink-2)}
+.prop-body > .prop-grupo:first-child{border-top:0}
 .sheet-prop-uni{max-width:780px}
 .prop-voltar{display:inline-flex;align-items:center;gap:5px;background:none;border:0;padding:0;margin-bottom:9px;
   font:inherit;font-size:12.5px;font-weight:800;color:var(--accent-ink);cursor:pointer}
@@ -545,7 +559,14 @@ a.ucard:hover{background:var(--accent-soft)}
       tipos:[1,2,3,4,5,6,7,8,9].map(function(t){ return {n:t,area:ATL_AREA[t],spec:ATL_AREA[t]+" m² privativos"}; }),
       units:ATL,
       pgto:[{p:"30%",l:"Entrada",v:"nos atos"},{p:"10%",l:"Chaves",v:"dez./2028"},
-            {p:"40%",l:"60 mensais",v:"durante a obra"},{p:"20%",l:"5 anuais",v:"balões"}] },
+            {p:"40%",l:"60 mensais",v:"durante a obra"},{p:"20%",l:"5 anuais",v:"balões"}],
+      /* Unidades de terceiros: flats revendidos pelos proprietários no mesmo prédio. No Admin elas
+         continuam sendo a oportunidade "Atlântia Ocean View (terceiros)" (op_1793802019951): é lá que
+         se editam preço, status e condição, e a proposta delas abre com essa condição, não com a da
+         construtora. Aqui elas aparecem dentro do Atlantia, no campo "Unidades de terceiros". */
+      terceiros:{ sid:"op_1793802019951", cond:"30% de entrada e saldo em 48x",
+        units:[ u("904",40.28,"Flat · 1 vaga de garagem","D",993.465), u("1004",40.28,"Flat · 1 vaga de garagem","D",964.613),
+                u("1106",30.03,"Flat · 1 vaga de garagem","D",723.191) ] } },
 
     { id:"altos", cat:"pronto", badge:"Pronto", nome:"Altos da Serra", foto:null,
       local:"Bom Jardim da Serra/SC", entrega:"entrega imediata",
@@ -611,13 +632,7 @@ a.ucard:hover{background:var(--accent-soft)}
       local:"Itapema/SC", entrega:"disponibilidade imediata",
       resumo:"Cota de lancha em marina de Itapema",
       detalhe:"Produto complementar ao portfólio, para cliente com imóvel na região.",
-      units:[ u("01",0,"Cota de embarcação","D",430) ] },
-    { id:"atlter", cat:"oport", badge:"Oportunidade", nome:"Atlântia Ocean View (terceiros)", foto:null,
-      local:"Porto Belo/SC", entrega:"dezembro 2028",
-      resumo:"Três flats de terceiros, de 30 e 40 m², com uma vaga",
-      detalhe:"Unidades revendidas pelos proprietários no Atlântia Ocean View. Condição própria, diferente da tabela da construtora: 30% de entrada e saldo em 48x.",
-      units:[ u("904",40.28,"Flat · 1 vaga de garagem","D",993.465), u("1004",40.28,"Flat · 1 vaga de garagem","D",964.613),
-              u("1106",30.03,"Flat · 1 vaga de garagem","D",723.191) ] }
+      units:[ u("01",0,"Cota de embarcação","D",430) ] }
   ];
 
   /* ---------------- mídia (Google Drive — pasta "ARQUIVOS IA - LIVI") ----------------
@@ -664,7 +679,13 @@ a.ucard:hover{background:var(--accent-soft)}
        "1pa3Ch5XPVgdrVNrjviKCKnitFgxJHRKj|Hall","1lczqtxUorrmwVlQBkE4ERhurrL5F3Bpc|Spa",
        "1MGSbEy0x1wL6-x6zssTQ-YYzMIGuGlfy|Filme com localização","1MVrTIV3JlJeqadxmd1_NrzKZJpmeSjCy|Filme institucional"],
       [],
-      ["1PbIphHAg6kkpXDLsqTuGV_DI5TPPvakM|Apresentação oficial Atlantia"])),
+      ["1PbIphHAg6kkpXDLsqTuGV_DI5TPPvakM|Apresentação oficial Atlantia"],
+      /* 709 é o decorado (showroom). Fotos da pasta "DECORADO 709" do Drive, na ordem 1 a 15 de lá. */
+      [U("709",["1TD69igmuzj-5LN_6H4q8-MBiU2boTIjb","13n82tqvVVN3wObQpElR7NGKSxnOo1bHE","10PsaQohogrCN_3_tkC2VVcpCELhbS7P3",
+                "1RxPqiVmBsrLacpA1K-OEwEtksmPdp5DA","1pfG6frFgelFlZ0bo2HJ9Yzq5FKWWLCYk","1mr7wtaipYoxCOj-5gfEyb2g-nHsoD7VF",
+                "1mXnhMK3tkwn0g8nWBpXLLDPqyhub3cZH","1e4SIkLgwKT2M0pyHVft_W0J7ViCYSmOc","1oeO4GmBlVo3I4wja5ChF8j-B4iwXGtdp",
+                "1uWP8bmV6YRTPQ0Hxy-V6fyznsvOYd7Sr","1STKS-1U9QfVGDx3QD1nhu9EjwKRugJzU","1eorfcKk6ZJDKEdpENk7TM7n6Xotrrg27",
+                "1nvMWk6Ftobtl7qmWdEo1S9BgV9bEiUf6","1B1d31-aSx7MViIWJ5nQl0TvojMMoinrO","1J56stp0w6yIG3Y7u1eszm7Ov3mb8f_h7"])])),
 
     haute: M("1Ip-CIBVHODeoFe2iW1T_xV_QkcYdRsXN",
       [
@@ -804,9 +825,6 @@ a.ucard:hover{background:var(--accent-soft)}
        "1WN45sHHm9MRIPXVdbI7iM6oHuB0es8qA|Porãngue 01",
        "1DsJZNoeGsUC2K9MjhWJ3c-SoF-cqZwlK|Porãngue 02"], [], [], ["1l-W7CSuV848C2lJAHng4twn5Auvi7MG3|Apresentação comercial TEKOÁ"])
   };
-  /* Atlântia de terceiros: é o mesmo prédio do Atlantia da construtora, então mostra a capa e o lazer
-     dele. As pastas de unidade, plantas e catálogo ficam de fora: são das unidades da construtora. */
-  if (MIDIA.atl){ MIDIA.atlter = M(MIDIA.atl.capa, MIDIA.atl.fotos.slice(), [], [], []); MIDIA.atlter.pos = MIDIA.atl.pos || null; }
   DEVS.forEach(function(d){ d.midia = MIDIA[d.id] || null; });
 
   /* ---------------- textos e mídia editados pelo admin ----------------
@@ -928,8 +946,10 @@ a.ucard:hover{background:var(--accent-soft)}
   var DE_PARA = { "2cinco4":"c254", "emp_1789495520655":"atl", "altos":"altos", "forseasons":"flats",
     "gcr":"duetto", "pronto_1785419252229":"tropical", "pronto_1785776998570":"haute",
     "pronto_1787255765841":"lafayette", "pronto_1789044237996":"costamare",
-    "op_1787319381095":"tekoa", "op_1787591125745":"villa", "op_1787777349085":"cota",
-    "op_1793802019951":"atlter" };
+    "op_1787319381095":"tekoa", "op_1787591125745":"villa", "op_1787777349085":"cota" };
+  /* Oportunidades que são unidades de terceiros dentro de um empreendimento nosso: chegam do servidor
+     como oportunidade, mas entram no campo "Unidades de terceiros" do empreendimento, não num card. */
+  var TERCEIROS = { "op_1793802019951":"atl" };
   var ST_SERV = { disp:"D", fase:"F", vend:"V", res:"R", pre:"F" };
   var FONTE = { vivo:false, quando:"23/10/2026" };
   /* Valores confirmados pelo comercial que o servidor ainda não tem.
@@ -946,6 +966,10 @@ a.ucard:hover{background:var(--accent-soft)}
   function linkProposta(d, n){
     var sid = PARA_SERV[d.id];
     return sid ? "hliving-tabelas.html#u=" + encodeURIComponent(sid) + ":" + encodeURIComponent(n) : "";
+  }
+  /* unidade de terceiros: o link vai para a oportunidade, que tem a condição dela */
+  function linkTerceiro(d, n){
+    return d.terceiros ? "hliving-tabelas.html#u=" + encodeURIComponent(d.terceiros.sid) + ":" + encodeURIComponent(n) : "";
   }
 
   function acha(id){ return DEVS.filter(function(d){ return d.id === id; })[0]; }
@@ -992,6 +1016,31 @@ a.ucard:hover{background:var(--accent-soft)}
     });
   }
 
+  /* Unidades de terceiros: preço, status e área vêm do servidor. A descrição o servidor não guarda,
+     então fica a daqui para o mesmo número. Se o Admin desligar a oportunidade, o campo some. */
+  function aplicaTerceiros(d, x, ligado){
+    var t = d && d.terceiros; if (!t) return;
+    if (!ligado){ t.units = []; return; }
+    var antes = {};
+    t.units.forEach(function(o){ antes[o.n] = o.desc; });
+    if (x.unidades && x.unidades.length) t.units = x.unidades.map(function(y){
+      var n = String(y.n);
+      return { n:n, v:numero(y.v)||null, s:ST_SERV[y.s] || "F", area:numero(y.area)||0, desc:y.desc || antes[n] || "" };
+    });
+    var c = condTexto(x.pgto); if (c) t.cond = c;
+  }
+  /* a condição com as mesmas regras da proposta de oportunidade no Portal: entrada e saldo nas mensais */
+  function condTexto(p){
+    if (!p || typeof p !== "object") return "";
+    var q = parseInt(p.qtMensal, 10) || 48;
+    if (p.tipo === "fixo"){
+      var e = numero(p.entrada);
+      return isFinite(e) && e > 0 ? brl(e) + " de entrada e saldo em " + q + "x" : "";
+    }
+    var pc = numero(p.pctEntrada); if (!isFinite(pc)) pc = 0;
+    return pc.toLocaleString("pt-BR") + "% de entrada e saldo em " + q + "x";
+  }
+
   function aplicarServidor(dados){
     // 2CINCO4 vem na raiz do payload
     var c = acha("c254");
@@ -1014,6 +1063,7 @@ a.ucard:hover{background:var(--accent-soft)}
     var vis = dados.visibilidade || {};
     var ocultos = [];
     [].concat(dados.lancamentos||[], dados.prontos||[], dados.pre||[]).forEach(function(x){
+      if (TERCEIROS[x.id]){ aplicaTerceiros(acha(TERCEIROS[x.id]), x, x.ativo !== false && vis[x.id] !== false); return; }
       var meu = DE_PARA[x.id];
       if (!meu) return;
       var d = acha(meu);
@@ -1192,11 +1242,24 @@ a.ucard:hover{background:var(--accent-soft)}
     '<path d="M9 1.8H4.2a1.4 1.4 0 0 0-1.4 1.4v9.6a1.4 1.4 0 0 0 1.4 1.4h7.6a1.4 1.4 0 0 0 1.4-1.4V6z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>'+
     '<path d="M9 1.8V6h4.2M5.6 9h4.8M5.6 11.4h3.2" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   function livresDe(d){ return d.units.filter(function(x){ return x.s==="D"; }); }
-  function temProposta(d){ return !!PARA_SERV[d.id] && livresDe(d).length > 0; }
+  function livresTer(d){ return d.terceiros ? d.terceiros.units.filter(function(x){ return x.s==="D"; }) : []; }
+  function temProposta(d){ return (!!PARA_SERV[d.id] && livresDe(d).length > 0) || livresTer(d).length > 0; }
   function btnProposta(d, extra){
     return temProposta(d)
       ? '<button class="btn btn-prop" data-proposta="'+d.id+'"'+(extra||"")+'>'+PROP+'Enviar proposta</button>'
       : "";
+  }
+
+  /* no card do empreendimento: resumo das unidades de terceiros, que leva ao campo na tabela */
+  function terceirosCard(d){
+    var l = livresTer(d);
+    if (!l.length) return "";
+    var vs = l.filter(function(x){ return x.v; }).map(function(x){ return x.v; });
+    var min = vs.length ? Math.min.apply(null, vs) : null;
+    return '<button class="terc-card" data-goto="'+d.id+'" data-terc>'+
+      '<b>Unidades de terceiros</b>'+
+      '<span class="num">'+l.length+' '+(l.length===1?"disponível":"disponíveis")+(min ? ' · a partir de '+preco(d, min) : '')+'</span>'+
+      '<em>Revenda dos proprietários: '+esc(d.terceiros.cond)+'</em></button>';
   }
 
   function cardHTML(d){
@@ -1222,6 +1285,7 @@ a.ucard:hover{background:var(--accent-soft)}
         '<div><p class="resumo">'+esc(d.resumo)+'</p>'+
         '<p class="detalhe" style="margin-top:7px">'+esc(d.detalhe)+'</p></div>'+
         (d.obra ? obraBlock(d) : progBlock(d, s))+
+        terceirosCard(d)+
         '<div class="emp-foot">'+
           '<span class="entrega">'+CAL+esc(d.entrega)+'</span>'+
           '<span class="preco"><span class="disp num">'+s.D+' '+(s.D===1?"disponível":"disponíveis")+'</span>'+
@@ -1245,7 +1309,9 @@ a.ucard:hover{background:var(--accent-soft)}
   function renderCards(){
     var vs = visiveis();
     document.getElementById("cards").innerHTML = vs.map(cardHTML).join("");
-    var ag = vs.reduce(function(a,d){ var s=stats(d); a.t+=s.total; a.d+=s.D; a.v+=s.vgv; return a; }, {t:0,d:0,v:0});
+    var ag = vs.reduce(function(a,d){ var s=stats(d); a.t+=s.total; a.d+=s.D; a.v+=s.vgv;
+      if (d.terceiros){ var st=stats(d.terceiros); a.t+=st.total; a.d+=st.D; a.v+=st.vgv; }   // terceiros entram na conta geral
+      return a; }, {t:0,d:0,v:0});
     document.getElementById("resumo-geral").innerHTML =
       '<b>'+vs.length+'</b> empreendimentos · <b>'+ag.d+'</b> de '+ag.t+' unidades disponíveis · '+
       '<b>'+milhoes(ag.v)+'</b> em VGV disponível · ' +
@@ -1296,14 +1362,7 @@ a.ucard:hover{background:var(--accent-soft)}
       corpo = '<div class="tscroll"><div class="tipos" style="grid-template-columns:repeat('+d.tipos.length+',minmax(156px,1fr))">'+cols+'</div></div>';
     } else {
       corpo = '<div class="ulist">'+ d.units.map(function(x){
-        var hrefC = x.s==="D" ? linkProposta(d, x.n) : "";
-        var dentroC = '<div class="ucard-top"><b>Unidade '+esc(x.n)+'</b><span class="v num">'+preco(d, x.v)+'</span></div>'+
-          (x.area ? '<p class="m num">'+area(x.area)+(d.id !== "altos" && !/privativ/i.test(x.desc||"") ? ' privativos' : '')+'</p>' : '')+
-          '<p class="d">'+esc(x.desc)+'</p>'+
-          '<span class="pill p-'+ST[x.s].k+'">'+ST[x.s].l+'</span>';
-        return hrefC
-          ? '<a class="ucard" href="'+hrefC+'" title="Gerar proposta da unidade '+esc(x.n)+'">'+dentroC+'<span class="ucard-go">Gerar proposta \u203A</span></a>'
-          : '<div class="ucard">'+dentroC+'</div>';
+        return ucardHTML(d, x, x.s==="D" ? linkProposta(d, x.n) : "");
       }).join("") + '</div>';
     }
 
@@ -1320,7 +1379,29 @@ a.ucard:hover{background:var(--accent-soft)}
         '<div class="thead-r"><p class="e">Entrega: <b>'+esc(d.entrega)+'</b></p>'+
         '<p class="d num">'+s.D+' de '+s.total+' '+(s.total===1?"disponível":"disponíveis")+'</p>'+
         '<p class="p num"><small>a partir de </small>'+val+'</p></div>'+
-      '</div>'+ corpo + pgto +
+      '</div>'+ corpo + pgto + terceirosHTML(d) +
+    '</div>';
+  }
+  function ucardHTML(d, x, href){
+    var dentroC = '<div class="ucard-top"><b>Unidade '+esc(x.n)+'</b><span class="v num">'+preco(d, x.v)+'</span></div>'+
+      (x.area ? '<p class="m num">'+area(x.area)+(d.id !== "altos" && !/privativ/i.test(x.desc||"") ? ' privativos' : '')+'</p>' : '')+
+      '<p class="d">'+esc(x.desc)+'</p>'+
+      '<span class="pill p-'+ST[x.s].k+'">'+ST[x.s].l+'</span>';
+    return href
+      ? '<a class="ucard" href="'+href+'" title="Gerar proposta da unidade '+esc(x.n)+'">'+dentroC+'<span class="ucard-go">Gerar proposta \u203A</span></a>'
+      : '<div class="ucard">'+dentroC+'</div>';
+  }
+  /* Campo "Unidades de terceiros": revenda dos proprietários dentro do mesmo empreendimento, com
+     condição própria. Cada unidade abre a proposta da oportunidade, com a condição dela. */
+  function terceirosHTML(d){
+    var t = d.terceiros; if (!t || !t.units.length) return "";
+    var us = t.units.slice().sort(ordemUni), st = stats({ units:us });
+    return '<div class="terc">'+
+      '<div class="terc-h"><div><h3>Unidades de terceiros</h3>'+
+        '<p>Revenda dos proprietários, com condição própria, diferente da tabela da construtora: '+esc(t.cond)+'.</p></div>'+
+        '<div class="thead-r"><p class="d num">'+st.D+' de '+st.total+' '+(st.total===1?"disponível":"disponíveis")+'</p>'+
+        (st.min ? '<p class="p num"><small>a partir de </small>'+preco(d, st.min)+'</p>' : '')+'</div></div>'+
+      '<div class="ulist">'+ us.map(function(x){ return ucardHTML(d, x, x.s==="D" ? linkTerceiro(d, x.n) : ""); }).join("") +'</div>'+
     '</div>';
   }
 
@@ -1353,7 +1434,9 @@ a.ucard:hover{background:var(--accent-soft)}
   document.addEventListener("click", function(e){
     var b = e.target.closest("[data-goto]"); if(!b) return;
     atual = b.dataset.goto; renderTabelas(); show("tabelas");
-    window.scrollTo({ top:0, behavior:"smooth" });
+    var alvo = b.hasAttribute("data-terc") ? document.querySelector("#tabelas .terc") : null;   // vem do resumo de terceiros
+    if (alvo) alvo.scrollIntoView({ behavior:"smooth", block:"start" });
+    else window.scrollTo({ top:0, behavior:"smooth" });
   });
   show(location.hash.replace("#","")==="tabelas" ? "tabelas" : "portfolio");
   carregar();
@@ -1554,8 +1637,17 @@ a.ucard:hover{background:var(--accent-soft)}
     if (x.area) t = (t ? t + " \u00b7 " : "") + area(x.area);
     return t;
   }
+  function propItem(d, x, href){
+    return '<a class="prop-u" href="'+href+'">'+
+      '<span class="prop-u-n num">'+esc(x.n)+'</span>'+
+      '<span class="prop-u-d">'+esc(detalheUni(d, x))+'</span>'+
+      '<span class="prop-u-v num">'+(x.v ? preco(d, x.v) : "sob consulta")+'</span>'+
+      '<span class="prop-u-go">\u203A</span>'+
+    '</a>';
+  }
   function pintaProp(){
-    var d = pDev, livres = livresDe(d).slice().sort(ordemUni);
+    var d = pDev, livres = PARA_SERV[d.id] ? livresDe(d).slice().sort(ordemUni) : [];
+    var ter = livresTer(d).slice().sort(ordemUni);
     prop.innerHTML =
       '<div class="sheet sheet-prop" role="document">'+
         '<div class="prop-top">'+
@@ -1565,16 +1657,10 @@ a.ucard:hover{background:var(--accent-soft)}
           '<p class="prop-sub">Escolha a unidade. A proposta abre aqui mesmo, j\u00e1 com as condi\u00e7\u00f5es desta tabela, nos modos Padr\u00e3o e Personalizada.</p>'+
         '</div>'+
         '<div class="prop-body">'+
-          (livres.length
-            ? '<div class="prop-lista">'+ livres.map(function(x){
-                var det = detalheUni(d, x);
-                return '<a class="prop-u" href="'+linkProposta(d, x.n)+'">'+
-                  '<span class="prop-u-n num">'+esc(x.n)+'</span>'+
-                  '<span class="prop-u-d">'+esc(det)+'</span>'+
-                  '<span class="prop-u-v num">'+(x.v ? preco(d, x.v) : "sob consulta")+'</span>'+
-                  '<span class="prop-u-go">\u203A</span>'+
-                '</a>';
-              }).join("") +'</div>'
+          (livres.length || ter.length
+            ? (livres.length ? '<div class="prop-lista">'+ livres.map(function(x){ return propItem(d, x, linkProposta(d, x.n)); }).join("") +'</div>' : '')+
+              (ter.length ? '<p class="prop-grupo">Unidades de terceiros <span>\u00b7 condi\u00e7\u00e3o pr\u00f3pria: '+esc(d.terceiros.cond)+'</span></p>'+
+                '<div class="prop-lista">'+ ter.map(function(x){ return propItem(d, x, linkTerceiro(d, x.n)); }).join("") +'</div>' : '')
             : '<p class="prop-vazio">Nenhuma unidade dispon\u00edvel neste empreendimento agora.</p>')+
         '</div>'+
       '</div>';
@@ -1617,7 +1703,8 @@ a.ucard:hover{background:var(--accent-soft)}
     var ul = e.target.closest("a.u, a.ucard");
     if (ul && (ul.getAttribute("href")||"").indexOf("#u=") > -1){
       var m = ul.getAttribute("href").match(/#u=([^:]+):(.+)$/);
-      var dv = m ? acha(DE_PARA[decodeURIComponent(m[1])]) : null;
+      var sid = m ? decodeURIComponent(m[1]) : "";
+      var dv = m ? acha(DE_PARA[sid] || TERCEIROS[sid]) : null;
       if (dv){
         e.preventDefault();
         modal.hidden = true; lbox.hidden = true;
@@ -2035,6 +2122,12 @@ a.ucard:hover{background:var(--accent-soft)}
     d.units.forEach(function(x){
       linhas.push([x.n, (x.t?("Tipo "+x.t):(x.desc||"")), (x.s==="D"&&x.v)?preco(d,x.v):"—", ST[x.s].l].join("\t"));
     });
+    if (d.terceiros && d.terceiros.units.length){
+      linhas.push("", "Unidades de terceiros (" + d.terceiros.cond + ")");
+      d.terceiros.units.slice().sort(ordemUni).forEach(function(x){
+        linhas.push([x.n, x.desc||"", (x.s==="D"&&x.v)?preco(d,x.v):"—", ST[x.s].l].join("\t"));
+      });
+    }
     var txt = linhas.join("\n");
     var btn = this, antes = btn.innerHTML;
     function ok(){ btn.textContent = "Copiado"; setTimeout(function(){ btn.innerHTML = antes; }, 1800); }

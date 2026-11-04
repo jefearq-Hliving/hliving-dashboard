@@ -65,6 +65,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 /* GRADE */
 .units-grid{padding:12px 1rem;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.terc-band{padding:12px 1rem 0;background:#f4efe9;border-bottom:0}
+.terc-tit{font-size:11px;font-weight:700;color:#8C7355;text-transform:uppercase;letter-spacing:1px}
+.terc-sub{font-size:11px;color:#5C4A36;margin-top:3px;line-height:1.5}
+.terc-grid{background:#f4efe9;border-bottom:0.5px solid var(--border)}
 .unit-card{border-radius:10px;border:0.5px solid var(--border);background:var(--surface);padding:11px 13px;cursor:pointer;transition:border-color .15s;-webkit-tap-highlight-color:transparent}
 .unit-card:active{transform:scale(0.98)}
 .unit-card.disp{border-left:3px solid var(--status-disp)}
@@ -403,6 +407,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div class="leg"><div class="dot" style="background:var(--status-vend)"></div>Vendida</div>
     <div class="leg"><div class="dot" style="background:var(--status-res)"></div>Reservada</div>
   </div>
+  <div id="emp2-terceiros"></div>
   <div class="units-grid" id="emp2-grid"></div>
   <div style="height:24px"></div>
 </div>
@@ -1028,6 +1033,21 @@ let reajusteHist = [];
 
 // ─── HELPERS ──────────────────────────────────────────────────────
 const statusLabel={disp:'Disponível',fase:'Fase posterior',vend:'Vendida',res:'Reservada',pre:'Pré-lançamento'};
+
+// Unidades de terceiros: oportunidades que são revenda dos proprietários dentro de um lançamento
+// nosso. Continuam cadastradas e editadas no Admin como oportunidade, com a condição delas, mas
+// aparecem na página do lançamento (campo "Unidades de terceiros"), não como card em Oportunidades.
+const TERCEIROS_DE = { 'op_1793802019951':'emp_1789495520655' };   // oportunidade -> lançamento
+function ehTerceiros(e){ return !!(e && TERCEIROS_DE[e.id]); }
+function terceirosDe(empId){
+  return PRE_LANCAMENTOS.filter(o=>TERCEIROS_DE[o.id]===empId && o.ativo!==false && Array.isArray(o.unidades) && o.unidades.length);
+}
+function condTerceiros(p){
+  p = p || {};
+  const q = p.qtMensal||48;
+  return p.tipo==='fixo' ? `${fmt(p.entrada)} de entrada e saldo em ${q}x` : `${p.pctEntrada||0}% de entrada e saldo em ${q}x`;
+}
+let _opVolta = null;   // 'emp2' quando a unidade de terceiros foi aberta de dentro do lançamento
 let _homeTab='ativos';
 let _prontoFilter='all';
 
@@ -2637,7 +2657,7 @@ function gerarTabelaPDF(ctx){
 
   // Oportunidades: dashboard único com todas as unidades de terceiros
   if(ctx==='oportunidades'){
-    const allUnits = PRE_LANCAMENTOS.filter(e=>e.ativo!==false).flatMap(e=>e.unidades.filter(u=>u.s==='disp'&&u.v).map(u=>({...u,empNome:e.nome,empLocal:e.local||'',empPgto:e.pgto||{},empPrevisao:e.previsao||'A definir'})));
+    const allUnits = PRE_LANCAMENTOS.filter(e=>e.ativo!==false && !ehTerceiros(e)).flatMap(e=>e.unidades.filter(u=>u.s==='disp'&&u.v).map(u=>({...u,empNome:e.nome,empLocal:e.local||'',empPgto:e.pgto||{},empPrevisao:e.previsao||'A definir'})));
     const today = new Date().toLocaleDateString('pt-BR');
     const fmt2 = v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
     const fmtK = v=>v?'R$ '+Math.round(v/1000).toLocaleString('pt-BR')+' mil':'—';
@@ -2782,6 +2802,21 @@ function gerarTabelaPDF(ctx){
   let cardsDisp = dispUnits.map(u=>cardUnit(u,true)).join('');
   let cardsOutras = outrasUnits.filter(u=>u.s==='fase').map(u=>cardUnit(u,false)).join('');
 
+  // Unidades de terceiros do lançamento, cada uma com a condição da oportunidade dela
+  const cardsTerc = (isEmp2 ? terceirosDe(eCtx.id) : []).flatMap(o=>o.unidades.filter(u=>u.s==='disp'&&u.v).map(u=>{
+    const p=o.pgto||{}, q=p.qtMensal||48;
+    const entrada = p.tipo==='fixo' ? (p.entrada||0) : u.v*((p.pctEntrada||0)/100);
+    const mensal = (u.v-entrada)/q;
+    const pgtoStr = p.tipo==='fixo' ? `Entrada ${fmt2(entrada)} · ${q}x ${fmt2(mensal)}/mês` : `Entrada ${p.pctEntrada||0}% ${fmt2(entrada)} · ${q}x ${fmt2(mensal)}/mês`;
+    return `<div style="background:#f4efe9;border:1.5px solid #8C7355;border-radius:10px;padding:10px 12px;break-inside:avoid">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+        <div><div style="font-size:14px;font-weight:700;color:#3d3328">Apto ${u.n}</div><div style="font-size:10px;color:#5C4A36">${u.area||''}m²${u.desc?' · '+u.desc:''}</div></div>
+        <div style="text-align:right"><div style="font-size:8px;font-weight:700;color:#8C7355;letter-spacing:1px">TERCEIROS</div><div style="font-size:15px;font-weight:700;color:#3d3328;margin-top:1px">${fmtK(u.v)}</div></div>
+      </div>
+      <div style="font-size:9px;color:#5C4A36;background:rgba(255,255,255,0.5);border-radius:5px;padding:4px 7px">${pgtoStr}</div>
+    </div>`;
+  })).join('');
+
   const tabelaHTML = `
   <html><head><meta charset="UTF-8">
   <style>
@@ -2815,6 +2850,16 @@ function gerarTabelaPDF(ctx){
     <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px">
       ${cardsDisp || '<div style="color:#9a9894;font-size:13px;padding:12px">Nenhuma unidade disponível no momento.</div>'}
     </div>
+
+    ${cardsTerc ? `
+    <!-- UNIDADES DE TERCEIROS -->
+    <div style="font-size:11px;font-weight:700;color:#8C7355;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:3px">
+      ◆ Unidades de terceiros
+    </div>
+    <div style="font-size:10px;color:#5C4A36;margin-bottom:8px">Revenda dos proprietários, com condição própria, diferente da tabela da construtora.</div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px">
+      ${cardsTerc}
+    </div>` : ''}
 
     ${cardsOutras ? `
     <!-- FASE POSTERIOR -->
@@ -2944,6 +2989,8 @@ function renderHome(){
         <div class="emp-name">${e.nome}</div>
         <div class="emp-loc"><i class="ti ti-map-pin" style="font-size:11px" aria-hidden="true"></i>${e.local}${e.areaDesc?' · '+e.areaDesc:e.area?' · '+e.area+' m²':''}</div>
         ${e.ri?`<div class="emp-ri">RI: ${e.ri} · Matrícula ${e.matricula}</div>`:''}
+        ${(()=>{ const n=terceirosDe(e.id).reduce((s,o)=>s+o.unidades.filter(u=>u.s==='disp').length,0);
+          return n?`<div class="emp-ri" style="color:#8C7355;font-weight:600">+ ${n} ${n===1?'unidade':'unidades'} de terceiros dentro do empreendimento</div>`:''; })()}
         <div class="emp-mini-stats">
           <div class="ems"><div class="ems-n" style="color:var(--status-disp)">${ds}</div><div class="ems-l">Disp.</div></div>
           <div class="ems"><div class="ems-n" style="color:var(--status-fase)">${fs}</div><div class="ems-l">Fase+</div></div>
@@ -3032,6 +3079,38 @@ function renderEmp2Units(){
   document.getElementById('emp2-s-vend').textContent=vs;
   document.getElementById('emp2-s-total').textContent=e.unidades.length;
   grid.innerHTML=html;
+  renderEmp2Terceiros();
+}
+
+// Campo "Unidades de terceiros" na página do lançamento. Aparece em "Todos" e em "Disponíveis";
+// nos filtros de tipologia some, porque é a tabela da construtora que está sendo filtrada.
+function renderEmp2Terceiros(){
+  const box = document.getElementById('emp2-terceiros');
+  if(!box) return;
+  const ops = (_empAtivo && (_emp2Filter==='all' || _emp2Filter==='disp')) ? terceirosDe(_empAtivo.id) : [];
+  box.innerHTML = ops.map(o=>{
+    const us = o.unidades.filter(u=>_emp2Filter!=='disp' || u.s==='disp');
+    if(!us.length) return '';
+    const disp = o.unidades.filter(u=>u.s==='disp').length;
+    return `<div class="terc-band">
+      <div class="terc-tit">Unidades de terceiros</div>
+      <div class="terc-sub">Revenda dos proprietários, com condição própria: ${condTerceiros(o.pgto)} · ${disp} ${disp===1?'disponível':'disponíveis'}</div>
+    </div>
+    <div class="units-grid terc-grid">${us.map(u=>`<div class="unit-card ${u.s}" onclick="abrirTerceiro('${u.n}','${o.id}')">
+      <div class="unit-top"><div class="unit-num">Apto ${u.n}</div><div class="unit-tipo">Terceiros</div></div>
+      <div class="unit-val">${u.v?fmtK(u.v):'A definir'}</div>
+      <div class="unit-sub">${u.area||''}m²${u.desc?' · '+u.desc:''}</div>
+      <div class="unit-status ${u.s}">${statusLabel[u.s]||u.s}</div>
+    </div>`).join('')}</div>`;
+  }).join('');
+}
+
+// Unidade de terceiros aberta de dentro do lançamento: a ficha é a da oportunidade (condição dela),
+// e o Voltar traz de volta para o lançamento.
+function abrirTerceiro(num, opId){
+  _opVolta = 'emp2';
+  abrirDetalheOp(num, opId);
+  document.getElementById('emp2-view').style.display='none';
 }
 
 function abrirDetalheEmp2(num){
@@ -3684,7 +3763,7 @@ let _editOpId = null;
 function renderPreCards(){
   const cont = document.getElementById('pre-cards');
   if(!cont) return;
-  const ativos = PRE_LANCAMENTOS.filter(e=>e.ativo!==false);
+  const ativos = PRE_LANCAMENTOS.filter(e=>e.ativo!==false && !ehTerceiros(e));   // terceiros ficam dentro do lançamento
   if(!ativos.length){
     cont.innerHTML=`<div style="text-align:center;padding:40px 20px">
       <div style="font-size:40px;margin-bottom:12px">🏗️</div>
@@ -3724,7 +3803,8 @@ function renderPreCards(){
 
 function abrirOportunidades(id){
   _opFilter = id!==undefined ? id : 'all';
-  const ativos = PRE_LANCAMENTOS.filter(e=>e.ativo!==false);
+  _opVolta = null;
+  const ativos = PRE_LANCAMENTOS.filter(e=>e.ativo!==false && !ehTerceiros(e));
   const allUnits = ativos.flatMap(e=>e.unidades);
   const totalV   = allUnits.reduce((s,u)=>s+(u.v||0),0);
   document.getElementById('op-s-total').textContent = allUnits.length;
@@ -3759,7 +3839,7 @@ function renderOportunidadesGrid(){
   if(!grid) return;
   let html='';
   PRE_LANCAMENTOS.forEach(e=>{
-    if(e.ativo===false) return;
+    if(e.ativo===false || ehTerceiros(e)) return;
     if(_opFilter!=='all'&&_opFilter!==e.id) return;
     e.unidades.forEach(u=>{
       const slabel = statusLabel[u.s]||u.s;
@@ -3827,6 +3907,13 @@ function abrirDetalheOp(num,empId){
 
 function fecharDetalheOp(){
   document.getElementById('oportunidades-detail-view').classList.remove('open');
+  if(_opVolta==='emp2'){   // veio do campo de terceiros do lançamento
+    _opVolta = null;
+    document.getElementById('emp2-view').style.display='block';
+    window.scrollTo(0,0);
+    renderEmp2Units();
+    return;
+  }
   document.getElementById('home-view').style.display='block';
   setHomeTab('pre');
   window.scrollTo(0,0);
@@ -4406,6 +4493,13 @@ function abrirUnidadePorLink(empId, num){
   const op = PRE_LANCAMENTOS.find(e => e.id === empId);
   const uOp = op ? achaU(op) : null;
   if(uOp){
+    // unidade de terceiros: abre de dentro do lançamento, e o Voltar volta para ele
+    const iDono = ehTerceiros(op) ? empreendimentos.findIndex(e => e.id === TERCEIROS_DE[op.id] && e.ativo !== false) : -1;
+    if(iDono > -1){
+      abrirEmpSecundario(iDono);
+      abrirTerceiro(uOp.n, empId);
+      return true;
+    }
     abrirOportunidades(empId);
     abrirDetalheOp(uOp.n, empId);
     return true;
