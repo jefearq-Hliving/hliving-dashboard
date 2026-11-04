@@ -2841,14 +2841,24 @@ function gerarTabelaPDF(ctx){
 // ─── MÚLTIPLOS EMPREENDIMENTOS ────────────────────────────────────
 let empreendimentos = [];
 
-// O CUB aparece como "CUB R$ 3.182,95 \u00b7 01/11/2026": valor e data de referencia,
-// que por convencao e sempre o dia 01 do mes. A data sai como esta gravada no Admin,
-// para um erro de digitacao aparecer em vez de ficar escondido; formatarData ja
-// converte o ISO que o servidor as vezes manda.
+// O CUB aparece como "CUB NOVEMBRO R$ 3.182,95": nome do mes e valor. O mes sai da
+// data de referencia gravada no Admin, que por convencao e sempre o dia 01. Aceita
+// dd/mm/aaaa, o ISO que o servidor as vezes manda e o nome do mes digitado direto;
+// data ilegivel cai no formato com a data no fim, para a informacao nao sumir.
+const MESES_CUB=['JANEIRO','FEVEREIRO','MAR\u00c7O','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+function mesCub(d){
+  const b=String(d==null?'':d).trim();
+  const txt=b.includes('T')?formatarData(b):b;
+  const m=txt.match(/^\s*\d{1,2}[\/-](\d{1,2})[\/-]\d{2,4}/)||b.match(/^\s*\d{4}-(\d{1,2})-\d{1,2}/);
+  if(m){ const i=parseInt(m[1],10)-1; if(i>=0&&i<12) return MESES_CUB[i]; }
+  const t=b.toUpperCase();
+  for(let k=0;k<12;k++){ if(t===MESES_CUB[k]||t===MESES_CUB[k].replace('\u00c7','C')) return MESES_CUB[k]; }
+  return '';
+}
 function textoCub(valor,data){
   const v=(valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
-  const d=formatarData(data);
-  return `CUB R$ ${v}${d?' \u00b7 '+d:''}`;
+  const mes=mesCub(data);
+  return mes ? `CUB ${mes} R$ ${v}` : `CUB R$ ${v}${data?' \u00b7 '+formatarData(data):''}`;
 }
 
 // A Cota Lancha e uma embarcacao, nao obra: nao acompanha o CUB da construcao
