@@ -1282,8 +1282,7 @@ a.ucard:hover{background:var(--accent-soft)}
         '<p>'+PIN+'<span>'+esc(d.local)+'</span></p></div>'+
       '</div>'+
       '<div class="emp-body">'+
-        '<div><p class="resumo">'+esc(d.resumo)+'</p>'+
-        '<p class="detalhe" style="margin-top:7px">'+esc(d.detalhe)+'</p></div>'+
+        '<div><p class="resumo">'+esc(d.resumo)+'</p></div>'+
         (d.obra ? obraBlock(d) : progBlock(d, s))+
         terceirosCard(d)+
         '<div class="emp-foot">'+
@@ -1901,7 +1900,6 @@ a.ucard:hover{background:var(--accent-soft)}
           '<div class="ed-prev"><div class="facade"></div><div class="cover-img" id="ed-prev-img" style="' + edCapaEstilo() + '"></div>' +
             '<div class="t"><b>' + esc(d.nome) + '</b><span id="ed-prev-resumo">' + esc(ED.resumo) + '</span></div></div>' +
           '<label class="ed-f"><span>Título</span><input type="text" data-ed-campo="resumo" maxlength="' + LIM.resumo + '" value="' + esc(ED.resumo) + '"></label>' +
-          '<label class="ed-f"><span>Descrição</span><textarea data-ed-campo="detalhe" maxlength="' + LIM.detalhe + '">' + esc(ED.detalhe) + '</textarea></label>' +
           '<label class="ed-f"><span>Entrega</span><input type="text" data-ed-campo="entrega" maxlength="' + LIM.entrega + '" value="' + esc(ED.entrega) + '"></label>' +
           '<label class="ed-f"><span>Selo</span><input type="text" data-ed-campo="badge" maxlength="' + LIM.badge + '" value="' + esc(ED.badge) + '"' + (d.obra ? ' disabled' : '') + '>' +
             '<small>' + (d.obra ? 'Em obra, o selo mostra o andamento automaticamente.' : 'Aparece no canto da capa, ex.: Lançamento, Pronto, Oportunidade.') + '</small></label>' +
