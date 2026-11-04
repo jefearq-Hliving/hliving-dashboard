@@ -521,7 +521,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
         <div class="reajuste-box" style="margin-top:16px;border:1px solid var(--hl-gold)">
           <div class="reajuste-title" style="display:flex;align-items:center;gap:6px"><i class="ti ti-adjustments-dollar" style="font-size:15px;color:var(--hl-gold)"></i>Reajuste Global de Preços</div>
-          <div class="reajuste-sub">Aplica o percentual sobre o preço de <strong>todas</strong> as unidades de <strong>todos</strong> os empreendimentos — Lançamentos, Prontos, Pré-lançamentos e Atlantia. Inclui vendidas e reservadas. <strong>A Cota Lancha fica de fora</strong>, por ser embarcação e não acompanhar o CUB.</div>
+          <div class="reajuste-sub">Aplica o percentual sobre o preço de <strong>todas</strong> as unidades de <strong>todos</strong> os empreendimentos — Lançamentos, Prontos, Pré-lançamentos e Atlantia. <strong>Vendidas não são reajustadas</strong> — preço fechado com o cliente não muda. Reservadas ainda entram. <strong>A Cota Lancha fica de fora</strong>, por ser embarcação e não acompanhar o CUB.</div>
           <div class="reajuste-row">
             <input type="number" class="reajuste-input" id="reajuste-global-pct" placeholder="0,00" step="0.01" min="-100">
             <span style="font-size:18px;font-weight:600;color:var(--text-2);padding-bottom:2px">%</span>
@@ -587,7 +587,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
         <div class="field-wrap">
           <label class="field-label">CUB referência (R$)</label>
-          <input type="number" id="adm-cub" value="3096.25" step="0.01">
+          <input type="number" id="adm-cub" value="3182.95" step="0.01">
         </div>
         <div class="field-wrap">
           <label class="field-label">Data referência CUB</label>
@@ -690,10 +690,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
         <div class="reajuste-box" style="margin-top:16px">
           <div class="reajuste-title">CUB Global</div>
-          <div class="reajuste-sub">Atualiza o CUB de referência de <strong>todos</strong> os empreendimentos de uma vez — Lançamentos, Prontos, Pré-lançamentos e Atlantia, <strong>menos a Cota Lancha</strong>. A data de referência vira o mês escrito na tabela: 01/11/2026 aparece como “CUB NOVEMBRO”.</div>
+          <div class="reajuste-sub">Atualiza o CUB de referência de <strong>todos</strong> os empreendimentos de uma vez — Lançamentos, Prontos, Pré-lançamentos e Atlantia, <strong>menos a Cota Lancha</strong>. Use sempre o dia 01 do mês na data de referência.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-            <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="cub-global-valor" placeholder="3096.25" step="0.01" min="0"></div>
-            <div class="field-wrap" style="margin:0"><label class="field-label">Data de referência</label><input type="text" id="cub-global-data" placeholder="01/07/2026"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="cub-global-valor" placeholder="3182.95" step="0.01" min="0"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">Data de referência</label><input type="text" id="cub-global-data" placeholder="01/11/2026"></div>
           </div>
           <button class="save-btn" onclick="aplicarCubGlobal()"><i class="ti ti-refresh" style="font-size:16px"></i>Aplicar a todos os empreendimentos</button>
         </div>
@@ -717,8 +717,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
               <option value="entregue">Entregue</option>
             </select>
           </div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">CUB referência (R$)</label><input type="number" id="new-cub" placeholder="3096.25" step="0.01"></div>
-          <div class="field-wrap" style="margin:0"><label class="field-label">Data ref. CUB</label><input type="text" id="new-cub-data" placeholder="01/06/2026"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">CUB referência (R$)</label><input type="number" id="new-cub" placeholder="3182.95" step="0.01"></div>
+          <div class="field-wrap" style="margin:0"><label class="field-label">Data ref. CUB</label><input type="text" id="new-cub-data" placeholder="01/11/2026"></div>
           <div class="field-wrap" style="margin:0"><label class="field-label">Nº RI</label><input type="text" id="new-ri" placeholder="R-XX-XXXXX"></div>
           <div class="field-wrap" style="margin:0"><label class="field-label">Matrícula</label><input type="text" id="new-matricula" placeholder="XXXXX"></div>
         </div>
@@ -869,7 +869,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="field-wrap"><label class="field-label">Nome</label><input type="text" id="pr-emp-nome" placeholder="Ex: Novo Residence"></div>
           <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="pr-emp-local" placeholder="Ex: Itapema, SC"></div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="pr-emp-cub" value="3096.25" step="0.01"></div>
+            <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="pr-emp-cub" value="3182.95" step="0.01"></div>
             <div class="field-wrap" style="margin:0"><label class="field-label">Matrícula</label><input type="text" id="pr-emp-matricula" placeholder="XXXXX"></div>
           </div>
           <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Condições de pagamento</div>
@@ -990,7 +990,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 let _2cinco4Ativo = true;
 let emp = {
   nome:'2CINCO4 Edition', local:'Itapema, SC', area:134,
-  cub:3096.25, cubData:'01/06/2026',
+  cub:3182.95, cubData:'01/11/2026',
   ri:'R-10-96.103', matricula:'96.103'
 };
 let pgto = {
@@ -1727,7 +1727,7 @@ async function salvarEmpreendimento(){
     _empAtivo.nome      = document.getElementById('adm-nome').value;
     _empAtivo.local     = document.getElementById('adm-local').value;
     _empAtivo.area      = parseFloat(document.getElementById('adm-area').value)||134;
-    _empAtivo.cub       = parseFloat(document.getElementById('adm-cub').value)||3096.25;
+    _empAtivo.cub       = parseFloat(document.getElementById('adm-cub').value)||3182.95;
     _empAtivo.cubData   = document.getElementById('adm-cub-data').value;
     _empAtivo.ativo     = ativo;
     if(_admImgB64){ _empAtivo.img=_admImgB64; _admImgB64=null; document.getElementById('adm-img-preview').style.display='none'; }
@@ -1754,7 +1754,7 @@ async function salvarEmpreendimento(){
     emp.nome      = document.getElementById('adm-nome').value;
     emp.local     = document.getElementById('adm-local').value;
     emp.area      = parseFloat(document.getElementById('adm-area').value)||134;
-    emp.cub       = parseFloat(document.getElementById('adm-cub').value)||3096.25;
+    emp.cub       = parseFloat(document.getElementById('adm-cub').value)||3182.95;
     emp.cubData   = document.getElementById('adm-cub-data').value;
     if(_admImgB64){ window.IMG_2CINCO4=_admImgB64; _admImgB64=null; document.getElementById('adm-img-preview').style.display='none'; }
     atualizarHeader();
@@ -2062,12 +2062,12 @@ function _unidadesGlobais(){
 function previaReajusteGlobal(){
   const pct=parseFloat(document.getElementById('reajuste-global-pct').value);
   if(isNaN(pct)||pct===0){toast('Informe um percentual válido','erro');return;}
-  const todas=_unidadesGlobais().flatMap(g=>g.unidades).filter(u=>u.v);
+  const todas=_unidadesGlobais().flatMap(g=>g.unidades).filter(u=>u.v && u.s!=='vend');
   if(!todas.length){toast('Nenhuma unidade com valor para reajustar','erro');return;}
   const minAtual=Math.min(...todas.map(u=>u.v));
   const maxAtual=Math.max(...todas.map(u=>u.v));
   const f=v=>'R$ '+Math.round(v/1000).toLocaleString('pt-BR')+' mil';
-  const conf=confirm(`REAJUSTE GLOBAL de ${pct>0?'+':''}${pct}% em ${todas.length} unidades de TODOS os empreendimentos\n\nFaixa atual: ${f(minAtual)} – ${f(maxAtual)}\nNova faixa: ${f(minAtual*(1+pct/100))} – ${f(maxAtual*(1+pct/100))}\n\nConfirmar?`);
+  const conf=confirm(`REAJUSTE GLOBAL de ${pct>0?'+':''}${pct}% em ${todas.length} unidades (vendidas e Cota Lancha ficam de fora)\n\nFaixa atual: ${f(minAtual)} – ${f(maxAtual)}\nNova faixa: ${f(minAtual*(1+pct/100))} – ${f(maxAtual*(1+pct/100))}\n\nConfirmar?`);
   if(conf) aplicarReajusteGlobal();
 }
 
@@ -2075,8 +2075,9 @@ async function aplicarReajusteGlobal(){
   const pct=parseFloat(document.getElementById('reajuste-global-pct').value);
   if(isNaN(pct)||pct===0){toast('Informe um percentual válido');return;}
   let count=0;
+  // Unidade vendida tem preco fechado com o cliente: o reajuste nao a toca.
   _unidadesGlobais().forEach(g=>g.unidades.forEach(u=>{
-    if(u.v){ u.v=Math.round(u.v*(1+pct/100)*100)/100; count++; }
+    if(u.v && u.s!=='vend'){ u.v=Math.round(u.v*(1+pct/100)*100)/100; count++; }
   }));
   const today=new Date().toLocaleDateString('pt-BR');
   reajusteHist.unshift({data:today,pct,count});
@@ -2775,7 +2776,7 @@ function gerarTabelaPDF(ctx){
 
   // Montar HTML da tabela
   const nomeEmp = isEmp2 ? eCtx.nome : eCtx.nome;
-  const cubInfo = textoCub(eCtx.cub||3096.25, eCtx.cubData) || `CUB R$ ${(eCtx.cub||3096.25).toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${today}`;
+  const cubInfo = textoCub(eCtx.cub||3182.95, eCtx.cubData) || `CUB R$ ${(eCtx.cub||3182.95).toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${today}`;
   const riInfo  = eCtx.matricula ? `Matrícula ${eCtx.matricula}${eCtx.ri?' · RI: '+eCtx.ri:''}` : '';
 
   let cardsDisp = dispUnits.map(u=>cardUnit(u,true)).join('');
@@ -2840,22 +2841,14 @@ function gerarTabelaPDF(ctx){
 // ─── MÚLTIPLOS EMPREENDIMENTOS ────────────────────────────────────
 let empreendimentos = [];
 
-// O CUB aparece como "CUB NOVEMBRO R$ 3.182,95": o mes sai da data de referencia.
-// Sem data reconhecida, volta ao formato antigo em vez de esconder a informacao.
-const MESES_CUB=['JANEIRO','FEVEREIRO','MARCO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
-function mesCub(d){
-  const bruto=String(d==null?'':d);
-  // o servidor as vezes manda ISO (2026-11-01T...); formatarData normaliza para dd/mm/aaaa
-  const txt=bruto.includes('T')?formatarData(bruto):bruto;
-  const m=txt.match(/^\s*\d{1,2}[\/-](\d{1,2})[\/-]\d{2,4}/)||bruto.match(/^\s*\d{4}-(\d{1,2})-\d{1,2}/);
-  if(m){ const i=parseInt(m[1],10)-1; if(i>=0&&i<12) return MESES_CUB[i]; }
-  const t=bruto.trim().toUpperCase().replace('\u00c7','C');
-  return MESES_CUB.indexOf(t)>-1 ? t : '';
-}
+// O CUB aparece como "CUB R$ 3.182,95 \u00b7 01/11/2026": valor e data de referencia,
+// que por convencao e sempre o dia 01 do mes. A data sai como esta gravada no Admin,
+// para um erro de digitacao aparecer em vez de ficar escondido; formatarData ja
+// converte o ISO que o servidor as vezes manda.
 function textoCub(valor,data){
   const v=(valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
-  const mes=mesCub(data);
-  return mes ? `CUB ${mes} R$ ${v}` : `CUB R$ ${v}${data?' \u00b7 '+formatarData(data):''}`;
+  const d=formatarData(data);
+  return `CUB R$ ${v}${d?' \u00b7 '+d:''}`;
 }
 
 // A Cota Lancha e uma embarcacao, nao obra: nao acompanha o CUB da construcao
@@ -3214,7 +3207,7 @@ const PRONTOS = [
   {
     id:'haute', nome:'Haute Les Residence', local:'Itapema, SC',
     fase:'entregue', img:IMG_HAUTE, matricula:'', ri:'',
-    cub:3096.25, cubData:'01/06/2026',
+    cub:3182.95, cubData:'01/11/2026',
     pgto:{ tipo:'pct', pctEntrada:30, venEntrada:'Atos', qtMensal:48, reajuste:'IPCA +0,6%' },
     unidades:[
       {n:'601', t:'1', area:97, desc:'1 suíte + 2 dorms · 2 vagas', v:1736939.14, s:'disp'},
@@ -3227,7 +3220,7 @@ const PRONTOS = [
   {
     id:'lafayette', nome:'Lafayette Residence', local:'Itapema, SC',
     fase:'entregue', img:IMG_LAFAYETTE, matricula:'', ri:'',
-    cub:3096.25, cubData:'01/06/2026',
+    cub:3182.95, cubData:'01/11/2026',
     pgto:{ tipo:'fixo', entrada:1200000, venEntrada:'Atos', qtMensal:60, reajuste:'CUB/SC -1,05%' },
     unidades:[
       {n:'1202', t:'1', area:109, desc:'3 suítes · 2 vagas · Mobiliado e decorado', v:2797646.52, s:'disp'},
@@ -3236,7 +3229,7 @@ const PRONTOS = [
   {
     id:'altos', nome:'Terreno Condomínio Altos da Serra', local:'Bom Jardim da Serra, SC',
     fase:'entregue', img:IMG_ALTOS, matricula:'', ri:'',
-    cub:3096.25, cubData:'01/06/2026',
+    cub:3182.95, cubData:'01/11/2026',
     pgto:{ tipo:'pct', pctEntrada:30, venEntrada:'Atos', qtMensal:60, reajuste:'CUB/SC -1,05%' },
     unidades:[
       {n:'Q07-L34', t:'1', area:2138.47, desc:'Terreno · Quadra 07 Lote 34', v:369998.86, s:'disp'},
@@ -3245,7 +3238,7 @@ const PRONTOS = [
   {
     id:'forseasons', nome:'Flats For Seasons', local:'Itapema, SC',
     fase:'entregue', img:IMG_FORSEASONS, matricula:'', ri:'',
-    cub:3096.25, cubData:'01/06/2026',
+    cub:3182.95, cubData:'01/11/2026',
     pgto:{ tipo:'fixo', entrada:350000, venEntrada:'Atos', qtMensal:48, reajuste:'CUB/SC -1,05%' },
     unidades:[
       {n:'403', t:'1', area:44.37, desc:'1 vaga de garagem', v:1110539.05, s:'disp'},
@@ -3254,7 +3247,7 @@ const PRONTOS = [
   {
     id:'gcr', nome:'Duetto Home', local:'Governador Celso Ramos, SC',
     fase:'entregue', img:IMG_GCR, matricula:'', ri:'',
-    cub:3096.25, cubData:'06/2026',
+    cub:3182.95, cubData:'01/11/2026',
     pgto:{ tipo:'pct', pctEntrada:30, venEntrada:'Atos', qtMensal:48, reajuste:'CUB/SC' },
     unidades:[
       {n:'103-A', t:'1', area:70.84, desc:'1 suíte + 1 dorm · 1 vaga · Bloco A · Pronto', v:1217593.18, s:'disp'},
@@ -3268,8 +3261,8 @@ const ATLANTIA = {
   id: 'atlantia',
   nome: 'Atlantia Oceanview Home Boutique',
   local: 'Porto Belo, SC',
-  cub: 3096.25,
-  cubData: '01/06/2026',
+  cub: 3182.95,
+  cubData: '01/11/2026',
   ri: '',
   matricula: '49.123',
   fase: 'lancamento',
@@ -3654,7 +3647,7 @@ function cadastrarEmpPronto(){
     id:'pronto_'+Date.now(),nome,
     local:document.getElementById('pr-emp-local').value,
     fase:'entregue',
-    cub:parseFloat(document.getElementById('pr-emp-cub').value)||3096.25,
+    cub:parseFloat(document.getElementById('pr-emp-cub').value)||3182.95,
     cubData:new Date().toLocaleDateString('pt-BR'),
     matricula:document.getElementById('pr-emp-matricula').value,
     ri:'',img:_prontoImgBase64||'',pgto,

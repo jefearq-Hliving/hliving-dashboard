@@ -521,7 +521,7 @@ a.ucard:hover{background:var(--accent-soft)}
     { id:"c254", cat:"lanc", badge:"Lançamento", nome:"2CINCO4 Edition", foto:null,
       local:"Rua 254, nº 703 — Meia Praia, Itapema/SC",
       ri:"RI R-10-96.103 · Matrícula 96.103 · CRI Itapema/SC",
-      entrega:"março 2031", cub:"CUB OUTUBRO R$ 3.171,96",
+      entrega:"março 2031", cub:"CUB R$ 3.182,95 · 01/11/2026",
       resumo:"Apartamentos de 134 m² privativos, dois por andar, do 6º ao 27º pavimento",
       detalhe:"Tabela corrigida pelo CUB/SC com acréscimo de 0,75% por pavimento. Tipos 1 e 2 em todos os andares.",
       tipos:[{n:1,area:134,spec:"134 m² · face mar"},{n:2,area:134,spec:"134 m² · face cidade"}],
@@ -533,7 +533,7 @@ a.ucard:hover{background:var(--accent-soft)}
     { id:"atl", cat:"lanc", badge:"Em obras", nome:"Atlantia Ocean View", foto:null,
       local:"Av. Gov. Celso Ramos, nº 37, esq. Rua Pedro Reig — Balneário Perequê, Porto Belo/SC",
       ri:"RI 49.123 · Home Boutique",
-      entrega:"dezembro 2028", cub:"CUB OUTUBRO R$ 3.171,96",
+      entrega:"dezembro 2028", cub:"CUB R$ 3.182,95 · 01/11/2026",
       resumo:"Studios e apartamentos de 30 a 70 m², nove unidades por andar, do 6º ao 18º",
       detalhe:"Nove tipologias na mesma torre: do studio de 30 m² ao dois dormitórios de 70 m². Fases posteriores com valores a definir.",
       obra:{ total:39, etapas:[
@@ -946,23 +946,19 @@ a.ucard:hover{background:var(--accent-soft)}
     if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
     return parseFloat(s.replace(/\./g, "").replace(",", "."));
   }
-  /* O CUB aparece como "CUB NOVEMBRO R$ 3.182,95": o mes vem da data de referencia
-     que o Admin grava. Se a data nao for reconhecida, cai no formato antigo, com a
-     data crua no fim, em vez de sumir com a informacao. */
-  var MESES_CUB = ["JANEIRO","FEVEREIRO","MARCO","ABRIL","MAIO","JUNHO",
-                   "JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
-  function mesCub(d){
-    var bruto = String(d == null ? "" : d);
-    /* o servidor as vezes manda ISO (2026-11-01T...), as vezes dd/mm/aaaa */
-    var m = bruto.match(/^\s*\d{1,2}[\/-](\d{1,2})[\/-]\d{2,4}/) || bruto.match(/^\s*\d{4}-(\d{1,2})-\d{1,2}/);
-    if (m){ var i = parseInt(m[1],10) - 1; if (i >= 0 && i < 12) return MESES_CUB[i]; }
-    var t = bruto.trim().toUpperCase().replace("Ç","C");
-    return MESES_CUB.indexOf(t) > -1 ? t : "";
+  /* O CUB aparece como "CUB R$ 3.182,95 \u00b7 01/11/2026": valor e data de refer\u00eancia,
+     que por convencao e sempre o dia 01 do mes. A data sai como esta gravada no Admin,
+     para um erro de digitacao aparecer em vez de ficar escondido; so o ISO que o
+     servidor as vezes manda e convertido para dd/mm/aaaa. */
+  function dataCub(d){
+    var b = String(d == null ? "" : d).trim();
+    var m = b.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (m) return ("0"+m[3]).slice(-2) + "/" + ("0"+m[2]).slice(-2) + "/" + m[1];
+    return b;
   }
   function textoCub(valor, data){
-    var mes = mesCub(data);
-    return mes ? "CUB " + mes + " R$ " + moeda(valor)
-               : "CUB R$ " + moeda(valor) + (data ? " \u00b7 " + data : "");
+    var d = dataCub(data);
+    return "CUB R$ " + moeda(valor) + (d ? " \u00b7 " + d : "");
   }
   function moeda(v){
     var n = numero(v);
