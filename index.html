@@ -397,6 +397,14 @@ a.ucard:hover{background:var(--accent-soft)}
 .prop-u-go{color:var(--accent-ink);font-weight:800;opacity:.55}
 .prop-u:hover .prop-u-go{opacity:1}
 .prop-vazio{padding:22px;font-size:13px;color:var(--ink-3);line-height:1.6}
+.sheet-prop-uni{max-width:780px}
+.prop-voltar{display:inline-flex;align-items:center;gap:5px;background:none;border:0;padding:0;margin-bottom:9px;
+  font:inherit;font-size:12.5px;font-weight:800;color:var(--accent-ink);cursor:pointer}
+.prop-voltar:hover{text-decoration:underline}
+.prop-top-uni{padding:14px 52px 12px 22px}
+.prop-top-uni .prop-voltar{margin:0}
+.prop-frame{display:block;width:100%;height:70vh;border:0;background:var(--card)}
+@media(max-width:560px){.prop-frame{height:78vh}}
 @media(max-width:560px){.prop-u{grid-template-columns:auto 1fr auto;gap:9px;padding:12px 16px}
   .prop-u-d{display:none}.prop-top{padding:18px 48px 15px 16px}}
 </style>
@@ -457,7 +465,7 @@ a.ucard:hover{background:var(--accent-soft)}
       <span><i style="background:var(--res)"></i>Reservada</span>
       <span><i style="background:var(--sold)"></i>Vendida</span>
     </div>
-    <p class="legend-dica">Toque numa unidade disponível para abrir a proposta dela no Portal do Corretor.</p>
+    <p class="legend-dica">Toque numa unidade disponível para abrir a proposta dela aqui mesmo.</p>
     <div id="tabelas"></div>
   </section>
 
@@ -1526,7 +1534,7 @@ a.ucard:hover{background:var(--accent-soft)}
           '<button class="fechar" data-pfechar aria-label="Fechar">'+XIS+'</button>'+
           '<p class="prop-et">Enviar proposta</p>'+
           '<h2 id="prop-titulo">'+esc(d.nome)+'</h2>'+
-          '<p class="prop-sub">Escolha a unidade. A proposta abre no Portal do Corretor j\u00e1 com as condi\u00e7\u00f5es desta tabela, e l\u00e1 d\u00e1 para gerar no modo Padr\u00e3o ou Personalizada.</p>'+
+          '<p class="prop-sub">Escolha a unidade. A proposta abre aqui mesmo, j\u00e1 com as condi\u00e7\u00f5es desta tabela, nos modos Padr\u00e3o e Personalizada.</p>'+
         '</div>'+
         '<div class="prop-body">'+
           (livres.length
@@ -1543,6 +1551,22 @@ a.ucard:hover{background:var(--accent-soft)}
         '</div>'+
       '</div>';
   }
+  /* A proposta abre aqui dentro, num quadro sobre o portfolio. O conteudo e a
+     propria tela do Portal (mesma origem, so que com ?emb=1 para esconder o voltar
+     dele): assim o corretor nao sai da pagina e a regra comercial continua existindo
+     num lugar so, em vez de virar uma segunda copia que pode divergir. */
+  function pintaPropUni(href, n){
+    prop.innerHTML =
+      '<div class="sheet sheet-prop sheet-prop-uni" role="document" aria-label="Proposta da unidade '+esc(n)+'">'+
+        '<div class="prop-top prop-top-uni">'+
+          '<button class="fechar" data-pfechar aria-label="Fechar">'+XIS+'</button>'+
+          '<button class="prop-voltar" data-pvoltar>\u2039 Todas as unidades</button>'+
+        '</div>'+
+        '<iframe class="prop-frame" src="'+href.replace("#", "?emb=1#")+'" title="Proposta da unidade '+esc(n)+'"></iframe>'+
+      '</div>';
+    var b = prop.querySelector(".prop-voltar"); if (b) b.focus();
+  }
+
   function abrirProp(id){
     var d = DEVS.filter(function(x){ return x.id===id; })[0];
     if (!d || !temProposta(d)) return;
@@ -1561,6 +1585,29 @@ a.ucard:hover{background:var(--accent-soft)}
   document.addEventListener("click", function(e){
     var b = e.target.closest("[data-proposta]");
     if (b){ e.preventDefault(); pVolta = b; abrirProp(b.getAttribute("data-proposta")); return; }
+    /* Unidade clicada direto na Tabela de Vendas: mesma proposta, mesmo quadro. */
+    var ul = e.target.closest("a.u, a.ucard");
+    if (ul && (ul.getAttribute("href")||"").indexOf("#u=") > -1){
+      var m = ul.getAttribute("href").match(/#u=([^:]+):(.+)$/);
+      var dv = m ? acha(DE_PARA[decodeURIComponent(m[1])]) : null;
+      if (dv){
+        e.preventDefault();
+        modal.hidden = true; lbox.hidden = true;
+        pVolta = ul; pDev = dv;
+        prop.hidden = false;
+        document.body.style.overflow = "hidden";
+        pintaPropUni(ul.getAttribute("href"), decodeURIComponent(m[2]));
+        return;
+      }
+    }
+    var pu = e.target.closest(".prop-u");
+    if (pu && prop && !prop.hidden){
+      e.preventDefault();
+      var nEl = pu.querySelector(".prop-u-n");
+      pintaPropUni(pu.getAttribute("href"), nEl ? nEl.textContent : "");
+      return;
+    }
+    if (e.target.closest("[data-pvoltar]")){ pintaProp(); return; }
     if (e.target.closest("[data-pfechar]") || e.target === prop) fecharProp();
   });
   document.addEventListener("keydown", function(e){
