@@ -521,7 +521,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
         <div class="reajuste-box" style="margin-top:16px;border:1px solid var(--hl-gold)">
           <div class="reajuste-title" style="display:flex;align-items:center;gap:6px"><i class="ti ti-adjustments-dollar" style="font-size:15px;color:var(--hl-gold)"></i>Reajuste Global de Preços</div>
-          <div class="reajuste-sub">Aplica o percentual sobre o preço de <strong>todas</strong> as unidades de <strong>todos</strong> os empreendimentos — Lançamentos, Prontos, Pré-lançamentos e Atlantia.</div>
+          <div class="reajuste-sub">Aplica o percentual sobre o preço de <strong>todas</strong> as unidades de <strong>todos</strong> os empreendimentos — Lançamentos, Prontos, Pré-lançamentos e Atlantia. Inclui vendidas e reservadas. <strong>A Cota Lancha fica de fora</strong>, por ser embarcação e não acompanhar o CUB.</div>
           <div class="reajuste-row">
             <input type="number" class="reajuste-input" id="reajuste-global-pct" placeholder="0,00" step="0.01" min="-100">
             <span style="font-size:18px;font-weight:600;color:var(--text-2);padding-bottom:2px">%</span>
@@ -690,7 +690,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
         <div class="reajuste-box" style="margin-top:16px">
           <div class="reajuste-title">CUB Global</div>
-          <div class="reajuste-sub">Atualiza o CUB de referência de <strong>todos</strong> os empreendimentos de uma vez — Lançamentos, Prontos, Pré-lançamentos e Atlantia.</div>
+          <div class="reajuste-sub">Atualiza o CUB de referência de <strong>todos</strong> os empreendimentos de uma vez — Lançamentos, Prontos, Pré-lançamentos e Atlantia, <strong>menos a Cota Lancha</strong>. A data de referência vira o mês escrito na tabela: 01/11/2026 aparece como “CUB NOVEMBRO”.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
             <div class="field-wrap" style="margin:0"><label class="field-label">CUB (R$)</label><input type="number" id="cub-global-valor" placeholder="3096.25" step="0.01" min="0"></div>
             <div class="field-wrap" style="margin:0"><label class="field-label">Data de referência</label><input type="text" id="cub-global-data" placeholder="01/07/2026"></div>
@@ -2054,7 +2054,7 @@ function _unidadesGlobais(){
       grupos.push({nome:e.nome, unidades:e.unidades});
   });
   PRONTOS.forEach(e=>{ if(e.unidades&&e.unidades.length) grupos.push({nome:e.nome, unidades:e.unidades}); });
-  PRE_LANCAMENTOS.forEach(e=>{ if(e.unidades&&e.unidades.length) grupos.push({nome:e.nome, unidades:e.unidades}); });
+  PRE_LANCAMENTOS.forEach(e=>{ if(e.unidades&&e.unidades.length && !foraDoCub(e)) grupos.push({nome:e.nome, unidades:e.unidades}); });
   grupos.push({nome:'Atlantia', unidades:ATLANTIA.unidades});
   return grupos;
 }
@@ -2775,7 +2775,7 @@ function gerarTabelaPDF(ctx){
 
   // Montar HTML da tabela
   const nomeEmp = isEmp2 ? eCtx.nome : eCtx.nome;
-  const cubInfo = `CUB R$ ${(eCtx.cub||3096.25).toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${formatarData(eCtx.cubData)||today}`;
+  const cubInfo = textoCub(eCtx.cub||3096.25, eCtx.cubData) || `CUB R$ ${(eCtx.cub||3096.25).toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${today}`;
   const riInfo  = eCtx.matricula ? `Matrícula ${eCtx.matricula}${eCtx.ri?' · RI: '+eCtx.ri:''}` : '';
 
   let cardsDisp = dispUnits.map(u=>cardUnit(u,true)).join('');
@@ -2840,6 +2840,34 @@ function gerarTabelaPDF(ctx){
 // ─── MÚLTIPLOS EMPREENDIMENTOS ────────────────────────────────────
 let empreendimentos = [];
 
+// O CUB aparece como "CUB NOVEMBRO R$ 3.182,95": o mes sai da data de referencia.
+// Sem data reconhecida, volta ao formato antigo em vez de esconder a informacao.
+const MESES_CUB=['JANEIRO','FEVEREIRO','MARCO','ABRIL','MAIO','JUNHO','JULHO','AGOSTO','SETEMBRO','OUTUBRO','NOVEMBRO','DEZEMBRO'];
+function mesCub(d){
+  const bruto=String(d==null?'':d);
+  // o servidor as vezes manda ISO (2026-11-01T...); formatarData normaliza para dd/mm/aaaa
+  const txt=bruto.includes('T')?formatarData(bruto):bruto;
+  const m=txt.match(/^\s*\d{1,2}[\/-](\d{1,2})[\/-]\d{2,4}/)||bruto.match(/^\s*\d{4}-(\d{1,2})-\d{1,2}/);
+  if(m){ const i=parseInt(m[1],10)-1; if(i>=0&&i<12) return MESES_CUB[i]; }
+  const t=bruto.trim().toUpperCase().replace('\u00c7','C');
+  return MESES_CUB.indexOf(t)>-1 ? t : '';
+}
+function textoCub(valor,data){
+  const v=(valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2});
+  const mes=mesCub(data);
+  return mes ? `CUB ${mes} R$ ${v}` : `CUB R$ ${v}${data?' \u00b7 '+formatarData(data):''}`;
+}
+
+// A Cota Lancha e uma embarcacao, nao obra: nao acompanha o CUB da construcao
+// civil, entao fica de fora do reajuste global e da atualizacao global do CUB.
+// Casa pelo id do servidor e tambem pelo nome, para nao depender de um so.
+function foraDoCub(e){
+  if(!e) return false;
+  const id=String(e.id||'');
+  const nome=String(e.nome||'').toLowerCase();
+  return id==='op_1787777349085' || (nome.includes('cota') && nome.includes('lancha'));
+}
+
 function formatarData(d){
   if(!d) return '';
   // Se vier como ISO do Sheets, converte para dd/mm/yyyy
@@ -2885,7 +2913,7 @@ function renderHome(){
         <div class="ems"><div class="ems-n" style="color:var(--text)">${units.length}</div><div class="ems-l">Total</div></div>
       </div>
       <div class="emp-footer">
-        <div style="font-size:10px;color:var(--text-3)">CUB R$ ${emp.cub.toLocaleString('pt-BR',{minimumFractionDigits:2})} · ${formatarData(emp.cubData)}</div>
+        <div style="font-size:10px;color:var(--text-3)">${textoCub(emp.cub, emp.cubData)}</div>
         <button class="emp-enter-btn"><i class="ti ti-arrow-right" style="font-size:14px" aria-hidden="true"></i>Ver unidades</button>
       </div>
     </div>
@@ -2920,7 +2948,7 @@ function renderHome(){
           <div class="ems"><div class="ems-n" style="color:var(--text)">${total}</div><div class="ems-l">Total</div></div>
         </div>
         <div class="emp-footer">
-          <div style="font-size:10px;color:var(--text-3)">CUB R$ ${e.cub?e.cub.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'} · ${formatarData(e.cubData)}</div>
+          <div style="font-size:10px;color:var(--text-3)">${e.cub?textoCub(e.cub, e.cubData):'CUB —'}</div>
           <button class="emp-enter-btn"><i class="ti ti-arrow-right" style="font-size:14px" aria-hidden="true"></i>Ver unidades</button>
         </div>
       </div>
@@ -4115,7 +4143,7 @@ async function aplicarCubGlobal(){
     emp.cub=v; emp.cubData=d;
     empreendimentos.forEach(e=>{ e.cub=v; e.cubData=d; });
     PRONTOS.forEach(e=>{ e.cub=v; e.cubData=d; });
-    PRE_LANCAMENTOS.forEach(e=>{ e.cub=v; e.cubData=d; });
+    PRE_LANCAMENTOS.forEach(e=>{ if(!foraDoCub(e)){ e.cub=v; e.cubData=d; } });
     ATLANTIA.cub=v; ATLANTIA.cubData=d;
     // Persistir em cada destino
     await apiPost('saveEmpreendimento', emp);

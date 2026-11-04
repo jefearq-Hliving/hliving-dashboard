@@ -521,7 +521,7 @@ a.ucard:hover{background:var(--accent-soft)}
     { id:"c254", cat:"lanc", badge:"Lançamento", nome:"2CINCO4 Edition", foto:null,
       local:"Rua 254, nº 703 — Meia Praia, Itapema/SC",
       ri:"RI R-10-96.103 · Matrícula 96.103 · CRI Itapema/SC",
-      entrega:"março 2031", cub:"CUB R$ 3.171,96 · 01/10/2026",
+      entrega:"março 2031", cub:"CUB OUTUBRO R$ 3.171,96",
       resumo:"Apartamentos de 134 m² privativos, dois por andar, do 6º ao 27º pavimento",
       detalhe:"Tabela corrigida pelo CUB/SC com acréscimo de 0,75% por pavimento. Tipos 1 e 2 em todos os andares.",
       tipos:[{n:1,area:134,spec:"134 m² · face mar"},{n:2,area:134,spec:"134 m² · face cidade"}],
@@ -533,7 +533,7 @@ a.ucard:hover{background:var(--accent-soft)}
     { id:"atl", cat:"lanc", badge:"Em obras", nome:"Atlantia Ocean View", foto:null,
       local:"Av. Gov. Celso Ramos, nº 37, esq. Rua Pedro Reig — Balneário Perequê, Porto Belo/SC",
       ri:"RI 49.123 · Home Boutique",
-      entrega:"dezembro 2028", cub:"CUB R$ 3.171,96 · 01/10/2026",
+      entrega:"dezembro 2028", cub:"CUB OUTUBRO R$ 3.171,96",
       resumo:"Studios e apartamentos de 30 a 70 m², nove unidades por andar, do 6º ao 18º",
       detalhe:"Nove tipologias na mesma torre: do studio de 30 m² ao dois dormitórios de 70 m². Fases posteriores com valores a definir.",
       obra:{ total:39, etapas:[
@@ -946,6 +946,24 @@ a.ucard:hover{background:var(--accent-soft)}
     if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
     return parseFloat(s.replace(/\./g, "").replace(",", "."));
   }
+  /* O CUB aparece como "CUB NOVEMBRO R$ 3.182,95": o mes vem da data de referencia
+     que o Admin grava. Se a data nao for reconhecida, cai no formato antigo, com a
+     data crua no fim, em vez de sumir com a informacao. */
+  var MESES_CUB = ["JANEIRO","FEVEREIRO","MARCO","ABRIL","MAIO","JUNHO",
+                   "JULHO","AGOSTO","SETEMBRO","OUTUBRO","NOVEMBRO","DEZEMBRO"];
+  function mesCub(d){
+    var bruto = String(d == null ? "" : d);
+    /* o servidor as vezes manda ISO (2026-11-01T...), as vezes dd/mm/aaaa */
+    var m = bruto.match(/^\s*\d{1,2}[\/-](\d{1,2})[\/-]\d{2,4}/) || bruto.match(/^\s*\d{4}-(\d{1,2})-\d{1,2}/);
+    if (m){ var i = parseInt(m[1],10) - 1; if (i >= 0 && i < 12) return MESES_CUB[i]; }
+    var t = bruto.trim().toUpperCase().replace("Ç","C");
+    return MESES_CUB.indexOf(t) > -1 ? t : "";
+  }
+  function textoCub(valor, data){
+    var mes = mesCub(data);
+    return mes ? "CUB " + mes + " R$ " + moeda(valor)
+               : "CUB R$ " + moeda(valor) + (data ? " \u00b7 " + data : "");
+  }
   function moeda(v){
     var n = numero(v);
     return isFinite(n) ? n.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}) : String(v);
@@ -968,7 +986,7 @@ a.ucard:hover{background:var(--accent-soft)}
       var e = dados.empreendimento;
       if (e.local) c.local = e.local;
       if (e.ri) c.ri = "RI " + e.ri + (e.matricula ? " · Matrícula " + e.matricula : "");
-      if (e.cub) c.cub = "CUB R$ " + moeda(e.cub) + (e.cubData ? " · " + e.cubData : "");
+      if (e.cub) c.cub = textoCub(e.cub, e.cubData);
       aplicaUnidades(c, dados.unidades, false);
     }
     if (c && dados.pagamento){
@@ -990,7 +1008,7 @@ a.ucard:hover{background:var(--accent-soft)}
       var ligado = x.ativo !== false && vis[x.id] !== false;
       if (!ligado){ ocultos.push(meu); return; }
       if (x.local && !d.localFixo) d.local = x.local;   // endereço confirmado no book prevalece
-      if (x.cub) d.cub = "CUB R$ " + moeda(x.cub) + (x.cubData ? " · " + x.cubData : "");
+      if (x.cub) d.cub = textoCub(x.cub, x.cubData);
       aplicaUnidades(d, x.unidades, !d.tipos);
     });
     Object.keys(FIXOS).forEach(function(k){
