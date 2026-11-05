@@ -643,7 +643,8 @@ a.ucard:hover{background:var(--accent-soft)}
   /* U("601", [ids]) → pastinha de uma unidade, com as fotos numeradas na ordem */
   function U(nome, ids){
     return { u:nome, fotos: ids.map(function(id,i){
-      return id + "|Unidade " + nome + " — " + ("0"+(i+1)).slice(-2);
+      // item que já vem com "|rótulo" (ex.: a planta da unidade) fica com o rótulo dele
+      return id.indexOf("|") > 0 ? id : id + "|Unidade " + nome + " — " + ("0"+(i+1)).slice(-2);
     }) };
   }
   function contaUni(m){ return m.unidades.reduce(function(a,g){ return a + g.fotos.length; }, 0); }
@@ -745,8 +746,7 @@ a.ucard:hover{background:var(--accent-soft)}
                  "12JTF1IdcJaU56L_mKFgWKElAKVRgkS-Y","1d98AmlmJGksP0KbNUDVny-D7VkctoGKF"])]),
 
     flats: M("1KEleVRgj9LjytLUx_TGAhFOcqwg0ceOl",
-      ["1DdmDXqEbkZfsDxJ2fedThA6W4IijIVFG|Flats 05 e 10",
-       "1KEleVRgj9LjytLUx_TGAhFOcqwg0ceOl|Lazer 1","1TE23p84eACV3FEzL5LMLRTiw1C72_it9|Lazer 2",
+      ["1KEleVRgj9LjytLUx_TGAhFOcqwg0ceOl|Lazer 1","1TE23p84eACV3FEzL5LMLRTiw1C72_it9|Lazer 2",
        "1geh_m-aix4f5Vbeoi3gn48OgoAFRczHG|Lazer 3","14IybZBvFM7XSbGYDlum0WppApyaew951|Lazer 4",
        "1LweNbMqIUkeyMCG7sH33JP4wgH6BHNk9|Lazer 5","1c1VhxjlBv1hftolCVRDbWzq12v0jKUP0|Lazer 6",
        "1V9dDT_AZhWrGfT4F5wHrLB3HMnm1Je9_|Lazer 7","1Ogk096Te2HC0K5Z8YHt2mPtHD93tKeFX|Lazer 8",
@@ -759,7 +759,8 @@ a.ucard:hover{background:var(--accent-soft)}
                  "1OkWCw819RLlJdjNJXeTzuj-c7xBWoV_5","16663dm2WeOYckDMyXhfzLlv1eO1Q7cZ-",
                  "1t6imv1EhiOMjuxNx8kiMcpnZZNxBT98D","1EYbSj8-sibq-182poDq9xObJuCdmfNH9",
                  "1e1x6K4cG2qixWN2FBMtr6XTs4OfmxjOG","10xIuz-5qjJAUix1VZvj6uor2LxbZtLG4",
-                 "1arm7ueDlrmqbabDD-NeBHKzVjMdm5S87"])]),
+                 "1arm7ueDlrmqbabDD-NeBHKzVjMdm5S87",
+                 "1DdmDXqEbkZfsDxJ2fedThA6W4IijIVFG|Planta 1105"])]),   // era "Flats 05 e 10", no lazer
     tropical: M("1PE1Ec_QpS9lGwEtnkL5nZ-rQBKPt2Jxv",
       [
        "1PE1Ec_QpS9lGwEtnkL5nZ-rQBKPt2Jxv|Lazer 01","1uplYVVZWEL6OqzxfaxfcK-gLbOBOfruC|Lazer 02",
