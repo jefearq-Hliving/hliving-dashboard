@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Montserrat:wght@300;800&display=swap">
 <style>
 /* Layout: barra da marca > abas Empreendimentos/Tabela de Vendas > grade de 2 cards com capa, barras e ações; empilha no celular */
 :root{
@@ -150,6 +150,120 @@ a{color:inherit}
 .wa-float:hover{background:var(--wa-hover);transform:translateY(-2px)}
 .wa-float svg{flex:none}
 #modal:not([hidden]) ~ .wa-float, #lbox:not([hidden]) ~ .wa-float, #editor:not([hidden]) ~ .wa-float{opacity:0;pointer-events:none}
+#bn:not([hidden]) ~ .wa-float{opacity:0;pointer-events:none}
+
+/* ---------- Black November: abertura em tela preta + cards das ofertas ---------- */
+.bn-chip{display:inline-flex;align-items:center;gap:8px;background:#0b0b0c;border:1px solid #2b2b2e;border-radius:999px;padding:7px 14px 7px 12px;
+  font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#fff;transition:.16s}
+.bn-chip:hover{box-shadow:0 0 0 3px rgba(214,173,60,.28)}
+.bn-chip i{width:7px;height:7px;border-radius:50%;background:#d6ad3c;box-shadow:0 0 0 3px rgba(214,173,60,.22);flex:none}
+.bn-chip b{font-weight:800;background:linear-gradient(95deg,#9a9a9a,#ffffff 50%,#a8a8a8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bn-chip em{font-style:normal;opacity:.55;font-weight:600;letter-spacing:0}
+
+.bn{--bn-gap:clamp(14px,2.4vw,30px);--bn-w:min(86vw, calc((100vh - 176px) * 9 / 16), 500px);
+  position:fixed;inset:0;z-index:80;background:#000;color:#fff;overflow:hidden;font-family:'Montserrat',var(--sans)}
+@supports (height:100dvh){ .bn{--bn-w:min(86vw, calc((100dvh - 176px) * 9 / 16), 500px)} }
+.bn[hidden]{display:none}
+.bn:focus{outline:none}
+.bn::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(60% 45% at 50% 46%,rgba(255,255,255,.07),transparent 70%)}
+.bn-x{position:absolute;z-index:6;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));
+  width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);color:#fff;
+  display:flex;align-items:center;justify-content:center;transition:background .16s}
+.bn-x:hover{background:rgba(255,255,255,.2)}
+.bn-x svg{width:18px;height:18px}
+
+/* abertura */
+.bn-fitas{position:absolute;inset:0;pointer-events:none;overflow:hidden;transition:opacity .6s}
+.bn-fita{position:absolute;left:-20%;width:140%;white-space:nowrap;overflow:hidden;font-weight:800;font-size:clamp(11px,1.5vw,15px);
+  letter-spacing:.22em;text-transform:uppercase;padding:.8em 0;transform:rotate(-6deg)}
+.bn-fita span{display:inline-block;animation:bn-corre 30s linear infinite}
+.bn-fita.f1{top:6%;background:linear-gradient(90deg,#9c9c9c,#efefef 45%,#9a9a9a);color:#121212}
+.bn-fita.f2{top:calc(6% + 2.9em);background:#141414;color:#8c8c8c;font-weight:300}
+.bn-fita.f2 span{animation-direction:reverse}
+.bn-fita.f3{top:auto;bottom:7%;background:#141414;color:#8c8c8c;font-weight:300}
+@keyframes bn-corre{to{transform:translateX(-50%)}}
+.bn-intro{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 20px;
+  pointer-events:none;transition:opacity .55s ease,transform .8s cubic-bezier(.2,.7,.2,1)}
+.bn-l1,.bn-l2{margin:0;line-height:.96;
+  background-image:linear-gradient(100deg,transparent 42%,rgba(255,255,255,.95) 50%,transparent 58%),linear-gradient(95deg,#4f4f4f 0%,#ababab 45%,#ececec 62%,#8a8a8a 100%);
+  background-size:300% 100%,100% 100%;background-repeat:no-repeat;background-position:110% 0,0 0;
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+.bn-l1{font-weight:300;font-size:clamp(62px,15vw,176px);letter-spacing:.05em}
+.bn-l2{font-weight:800;font-size:clamp(44px,10.6vw,124px);letter-spacing:.015em}
+.bn-l3{margin:1.1em 0 0;color:#d6ad3c;font-weight:300;font-size:clamp(11px,2vw,18px);letter-spacing:.42em;text-transform:uppercase}
+.bn.ini .bn-fita.f1,.bn.ini .bn-fita.f3{animation:bn-fita-a .9s cubic-bezier(.2,.7,.2,1) both}
+.bn.ini .bn-fita.f2{animation:bn-fita-b .9s cubic-bezier(.2,.7,.2,1) .08s both}
+@keyframes bn-fita-a{from{opacity:0;transform:translateX(-35%) rotate(-6deg)}to{opacity:1;transform:rotate(-6deg)}}
+@keyframes bn-fita-b{from{opacity:0;transform:translateX(35%) rotate(-6deg)}to{opacity:1;transform:rotate(-6deg)}}
+.bn.ini .bn-l1{animation:bn-entra 1s cubic-bezier(.2,.7,.2,1) .2s both,bn-brilho 1.5s ease-in-out 1.05s both}
+.bn.ini .bn-l2{animation:bn-entra 1s cubic-bezier(.2,.7,.2,1) .42s both,bn-brilho 1.5s ease-in-out 1.2s both}
+.bn.ini .bn-l3{animation:bn-sobe .8s ease 1.15s both}
+@keyframes bn-entra{from{opacity:0;letter-spacing:.45em;filter:blur(10px)}to{opacity:1;filter:blur(0)}}
+@keyframes bn-brilho{from{background-position:110% 0,0 0}to{background-position:-10% 0,0 0}}
+@keyframes bn-sobe{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.bn.fase2 .bn-intro{opacity:0;transform:translateY(-7vh) scale(.92)}
+.bn.fase2 .bn-fitas{opacity:0}
+
+/* cards */
+.bn-palco{position:absolute;top:env(safe-area-inset-top,0px);right:env(safe-area-inset-right,0px);bottom:env(safe-area-inset-bottom,0px);left:env(safe-area-inset-left,0px);
+  display:flex;flex-direction:column;opacity:0;transform:translateY(26px);pointer-events:none;visibility:hidden;
+  transition:opacity .6s ease .12s,transform .75s cubic-bezier(.2,.7,.2,1) .12s,visibility 0s linear .8s}
+.bn.fase2 .bn-palco{opacity:1;transform:none;pointer-events:auto;visibility:visible;transition-delay:.12s,.12s,0s}
+.bn-topo{flex:none;height:56px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 64px}
+.bn-topo b{font-weight:800;font-size:13px;letter-spacing:.34em;text-transform:uppercase;
+  background:linear-gradient(95deg,#8a8a8a,#f2f2f2 50%,#9a9a9a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.bn-topo span{font-size:11px;font-weight:300;color:#9a9a9a;letter-spacing:.14em;white-space:nowrap}
+.bn-topo span i{font-style:normal}
+.bn-meio{position:relative;flex:1;min-height:0;display:flex}
+.bn-trilho{position:relative;flex:1;min-width:0;display:flex;align-items:center;gap:var(--bn-gap);overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;outline:none}
+.bn-trilho::-webkit-scrollbar{display:none}
+.bn-trilho::before,.bn-trilho::after{content:"";flex:none;align-self:stretch;width:calc((100% - var(--bn-w)) / 2 - var(--bn-gap))}
+.bn-slide{flex:none;margin:0;width:var(--bn-w);aspect-ratio:9/16;scroll-snap-align:center;scroll-snap-stop:always;border-radius:18px;overflow:hidden;
+  background:#0d0d0d;box-shadow:0 0 0 1px rgba(255,255,255,.09),0 34px 90px -34px rgba(255,255,255,.16);
+  transform:scale(.86);opacity:.36;transition:transform .45s cubic-bezier(.2,.7,.2,1),opacity .45s;cursor:pointer}
+.bn-slide.on{transform:none;opacity:1;cursor:default}
+.bn-slide img{display:block;width:100%;height:100%;object-fit:cover;-webkit-user-drag:none;user-select:none}
+.bn-seta{position:absolute;z-index:3;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.07);color:#fff;display:flex;align-items:center;justify-content:center;transition:background .16s,opacity .16s}
+.bn-seta:hover:not(:disabled){background:rgba(255,255,255,.18)}
+.bn-seta:disabled{opacity:.22;cursor:default}
+.bn-seta svg{width:22px;height:22px}
+.bn-seta.ant{left:max(14px, calc(50% - var(--bn-w) / 2 - 88px))}
+.bn-seta.prox{right:max(14px, calc(50% - var(--bn-w) / 2 - 88px))}
+.bn-seta.prox svg{transform:scaleX(-1)}
+.bn-base{flex:none;display:flex;flex-direction:column;align-items:center;gap:10px;padding:14px 16px 16px}
+.bn-wa{display:inline-flex;align-items:center;justify-content:center;gap:10px;width:min(var(--bn-w) + 40px, 100%);max-width:380px;padding:14px 24px;border-radius:999px;
+  background:#25d366;color:#052e16;font-family:var(--sans);font-size:15.5px;font-weight:800;letter-spacing:.01em;text-decoration:none;
+  box-shadow:0 12px 32px -12px rgba(37,211,102,.6);transition:transform .16s,background .16s}
+.bn-wa:hover{background:#3ee07c;transform:translateY(-1px)}
+.bn-wa svg{width:20px;height:20px;flex:none}
+.bn-nav{display:flex;align-items:center;gap:10px}
+.bn-mini{display:none;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.07);color:#fff;
+  align-items:center;justify-content:center;padding:0}
+.bn-mini:disabled{opacity:.22;cursor:default}
+.bn-mini svg{width:16px;height:16px}
+.bn-mini.prox svg{transform:scaleX(-1)}
+.bn-dots{display:flex;align-items:center;gap:2px}
+.bn-dots button{display:flex;align-items:center;justify-content:center;height:22px;min-width:20px;padding:0 3px;border:0;background:none}
+.bn-dots button::before{content:"";width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.3);transition:width .25s,background .25s}
+.bn-dots button[aria-current="true"]::before{width:26px;background:#d6ad3c}
+@media (max-width:720px){
+  .bn{--bn-w:min(88vw, calc((100vh - 154px) * 9 / 16), 500px)}
+  .bn-seta{display:none}
+  .bn-mini{display:flex}
+  .bn-topo{height:46px;padding:0 60px 0 16px;justify-content:flex-start;gap:10px}
+  .bn-topo b{font-size:12px;letter-spacing:.24em}
+  .bn-x{width:40px;height:40px;top:calc(4px + env(safe-area-inset-top,0px));right:calc(8px + env(safe-area-inset-right,0px))}
+  .bn-base{gap:6px;padding:10px 16px 12px}
+  .bn-wa{padding:12px 22px;font-size:15px}
+}
+@media (max-width:720px){ @supports (height:100dvh){ .bn{--bn-w:min(88vw, calc((100dvh - 154px) * 9 / 16), 500px)} } }
+@media (max-width:420px){ .bn-topo span .nm{display:none} }
+@media (prefers-reduced-motion: reduce){
+  .bn *,.bn *::before{animation:none!important;transition:none!important}
+}
 
 /* ---------- edição do portal (admin): textos, capa e mídia ---------- */
 .ed{position:fixed;inset:0;z-index:62;display:flex;align-items:flex-start;justify-content:center;
@@ -482,6 +596,7 @@ a.ucard:hover{background:var(--accent-soft)}
     <div id="tabelas"></div>
   </section>
 
+  <div class="bn" id="bn" hidden role="dialog" aria-modal="true" aria-label="Black November: ofertas HLiving"></div>
   <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div>
   <div class="lbox" id="lbox" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada"></div>
   <div class="modal" id="prop" hidden role="dialog" aria-modal="true" aria-labelledby="prop-titulo"></div>
@@ -1218,6 +1333,151 @@ a.ucard:hover{background:var(--accent-soft)}
   var PASTA = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M1.8 4.2a1.2 1.2 0 0 1 1.2-1.2h2.7l1.3 1.6h5.2a1.2 1.2 0 0 1 1.2 1.2v6.2a1.2 1.2 0 0 1-1.2 1.2H3a1.2 1.2 0 0 1-1.2-1.2V4.2Z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg>';
   var SETA = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M9.6 3.4 5 8l4.6 4.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+  /* ---------------- Black November ----------------
+     Tela preta de abertura com as ofertas do mês (cards do PDF "november" da Marketing, em f/g/bn-*.jpg).
+     Abre sozinha na primeira visita de cada aba enquanto a campanha vale e pelo botão "Black November",
+     antes do "Todos". O X fecha e deixa o portal normal. Para tirar, trocar ou incluir uma oferta, é só
+     mexer na lista abaixo; depois de "ate" a tela não abre mais e o botão some. */
+  var BN = {
+    ate: new Date("2026-11-30T23:59:59-03:00"),
+    cards: [
+      { img:"f/g/bn-lafayette.jpg", nome:"Lafayette",
+        alt:"Lafayette, showroom mobiliado e decorado: 109 m², 2 vagas, 3 suítes e área de lazer, na Rua 252, nº 465, Meia Praia, Itapema/SC. De R$ 2.865.918,00 por R$ 2.500 mil: R$ 750 mil de entrada, 100 parcelas mensais de R$ 10 mil e 8 reforços de R$ 93,75 mil. Correção IPCA + 0,6%." },
+      { img:"f/g/bn-haute-1002.jpg", nome:"Haute 1002",
+        alt:"Haute 1002, pronto, com lazer no rooftop: 85 m², 2 vagas, 2 suítes, na Rua 262, nº 795, Meia Praia, Itapema/SC. De R$ 1.532.036,00 por R$ 1.290 mil: R$ 387 mil de entrada (30%), saldo em até 72x e 5 reforços de R$ 100 mil. Correção IPCA + 0,6%." },
+      { img:"f/g/bn-haute-601.jpg", nome:"Haute 601",
+        alt:"Haute 601, pronto, com lazer no rooftop: 97 m², 2 vagas, 1 suíte + 2 demis, na Rua 262, nº 795, Meia Praia, Itapema/SC. De R$ 1.779.000,00 por R$ 1.638 mil: R$ 350 mil de entrada, R$ 700 mil em 100 parcelas mensais e R$ 588 mil em 12 parcelas semestrais. Correção IPCA + 0,6%." },
+      { img:"f/g/bn-2cinco4-702.jpg", nome:"2CINCO4 702",
+        alt:"2CINCO4 702, na planta: 134 m², 2 vagas e área de lazer completa, na Rua 254, nº 703, Meia Praia, Itapema/SC. De R$ 1.795.304,00 por R$ 1.340 mil: R$ 201 mil de entrada (15%), saldo em até 84x e 6 reforços no fluxo. Correção pelo CUB até as chaves." },
+      { img:"f/g/bn-2cinco4-802.jpg", nome:"2CINCO4 802",
+        alt:"2CINCO4 802, na planta: 134 m², 2 vagas e área de lazer completa, na Rua 254, nº 703, Meia Praia, Itapema/SC. De R$ 1.795.304,00 por R$ 1.340 mil: R$ 201 mil de entrada (15%), saldo em até 84x e 6 reforços no fluxo. Correção pelo CUB até as chaves." }
+    ]
+  };
+  var bn = document.getElementById("bn"), bnI = 0, bnTimer = null, bnVolta = null, bnRaf = 0;
+  function bnAtivo(){ return BN.cards.length > 0 && Date.now() <= BN.ate.getTime(); }
+  function bnWa(c){
+    return "https://wa.me/" + WA_NUM + "?text=" + encodeURIComponent("Olá! Vim pelo Portal do Corretor HLiving e quero saber mais sobre a oferta Black November do " + c.nome + ".");
+  }
+  function bnChip(){
+    return bnAtivo() ? '<button class="bn-chip" type="button" data-bn-abrir aria-haspopup="dialog"><i aria-hidden="true"></i><b>Black November</b><em class="num">'+BN.cards.length+'</em></button>' : '';
+  }
+  function bnPinta(){
+    var faixa = new Array(21).join("Black November ✱ ");
+    var fita = function(c){ return '<div class="bn-fita '+c+'"><span>'+faixa+faixa+'</span></div>'; };
+    var WAG = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.2a9.7 9.7 0 0 0-8.4 14.6L2.3 21.7l5-1.3A9.7 9.7 0 1 0 12 2.2Zm0 17.7c-1.5 0-3-.4-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 19.9Zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.3-.4.8-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11.2 11.2 0 0 0 4.3 3.8c1.6.7 2.2.8 3 .6.5-.1 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.6-.4Z"/></svg>';
+    bn.innerHTML =
+      '<div class="bn-fitas" aria-hidden="true">'+ fita("f1") + fita("f2") + fita("f3") +'</div>'+
+      '<div class="bn-intro" aria-hidden="true"><p class="bn-l1">BLACK</p><p class="bn-l2">NOVEMBER</p><p class="bn-l3">Ofertas especiais HLiving</p></div>'+
+      '<button class="bn-x" type="button" data-bn-fechar aria-label="Fechar e ir para o portal">'+XIS+'</button>'+
+      '<div class="bn-palco">'+
+        '<div class="bn-topo"><b>Black November</b><span class="bn-n num" aria-live="polite"></span></div>'+
+        '<div class="bn-meio">'+
+          '<button class="bn-seta ant" type="button" data-bn-ir="-1" aria-label="Oferta anterior">'+SETA+'</button>'+
+          '<div class="bn-trilho" tabindex="-1">'+ BN.cards.map(function(c, i){
+            return '<figure class="bn-slide" data-i="'+i+'" aria-label="Oferta '+(i+1)+' de '+BN.cards.length+': '+esc(c.nome)+'">'+
+              '<img src="'+esc(c.img)+'" alt="'+esc(c.alt)+'" width="1080" height="1920" decoding="async" draggable="false"'+(i===0?' fetchpriority="high"':'')+'></figure>';
+          }).join("") +'</div>'+
+          '<button class="bn-seta prox" type="button" data-bn-ir="1" aria-label="Próxima oferta">'+SETA+'</button>'+
+        '</div>'+
+        '<div class="bn-base">'+
+          '<a class="bn-wa" target="_blank" rel="noopener">'+WAG+'<span>Chamar no WhatsApp</span></a>'+
+          '<div class="bn-nav">'+
+            '<button class="bn-mini ant" type="button" data-bn-ir="-1" aria-label="Oferta anterior">'+SETA+'</button>'+
+            '<div class="bn-dots">'+ BN.cards.map(function(c, i){
+              return '<button type="button" data-bn-dot="'+i+'" aria-label="Ver oferta '+(i+1)+': '+esc(c.nome)+'"></button>';
+            }).join("") +'</div>'+
+            '<button class="bn-mini prox" type="button" data-bn-ir="1" aria-label="Próxima oferta">'+SETA+'</button>'+
+          '</div>'+
+        '</div>'+
+      '</div>';
+    var t = bn.querySelector(".bn-trilho");
+    t.addEventListener("scroll", function(){
+      if (bnRaf) return;
+      bnRaf = requestAnimationFrame(function(){
+        bnRaf = 0;
+        var meio = t.scrollLeft + t.clientWidth / 2, melhor = 0, dist = Infinity;
+        [].forEach.call(t.querySelectorAll(".bn-slide"), function(s, k){
+          var d = Math.abs(s.offsetLeft + s.offsetWidth / 2 - meio);
+          if (d < dist){ dist = d; melhor = k; }
+        });
+        if (melhor !== bnI){ bnI = melhor; bnMarca(); }
+      });
+    }, { passive:true });
+  }
+  /* marca a oferta do centro: card em destaque, bolinha, contador e o WhatsApp dela */
+  function bnMarca(){
+    var c = BN.cards[bnI];
+    [].forEach.call(bn.querySelectorAll(".bn-slide"), function(s, k){ s.classList.toggle("on", k === bnI); });
+    [].forEach.call(bn.querySelectorAll("[data-bn-dot]"), function(b, k){ b.setAttribute("aria-current", k === bnI ? "true" : "false"); });
+    var n = bn.querySelector(".bn-n"); if (n) n.innerHTML = '<i>'+(bnI + 1)+' de '+BN.cards.length+'</i><i class="nm"> · '+esc(c.nome)+'</i>';
+    var wa = bn.querySelector(".bn-wa"); if (wa){ wa.href = bnWa(c); wa.setAttribute("aria-label", "Chamar no WhatsApp sobre a oferta do " + c.nome); }
+    [].forEach.call(bn.querySelectorAll("[data-bn-ir]"), function(b){
+      b.disabled = +b.getAttribute("data-bn-ir") < 0 ? bnI === 0 : bnI === BN.cards.length - 1;
+    });
+  }
+  function bnIr(i, suave){
+    var t = bn.querySelector(".bn-trilho"), ss = t ? t.querySelectorAll(".bn-slide") : [];
+    if (!ss.length) return;
+    bnI = Math.max(0, Math.min(ss.length - 1, i));
+    var s = ss[bnI], calmo = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    t.scrollTo({ left: s.offsetLeft - (t.clientWidth - s.offsetWidth) / 2, behavior: suave && !calmo ? "smooth" : "auto" });
+    bnMarca();
+  }
+  function bnFase2(){
+    clearTimeout(bnTimer); bnTimer = null;
+    if (bn.classList.contains("fase2")) return;
+    bn.classList.add("fase2");
+    bnIr(bnI, false);
+  }
+  function bnAbrir(origem){
+    if (!bnAtivo()) return;
+    bnVolta = origem || null;
+    bnI = 0;
+    bnPinta();
+    bn.className = "bn ini";
+    bn.hidden = false;
+    document.body.style.overflow = "hidden";
+    bnMarca();
+    var calmo = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (calmo) bnFase2(); else bnTimer = setTimeout(bnFase2, 2700);
+    bn.tabIndex = -1;   // o foco entra na tela (o Tab leva ao X, às setas e ao WhatsApp)
+    try { bn.focus({ preventScroll:true }); } catch(e){ bn.focus(); }
+  }
+  function bnFechar(){
+    clearTimeout(bnTimer); bnTimer = null;
+    bn.hidden = true; bn.className = "bn"; bn.innerHTML = "";
+    document.body.style.overflow = "";
+    try { sessionStorage.setItem("hl_bn_visto", "1"); } catch(e){}
+    if (bnVolta && bnVolta.focus && document.body.contains(bnVolta)) bnVolta.focus();
+    bnVolta = null;
+  }
+  bn.addEventListener("click", function(e){
+    if (e.target.closest("[data-bn-fechar]")){ bnFechar(); return; }
+    if (!bn.classList.contains("fase2")){ bnFase2(); return; }          // toque na abertura vai direto para os cards
+    var ir = e.target.closest("[data-bn-ir]"); if (ir){ bnIr(bnI + (+ir.getAttribute("data-bn-ir")), true); return; }
+    var dot = e.target.closest("[data-bn-dot]"); if (dot){ bnIr(+dot.getAttribute("data-bn-dot"), true); return; }
+    var sl = e.target.closest(".bn-slide"); if (sl && +sl.dataset.i !== bnI) bnIr(+sl.dataset.i, true);   // card do lado vem para o centro
+  });
+  document.addEventListener("click", function(e){
+    var b = e.target.closest("[data-bn-abrir]"); if (b){ e.preventDefault(); bnAbrir(b); }
+  });
+  document.addEventListener("keydown", function(e){
+    if (bn.hidden) return;
+    if (e.key === "Escape"){ e.preventDefault(); e.stopPropagation(); bnFechar(); return; }
+    if (e.key === "Tab"){   // o foco fica dentro da tela enquanto ela está aberta
+      var fs = [].filter.call(bn.querySelectorAll(".bn-x, .bn-palco button, .bn-palco a[href]"), function(el){
+        return !el.disabled && el.getClientRects().length && getComputedStyle(el).visibility !== "hidden";
+      });
+      var k = fs.indexOf(document.activeElement);
+      if (fs.length && (e.shiftKey ? k <= 0 : k === fs.length - 1 || k < 0)){ e.preventDefault(); fs[e.shiftKey ? fs.length - 1 : 0].focus(); }
+      return;
+    }
+    if (!bn.classList.contains("fase2")){ if (e.key === "Enter" || e.key === " " || e.key === "ArrowRight"){ e.preventDefault(); bnFase2(); } return; }
+    if (e.key === "ArrowRight"){ e.preventDefault(); e.stopPropagation(); bnIr(bnI + 1, true); }
+    if (e.key === "ArrowLeft"){ e.preventDefault(); e.stopPropagation(); bnIr(bnI - 1, true); }
+  }, true);
+  window.addEventListener("resize", function(){ if (!bn.hidden && bn.classList.contains("fase2")) bnIr(bnI, false); });
+
   /* ---------------- cards ---------------- */
   function obraBlock(d){
     if (!d.obra) return "";
@@ -1327,7 +1587,7 @@ a.ucard:hover{background:var(--accent-soft)}
     var pt = document.querySelector(".meta .dot");
     if (pt) pt.style.background = FONTE.vivo ? "var(--ok)" : "var(--wait)";
   }
-  document.getElementById("filters").innerHTML = CATS.map(function(c){
+  document.getElementById("filters").innerHTML = bnChip() + CATS.map(function(c){
     var n = c.k==="todos" ? DEVS.length : DEVS.filter(function(d){ return d.cat===c.k; }).length;
     return '<button class="chip" data-cat="'+c.k+'" aria-pressed="'+(c.k==="todos")+'">'+c.l+'<em class="num">'+n+'</em></button>';
   }).join("");
@@ -1338,6 +1598,15 @@ a.ucard:hover{background:var(--accent-soft)}
     renderCards();
   });
   renderCards();
+  /* Black November: abre sozinha na primeira visita de cada aba; depois, pelo botão antes do "Todos" */
+  (function(){
+    var visto = false;
+    try { visto = sessionStorage.getItem("hl_bn_visto") === "1"; } catch(e){}
+    if (!visto && bnAtivo()){
+      try { sessionStorage.setItem("hl_bn_visto", "1"); } catch(e){}
+      bnAbrir(null);
+    }
+  })();
 
   /* ---------------- tabela de vendas ---------------- */
   function tabelaHTML(d){
