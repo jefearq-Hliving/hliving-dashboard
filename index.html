@@ -118,11 +118,6 @@ a{color:inherit}
 .prog-row b{text-align:right;font-weight:700;color:var(--ink);font-size:12px}
 .prog-note{margin-top:10px;font-size:11px;color:var(--ink-3)}
 .prog-note b{color:var(--ink-2);font-weight:700}
-.terc-card{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;padding:11px 13px;border:1px dashed var(--accent);border-radius:10px;background:var(--accent-soft);color:var(--ink);transition:.16s}
-.terc-card:hover{border-style:solid}
-.terc-card b{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);font-weight:800}
-.terc-card span{font-size:13px;font-weight:700}
-.terc-card em{font-style:normal;font-size:11.5px;color:var(--ink-2)}
 .badge svg{color:var(--accent);flex:none}
 
 .emp-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:auto;padding-top:14px}
@@ -298,6 +293,10 @@ a.ucard:hover{background:var(--accent-soft)}
 .terc-h{padding:18px 20px;display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;align-items:flex-start;border-bottom:1px solid var(--line);background:var(--accent-soft)}
 .terc-h h3{font-size:15px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}
 .terc-h > div:first-child p{font-size:12.5px;color:var(--ink-2);margin-top:6px;max-width:560px;line-height:1.5}
+/* o mesmo campo na pasta "Unidades de terceiros" do material (ao lado do Catálogo) */
+.terc-pasta{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.terc-pasta .terc{border-top:0}
+.terc-pasta .ulist{margin:0 -1px -1px 0}
 
 .foot{border-top:1px solid var(--line);margin-top:30px;padding-block:22px 96px;font-size:11.5px;color:var(--ink-3);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
 .foot b{color:var(--ink-2);font-weight:600}
@@ -563,7 +562,8 @@ a.ucard:hover{background:var(--accent-soft)}
       /* Unidades de terceiros: flats revendidos pelos proprietários no mesmo prédio. No Admin elas
          continuam sendo a oportunidade "Atlântia Ocean View (terceiros)" (op_1793802019951): é lá que
          se editam preço, status e condição, e a proposta delas abre com essa condição, não com a da
-         construtora. Aqui elas aparecem dentro do Atlantia, no campo "Unidades de terceiros". */
+         construtora. Aqui elas aparecem dentro do Atlantia: na pasta "Unidades de terceiros" do
+         material (ao lado do Catálogo) e no fim da tabela. No card da capa elas não aparecem. */
       terceiros:{ sid:"op_1793802019951", cond:"30% de entrada e saldo em 48x",
         units:[ u("904",40.28,"Flat · 1 vaga de garagem","D",993.465), u("1004",40.28,"Flat · 1 vaga de garagem","D",964.613),
                 u("1106",30.03,"Flat · 1 vaga de garagem","D",723.191) ] } },
@@ -780,7 +780,14 @@ a.ucard:hover{background:var(--accent-soft)}
     duetto: M("1q_9uFh-CkW-qj8CBgt49n9PFV1sju35T",
       ["1q_9uFh-CkW-qj8CBgt49n9PFV1sju35T|Imagem 1","1c_kzFecqpA4podA1r_-vt7V6C7U0uRL8|Imagem 2",
        "1-W3JEPi7GEVTWLfueSEFJtms8amEBtnz|Imagem 3","1F9ro7fN6_QXy1xEYMpd16yYNzBFWa9XA|Imagem 4",
-       "1vuatWw5aZs9d7HYrYJM-iUK8_bKs3G6-|Imagem 5"],
+       "1vuatWw5aZs9d7HYrYJM-iUK8_bKs3G6-|Imagem 5",
+       /* as demais da pasta IMAGENS do Drive, na ordem de lá; a "11.43.16 (3)" ficou de fora por ser
+          cópia idêntica da Imagem 1 (a capa) */
+       "12G4SbELtqsCFBMKknlFe3rV0wTh458-G|Imagem 6","1zeI6KnFOD4h0xpBPPzal8ilT-UPCYRP2|Imagem 7",
+       "1InBeEOL3bwV5z6McTlpVXomeJkwJL1nP|Imagem 8","1BWH8YJbkEVBa0UJV1G_SaTNFIy7932Is|Imagem 9",
+       "1NjPWU9ZWor05ab1-LXw-PVSG22gRirc8|Imagem 10","1_Tvl9xgWu2l8okSRhXm5qPHMQwHlm7Ph|Imagem 11",
+       "1---yv4smlDuf2GNRec3o3WbM8-BPmUzG|Imagem 12","1N3-gm8A06-_esLBlQM0hS6DIHsdPw70g|Imagem 13",
+       "149vUWAN3Q4m-qPatUfjWEsDaYGMF8lz7|Imagem 14"],
       [], [], ["1q1tt0YYfQ5gDvpx18LKB5cO472rOnlHK|Apresentação Duetto Home"]),
 
     altos: M("1OfnqgFiqwxKpcDIObb8vbWTYJ1YJIC7D",
@@ -1265,18 +1272,6 @@ a.ucard:hover{background:var(--accent-soft)}
       : "";
   }
 
-  /* no card do empreendimento: resumo das unidades de terceiros, que leva ao campo na tabela */
-  function terceirosCard(d){
-    var l = livresTer(d);
-    if (!l.length) return "";
-    var vs = l.filter(function(x){ return x.v; }).map(function(x){ return x.v; });
-    var min = vs.length ? Math.min.apply(null, vs) : null;
-    return '<button class="terc-card" data-goto="'+d.id+'" data-terc>'+
-      '<b>Unidades de terceiros</b>'+
-      '<span class="num">'+l.length+' '+(l.length===1?"disponível":"disponíveis")+(min ? ' · a partir de '+preco(d, min) : '')+'</span>'+
-      '<em>Revenda dos proprietários: '+esc(d.terceiros.cond)+'</em></button>';
-  }
-
   function cardHTML(d){
     var s = stats(d);
     var val = s.min ? preco(d, s.min) : "sob consulta";
@@ -1299,7 +1294,6 @@ a.ucard:hover{background:var(--accent-soft)}
       '<div class="emp-body">'+
         '<div><p class="resumo">'+esc(d.resumo)+'</p></div>'+
         (d.obra ? obraBlock(d) : progBlock(d, s))+
-        terceirosCard(d)+
         '<div class="emp-foot">'+
           '<span class="entrega">'+CAL+esc(d.entrega)+'</span>'+
           '<span class="preco"><span class="disp num">'+s.D+' '+(s.D===1?"disponível":"disponíveis")+'</span>'+
@@ -1448,9 +1442,7 @@ a.ucard:hover{background:var(--accent-soft)}
   document.addEventListener("click", function(e){
     var b = e.target.closest("[data-goto]"); if(!b) return;
     atual = b.dataset.goto; renderTabelas(); show("tabelas");
-    var alvo = b.hasAttribute("data-terc") ? document.querySelector("#tabelas .terc") : null;   // vem do resumo de terceiros
-    if (alvo) alvo.scrollIntoView({ behavior:"smooth", block:"start" });
-    else window.scrollTo({ top:0, behavior:"smooth" });
+    window.scrollTo({ top:0, behavior:"smooth" });
   });
   show(location.hash.replace("#","")==="tabelas" ? "tabelas" : "portfolio");
   carregar();
@@ -1466,7 +1458,9 @@ a.ucard:hover{background:var(--accent-soft)}
              {k:"unidades", l:"Unidades", n:contaUni(m)},
              {k:"videos", l:"Vídeos", n:m.videos.length},
              {k:"plantas", l:"Plantas", n:m.plantas.length},
-             {k:"docs", l:"Catálogo", n:m.docs.length} ].filter(function(a){ return a.n > 0; });
+             {k:"docs", l:"Catálogo", n:m.docs.length},
+             // por último, ao lado do Catálogo: a pasta com as unidades de terceiros (revenda dos proprietários)
+             {k:"terceiros", l:"Unidades de terceiros", n:d.terceiros ? d.terceiros.units.length : 0} ].filter(function(a){ return a.n > 0; });
   }
 
   /* Descobre onde as fotos abrem: primeiro as cópias locais (link na Claude), depois o Drive (navegador comum). */
@@ -1508,6 +1502,11 @@ a.ucard:hover{background:var(--accent-soft)}
 
   function conteudoAba(d){
     var m = d.midia, itens = m[mAba] || [];
+
+    if (mAba === "terceiros"){
+      var th = terceirosHTML(d);
+      return th ? '<div class="terc-pasta">'+ th +'</div>' : '<p class="vazio">Nada aqui ainda.</p>';
+    }
 
     if (mAba === "unidades"){
       if (!m.unidades.length) return '<p class="vazio">Nada aqui ainda.</p>';
