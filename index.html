@@ -1532,7 +1532,8 @@ a.ucard:hover{background:var(--accent-soft)}
       : "";
   }
 
-  /* RI na capa (2CINCO4 e Atlantia): só o registro e a matrícula, sem o resto da linha da tabela */
+  /* RI na capa (2CINCO4 e Atlantia): só o registro e a matrícula, sem o resto da linha da tabela.
+     O do 2CINCO4 vem do servidor (Admin); o do Atlantia está escrito aqui, em DEVS. */
   function riCapa(d){
     if (!d.ri) return "";
     return String(d.ri).split(" · ").filter(function(p){ return /^(RI|Matr)/i.test(p.trim()); }).join(" · ");
