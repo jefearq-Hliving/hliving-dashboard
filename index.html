@@ -536,7 +536,7 @@ a.ucard:hover{background:var(--accent-soft)}
       local:"Rua 254, nº 703 — Meia Praia, Itapema/SC",
       ri:"RI R-10-96.103 · Matrícula 96.103 · CRI Itapema/SC",
       entrega:"março 2031", cub:"CUB NOVEMBRO R$ 3.182,95",
-      resumo:"Apartamentos de 134 m² privativos, dois por andar, do 6º ao 27º pavimento",
+      resumo:"Apartamento de 134 m² com 4 possibilidades de planta para você escolher: Family, Office, Style ou Gourmet",
       detalhe:"Tabela corrigida pelo CUB/SC com acréscimo de 0,75% por pavimento. Tipos 1 e 2 em todos os andares.",
       tipos:[{n:1,area:134,spec:"134 m² · face mar"},{n:2,area:134,spec:"134 m² · face cidade"}],
       units:C254,
@@ -616,11 +616,11 @@ a.ucard:hover{background:var(--accent-soft)}
 
     { id:"tekoa", cat:"oport", badge:"Oportunidade", nome:"TEKOA", foto:null,
       local:"Ilhota, Itapema/SC", entrega:"a definir",
-      resumo:"Seis unidades repassadas, de 25,59 a 126,54 m²",
-      detalhe:"Studios de 25 m² e cobertura de 126 m². Imóveis na planta em condições de repasse.",
-      units:[ u("904",126.54,"Cobertura · 126,54 m²","D",2880), u("1202",25.59,"Studio · 25,59 m²","D",482),
-              u("1207",45.44,"45,44 m²","D",810), u("1208",49.59,"49,59 m²","D",883),
-              u("1305",25.59,"Studio · 25,59 m²","D",482), u("1306",25.59,"Studio · 25,59 m²","D",482) ] },
+      resumo:"Seis salas comerciais, de 25,59 a 126,54 m²",
+      detalhe:"Salas comerciais de 25 a 126 m². Imóveis na planta em condições de repasse.",
+      units:[ u("904",126.54,"Sala comercial","D",2880), u("1202",25.59,"Sala comercial","D",482),
+              u("1207",45.44,"Sala comercial","D",810), u("1208",49.59,"Sala comercial","D",883),
+              u("1305",25.59,"Sala comercial","D",482), u("1306",25.59,"Sala comercial","D",482) ] },
 
     { id:"villa", cat:"oport", badge:"Oportunidade", nome:"Villa de Capri", foto:null,
       local:"Rua 292, nº 14, esquina com a Av. Nereu Ramos — Meia Praia, Itapema/SC", localFixo:true, entrega:"dezembro 2028",
@@ -629,8 +629,8 @@ a.ucard:hover{background:var(--accent-soft)}
       units:[ u("2501",202,"4 suítes","D",7522) ] },
 
     { id:"cota", cat:"oport", badge:"Oportunidade", nome:"Cota Lancha", foto:null,
-      local:"Itapema/SC", entrega:"disponibilidade imediata",
-      resumo:"Cota de lancha em marina de Itapema",
+      local:"Marina Confiança — Balneário Camboriú/SC", localFixo:true, entrega:"disponibilidade imediata",
+      resumo:"Cota de lancha na Marina Confiança, em Balneário Camboriú",
       detalhe:"Produto complementar ao portfólio, para cliente com imóvel na região.",
       units:[ u("01",0,"Cota de embarcação","D",430) ] }
   ];
@@ -1020,9 +1020,12 @@ a.ucard:hover{background:var(--accent-soft)}
 
   function aplicaUnidades(d, lista, comArea){
     if (!lista || !lista.length) return;
+    // as oportunidades não têm descrição no servidor: fica a daqui para o mesmo número
+    var antes = {};
+    (d.units || []).forEach(function(o){ if (o.desc) antes[String(o.n)] = o.desc; });
     d.units = lista.map(function(x){
       var o = { n:String(x.n), v:numero(x.v)||null, s:ST_SERV[x.s] || "F" };
-      if (comArea){ o.area = numero(x.area)||0; o.desc = x.desc || ""; }
+      if (comArea){ o.area = numero(x.area)||0; o.desc = x.desc || antes[o.n] || ""; }
       else { o.t = +x.t; }
       return o;
     });
