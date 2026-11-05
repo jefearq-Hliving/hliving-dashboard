@@ -922,6 +922,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div id="op-edit-form" style="display:none">
             <div class="field-wrap"><label class="field-label">Nome</label><input type="text" id="op-edit-nome"></div>
             <div class="field-wrap"><label class="field-label">Localização</label><input type="text" id="op-edit-local"></div>
+            <div class="field-wrap"><label class="field-label">Descrição das unidades</label><input type="text" id="op-edit-desc" placeholder="Ex: Sala comercial"></div>
             <div class="field-wrap"><label class="field-label">Previsão de entrega</label><input type="text" id="op-edit-previsao" placeholder="Ex: T2 2027"></div>
             <div class="field-wrap"><label class="field-label">Observações</label><input type="text" id="op-edit-obs" placeholder="Ex: unidade via permuta com o construtor X"></div>
             <div style="font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px">Condições de pagamento oferecidas</div>
@@ -2657,7 +2658,7 @@ function gerarTabelaPDF(ctx){
 
   // Oportunidades: dashboard único com todas as unidades de terceiros
   if(ctx==='oportunidades'){
-    const allUnits = PRE_LANCAMENTOS.filter(e=>e.ativo!==false && !ehTerceiros(e)).flatMap(e=>e.unidades.filter(u=>u.s==='disp'&&u.v).map(u=>({...u,empNome:e.nome,empLocal:e.local||'',empPgto:e.pgto||{},empPrevisao:e.previsao||'A definir'})));
+    const allUnits = PRE_LANCAMENTOS.filter(e=>e.ativo!==false && !ehTerceiros(e)).flatMap(e=>e.unidades.filter(u=>u.s==='disp'&&u.v).map(u=>({...u,desc:u.desc||e.desc||'',empNome:e.nome,empLocal:e.local||'',empPgto:e.pgto||{},empPrevisao:e.previsao||'A definir'})));
     const today = new Date().toLocaleDateString('pt-BR');
     const fmt2 = v=>v?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}):'—';
     const fmtK = v=>v?'R$ '+Math.round(v/1000).toLocaleString('pt-BR')+' mil':'—';
@@ -2810,7 +2811,7 @@ function gerarTabelaPDF(ctx){
     const pgtoStr = p.tipo==='fixo' ? `Entrada ${fmt2(entrada)} · ${q}x ${fmt2(mensal)}/mês` : `Entrada ${p.pctEntrada||0}% ${fmt2(entrada)} · ${q}x ${fmt2(mensal)}/mês`;
     return `<div style="background:#f4efe9;border:1.5px solid #8C7355;border-radius:10px;padding:10px 12px;break-inside:avoid">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-        <div><div style="font-size:14px;font-weight:700;color:#3d3328">Apto ${u.n}</div><div style="font-size:10px;color:#5C4A36">${u.area||''}m²${u.desc?' · '+u.desc:''}</div></div>
+        <div><div style="font-size:14px;font-weight:700;color:#3d3328">Apto ${u.n}</div><div style="font-size:10px;color:#5C4A36">${u.area||''}m²${(u.desc||o.desc)?' · '+(u.desc||o.desc):''}</div></div>
         <div style="text-align:right"><div style="font-size:8px;font-weight:700;color:#8C7355;letter-spacing:1px">TERCEIROS</div><div style="font-size:15px;font-weight:700;color:#3d3328;margin-top:1px">${fmtK(u.v)}</div></div>
       </div>
       <div style="font-size:9px;color:#5C4A36;background:rgba(255,255,255,0.5);border-radius:5px;padding:4px 7px">${pgtoStr}</div>
@@ -3099,7 +3100,7 @@ function renderEmp2Terceiros(){
     <div class="units-grid terc-grid">${us.map(u=>`<div class="unit-card ${u.s}" onclick="abrirTerceiro('${u.n}','${o.id}')">
       <div class="unit-top"><div class="unit-num">Apto ${u.n}</div><div class="unit-tipo">Terceiros</div></div>
       <div class="unit-val">${u.v?fmtK(u.v):'A definir'}</div>
-      <div class="unit-sub">${u.area||''}m²${u.desc?' · '+u.desc:''}</div>
+      <div class="unit-sub">${u.area||''}m²${(u.desc||o.desc)?' · '+(u.desc||o.desc):''}</div>
       <div class="unit-status ${u.s}">${statusLabel[u.s]||u.s}</div>
     </div>`).join('')}</div>`;
   }).join('');
@@ -3849,7 +3850,7 @@ function renderOportunidadesGrid(){
         <div class="unit-top"><div class="unit-num">Unid. ${u.n}</div><div class="unit-tipo" style="font-size:9px;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.nome.split(' ')[0]}</div></div>
         <div class="unit-val">${u.v?'R$ '+Math.round(u.v/1000).toLocaleString('pt-BR')+' mil':'—'}</div>
         <div class="unit-sub">${u.area}m² · ${e.local||''}</div>
-        <div class="unit-sub" style="margin-top:2px;font-size:10px;color:var(--text-3)">${u.desc||''}</div>
+        <div class="unit-sub" style="margin-top:2px;font-size:10px;color:var(--text-3)">${u.desc||e.desc||''}</div>
         <div style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:600;background:${sbg};color:${scor};margin-top:4px">${slabel}</div>
       </div>`;
     });
@@ -3888,7 +3889,7 @@ function abrirDetalheOp(num,empId){
     <div class="detail-row"><span class="dl">Localização</span><span class="dv">${e.local||'—'}</span></div>
     <div class="detail-row"><span class="dl">Unidade</span><span class="dv">${u.n}</span></div>
     <div class="detail-row"><span class="dl">Área</span><span class="dv">${u.area} m²</span></div>
-    <div class="detail-row"><span class="dl">Descrição</span><span class="dv">${u.desc||'—'}</span></div>
+    <div class="detail-row"><span class="dl">Descrição</span><span class="dv">${u.desc||e.desc||'—'}</span></div>
     ${e.obs?`<div class="detail-row"><span class="dl">Observações</span><span class="dv">${e.obs}</span></div>`:''}
     <div class="detail-row" style="border:none"><span class="dl">VGV</span><span class="dv">${fmt2(u.v)}</span></div>
     <div class="sec-title">Condições de pagamento</div>
@@ -4085,6 +4086,7 @@ function carregarDadosOp(empId){
   document.getElementById('op-edit-form').style.display='block';
   document.getElementById('op-edit-nome').value = e.nome||'';
   document.getElementById('op-edit-local').value = e.local||'';
+  document.getElementById('op-edit-desc').value = e.desc||'';
   document.getElementById('op-edit-previsao').value = e.previsao||'';
   document.getElementById('op-edit-obs').value = e.obs||'';
   const p = e.pgto||{};
@@ -4099,6 +4101,7 @@ function salvarEdicaoOp(){
   if(!e){ toast('Selecione um empreendimento','erro'); return; }
   e.nome     = document.getElementById('op-edit-nome').value;
   e.local    = document.getElementById('op-edit-local').value;
+  e.desc     = document.getElementById('op-edit-desc').value;   // o servidor guarda a descrição no empreendimento, não na unidade
   e.previsao = document.getElementById('op-edit-previsao').value;
   e.obs      = document.getElementById('op-edit-obs').value;
   const tipo = document.getElementById('op-edit-pgto-tipo').value;
