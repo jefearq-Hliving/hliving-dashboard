@@ -100,6 +100,7 @@ a{color:inherit}
 .cover-txt h3{font-size:25px;font-weight:800;letter-spacing:.02em;color:#fff;line-height:1.1;text-transform:uppercase}
 .cover-txt p{margin-top:7px;font-size:12.5px;color:rgba(255,255,255,.88);display:flex;gap:6px;align-items:flex-start}
 .cover-txt p svg{flex:none;margin-top:2px}
+.cover-txt .cover-ri{display:block;margin-top:4px;padding-left:19px;font-size:11px;font-weight:600;letter-spacing:.02em;color:rgba(255,255,255,.74)}
 .badge{position:absolute;top:14px;right:14px;z-index:3;display:inline-flex;align-items:center;gap:6px;background:rgba(15,20,26,.74);color:#fff;border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:5px 12px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
 .badge svg{color:var(--accent);flex:none}
 .nofoto{position:absolute;left:14px;top:14px;z-index:3;display:inline-flex;align-items:center;gap:5px;background:rgba(15,20,26,.5);color:rgba(255,255,255,.9);border:1px dashed rgba(255,255,255,.4);border-radius:7px;padding:4px 9px;font-size:9.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
@@ -1531,6 +1532,12 @@ a.ucard:hover{background:var(--accent-soft)}
       : "";
   }
 
+  /* RI na capa (2CINCO4 e Atlantia): só o registro e a matrícula, sem o resto da linha da tabela */
+  function riCapa(d){
+    if (!d.ri) return "";
+    return String(d.ri).split(" · ").filter(function(p){ return /^(RI|Matr)/i.test(p.trim()); }).join(" · ");
+  }
+
   function cardHTML(d){
     var s = stats(d);
     var val = s.min ? preco(d, s.min) : "sob consulta";
@@ -1548,7 +1555,8 @@ a.ucard:hover{background:var(--accent-soft)}
       '<div class="cover'+(n?' tem-midia':'')+'"'+(n?' role="button" tabindex="0" data-abrir="'+d.id+'" aria-label="Abrir material de '+esc(d.nome)+'"':'')+'>'+ capa + selo +
         (n ? '<span class="lupa">'+GALERIA+n+' arquivos</span>' : '')+
         '<div class="cover-txt"><h3>'+esc(d.nome)+'</h3>'+
-        '<p>'+PIN+'<span>'+esc(d.local)+'</span></p></div>'+
+        '<p>'+PIN+'<span>'+esc(d.local)+'</span></p>'+
+        (riCapa(d) ? '<p class="cover-ri">'+esc(riCapa(d))+'</p>' : '')+'</div>'+
       '</div>'+
       '<div class="emp-body">'+
         '<div><p class="resumo">'+esc(d.resumo)+'</p></div>'+
