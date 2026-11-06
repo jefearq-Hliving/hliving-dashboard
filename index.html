@@ -150,7 +150,7 @@ a{color:inherit}
 .wa-float:hover{background:var(--wa-hover);transform:translateY(-2px)}
 .wa-float svg{flex:none}
 #modal:not([hidden]) ~ .wa-float, #lbox:not([hidden]) ~ .wa-float, #editor:not([hidden]) ~ .wa-float{opacity:0;pointer-events:none}
-#bn:not([hidden]) ~ .wa-float{opacity:0;pointer-events:none}
+#bn:not([hidden]) ~ .wa-float, #prop:not([hidden]) ~ .wa-float{opacity:0;pointer-events:none}
 
 /* ---------- Black November: abertura em tela preta + cards das ofertas ---------- */
 .bn-chip{display:inline-flex;align-items:center;gap:8px;background:#0b0b0c;border:1px solid #2b2b2e;border-radius:999px;padding:7px 14px 7px 12px;
@@ -525,16 +525,92 @@ a.ucard:hover{background:var(--accent-soft)}
   font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--accent-ink)}
 .prop-grupo span{letter-spacing:0;text-transform:none;font-weight:600;font-size:11.5px;color:var(--ink-2)}
 .prop-body > .prop-grupo:first-child{border-top:0}
-.sheet-prop-uni{max-width:780px}
+.sheet-prop-uni{max-width:640px}
 .prop-voltar{display:inline-flex;align-items:center;gap:5px;background:none;border:0;padding:0;margin-bottom:9px;
   font:inherit;font-size:12.5px;font-weight:800;color:var(--accent-ink);cursor:pointer}
 .prop-voltar:hover{text-decoration:underline}
 .prop-top-uni{padding:14px 52px 12px 22px}
 .prop-top-uni .prop-voltar{margin:0}
-.prop-frame{display:block;width:100%;height:70vh;border:0;background:var(--card)}
-@media(max-width:560px){.prop-frame{height:78vh}}
 @media(max-width:560px){.prop-u{grid-template-columns:auto 1fr auto;gap:9px;padding:12px 16px}
   .prop-u-d{display:none}.prop-top{padding:18px 48px 15px 16px}}
+
+/* ---------- proposta da unidade, montada aqui (sem abrir o Portal antigo) ---------- */
+.pp{padding:18px 22px 22px}
+.pp-cab h2{margin-top:6px;font-size:19px;font-weight:800;letter-spacing:.01em;color:var(--ink)}
+.pp-det{margin-top:5px;font-size:12.5px;color:var(--ink-3)}
+.pp-vgv{margin-top:10px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pp-vgv span{font-size:12px;color:var(--ink-3)}
+.pp-vgv b{font-size:20px;font-weight:800;letter-spacing:-.02em}
+.pp-aviso{margin-top:12px;font-size:12px;line-height:1.5;color:var(--ink-2);background:var(--accent-soft);border:1px solid var(--line);border-radius:9px;padding:9px 11px}
+.pp-aviso b{color:var(--ink)}
+.pp-cond{margin-top:16px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.pp-cond h3{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700;padding:10px 14px;background:var(--card-2);border-bottom:1px solid var(--line)}
+.pp-cond ul{list-style:none;margin:0;padding:0}
+.pp-cond li{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.pp-cond li:last-child{border-bottom:0}
+.pp-cond li span{color:var(--ink-2);min-width:0}
+.pp-cond li em{font-style:normal;color:var(--ink-3);font-size:11.5px;margin-left:2px}
+.pp-cond li b{font-weight:700;white-space:nowrap}
+.pp-reaj{padding:8px 14px;font-size:11.5px;color:var(--ink-3);border-top:1px solid var(--line);background:var(--card-2)}
+.pp-form{margin-top:18px}
+.pp-g{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+.pp-f{display:block;min-width:0}
+.pp-f.full{grid-column:1/-1}
+.pp-f>span{display:block;font-size:12px;font-weight:600;color:var(--ink-2);margin-bottom:5px}
+.pp-f>span em{font-style:normal;font-weight:500;color:var(--ink-3)}
+.pp-f input{width:100%;font:inherit;font-size:14px;color:var(--ink);background:var(--card-2);border:1px solid var(--line-2);border-radius:9px;padding:9px 11px}
+.pp-f input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.pp-modo{display:flex;gap:6px;margin:16px 0 12px}
+.pp-modo button{flex:1;padding:9px 10px;border-radius:9px;border:1px solid var(--line-2);background:var(--card);font-size:13px;font-weight:700;color:var(--ink-2)}
+.pp-modo button[aria-pressed="true"]{background:var(--dark);border-color:var(--dark);color:#fff}
+.pp-pers[hidden]{display:none}
+.pp-pers .pp-aviso{margin:0 0 12px}
+.pp-gerar{width:100%;justify-content:center;margin-top:14px;padding:12px 16px;font-size:14px}
+.pp-erro{margin-top:10px;font-size:12.5px;font-weight:600;color:var(--sold)}
+.pp-saida:not(:empty){margin-top:18px}
+.pp-acoes{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
+.pp-acoes .btn{flex:1 1 200px;justify-content:center}
+/* o documento é papel claro, igual na tela e na impressão */
+.pp-doc{background:#fff;color:#15181c;border:1px solid #e6e7e9;border-radius:12px;padding:16px 18px;font-size:12px;line-height:1.45;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pp-carimbo{border-radius:6px;padding:5px 10px;margin-bottom:10px;font-size:10px;font-weight:800;letter-spacing:.08em;text-align:center}
+.pp-carimbo.ok{background:#edfaf5;border:1px solid #a3dfc7;color:#0f6e56}
+.pp-carimbo.pers{background:#fff8e6;border:1px solid #e6c96a;color:#854f0b}
+.pp-doc-cab{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding-bottom:9px;border-bottom:2px solid #1d2430;margin-bottom:9px}
+.pp-doc-et{font-size:9px;letter-spacing:.2em;text-transform:uppercase;font-weight:800;color:#8a6f44}
+.pp-doc-emp{font-size:14px;font-weight:800;margin-top:2px}
+.pp-doc-data{font-size:10.5px;color:#5c6269;margin-top:2px}
+.pp-doc-uni{text-align:right;min-width:0}
+.pp-doc-uni b{display:block;font-size:16px;font-weight:800}
+.pp-doc-uni span{display:block;font-size:10.5px;color:#5c6269;margin-top:2px}
+.pp-doc-cli{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding-bottom:8px;border-bottom:1px solid #e6e7e9}
+.pp-doc-cli span{display:block;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#8b9096}
+.pp-doc-cli b{display:block;font-size:12.5px;font-weight:700;margin-top:1px;overflow-wrap:anywhere}
+.pp-doc-sec{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#8b9096;font-weight:800;margin:10px 0 4px}
+.pp-doc table{width:100%;border-collapse:collapse}
+.pp-doc td{padding:6px 0;border-bottom:1px solid #eef0f2;font-size:11.5px;vertical-align:baseline}
+.pp-doc td:first-child{font-weight:700}
+.pp-doc td.m{text-align:center;color:#5c6269;padding-inline:6px}
+.pp-doc td.v{text-align:right;font-weight:700;white-space:nowrap}
+.pp-doc-soma{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:9px;padding:7px 10px;border-radius:7px;background:#edfaf5;border:1px solid #a3dfc7;color:#0f6e56;font-size:10.5px}
+.pp-doc-soma span{min-width:0;overflow-wrap:anywhere}
+.pp-doc-soma b{font-size:12px;white-space:nowrap}
+.pp-doc-soma.dif{background:#fff8e6;border-color:#e6c96a;color:#854f0b}
+.pp-doc-vgv{display:flex;justify-content:space-between;align-items:baseline;margin-top:9px}
+.pp-doc-vgv span{font-size:11px;color:#5c6269}
+.pp-doc-vgv b{font-size:18px;font-weight:800}
+.pp-doc-obs{margin-top:8px;padding:7px 10px;background:#f5f3ee;border-radius:7px;font-size:11px;color:#3b4047}
+.pp-doc-rod{margin-top:9px;font-size:9.5px;color:#8b9096;line-height:1.5}
+@media(max-width:560px){ .pp{padding:16px} .pp-doc{padding:14px} .pp-doc-cab{flex-direction:column} .pp-doc-uni{text-align:left} }
+/* impressão / PDF: só o documento da proposta */
+#impressao{display:none}
+@media print{
+  body.imprimindo > *{display:none!important}
+  body.imprimindo > #impressao{display:block!important}
+  body.imprimindo{background:#fff!important}
+  body.imprimindo::before{display:none}
+  #impressao .pp-doc{border:0;border-radius:0;padding:0;font-size:12.5px}
+  @page{margin:14mm}
+}
 </style>
 
 <header class="topbar">
@@ -672,8 +748,9 @@ a.ucard:hover{background:var(--accent-soft)}
       ]},
       tipos:[1,2,3,4,5,6,7,8,9].map(function(t){ return {n:t,area:ATL_AREA[t],spec:ATL_AREA[t]+" m² privativos"}; }),
       units:ATL,
-      pgto:[{p:"30%",l:"Entrada",v:"nos atos"},{p:"10%",l:"Chaves",v:"dez./2028"},
-            {p:"40%",l:"60 mensais",v:"durante a obra"},{p:"20%",l:"5 anuais",v:"balões"}],
+      /* condição do Admin (06/11/2026, decisão da Marketing); com o servidor no ar, vem de lá */
+      pgto:[{p:"10%",l:"Entrada",v:"nos atos"},{p:"10%",l:"Obra",v:"durante a obra"},{p:"10%",l:"Chaves",v:"na entrega"},
+            {p:"40%",l:"60 mensais",v:"durante a obra"},{p:"30%",l:"5 anuais",v:"balões"}],
       /* Unidades de terceiros: flats revendidos pelos proprietários no mesmo prédio. No Admin elas
          continuam sendo a oportunidade "Atlântia Ocean View (terceiros)" (op_1793802019951): é lá que
          se editam preço, status e condição, e a proposta delas abre com essa condição, não com a da
@@ -1072,6 +1149,53 @@ a.ucard:hover{background:var(--accent-soft)}
     });
   }
 
+  /* ---------------- condição de pagamento de cada empreendimento (para a proposta) ----------------
+     É a que está cadastrada no Admin. Com o servidor no ar ela vem de lá (aplicarServidor); a cópia abaixo
+     (Admin em 05/11/2026) só vale se o servidor não responder.
+     "pct": partes em % do VGV (2CINCO4, Atlantia). "saldo": entrada (e chaves) e o saldo nas mensais,
+     com reforço anual só onde houver (prontos, oportunidades e unidades de terceiros). */
+  function planoDe(fonte, pg){
+    if (!pg || typeof pg !== "object") return null;
+    var n = function(v){ var x = numero(v); return isFinite(x) ? x : 0; };
+    var q = function(v){ var x = parseInt(v, 10); return isFinite(x) && x > 0 ? x : 0; };
+    if (fonte === "lanc" && pg.tipo !== "fixo" && pg.pctEntrada != null && pg.pctEntrada !== "")
+      return { k:"pct", pE:n(pg.pctEntrada), venE:String(pg.venEntrada||""), pO:n(pg.pctObra), venO:String(pg.venObra||""),
+               pC:n(pg.pctChave), venC:String(pg.venChave||""), pM:n(pg.pctMensal), qM:q(pg.qtMensal),
+               pA:n(pg.pctAnual), qA:q(pg.qtAnual) };
+    return { k:"saldo", fixo:pg.tipo === "fixo", entrada:n(pg.entrada), pE:n(pg.pctEntrada), chave:n(pg.chave), pC:n(pg.pctChave),
+             qM:q(pg.qtMensal) || 48, qA:q(pg.qtAnual), venE:String(pg.venEntrada||""), venC:String(pg.venChave||""),
+             reaj:String(pg.reajuste||"").trim(), semChave:fonte === "op" };
+  }
+  /* o que a tabela do lançamento mostra, a partir da mesma condição */
+  function pgtoTela(pl){
+    var pc = function(v){ return String(v).replace(".", ",") + "%"; }, r = [];
+    if (pl.pE) r.push({ p:pc(pl.pE), l:"Entrada", v:pl.venE && !/^atos?$/i.test(pl.venE) ? pl.venE : "nos atos" });
+    if (pl.pO) r.push({ p:pc(pl.pO), l:"Obra", v:pl.venO || "durante a obra" });
+    if (pl.pC) r.push({ p:pc(pl.pC), l:"Chaves", v:pl.venC || "na entrega" });
+    if (pl.pM) r.push({ p:pc(pl.pM), l:pl.qM + " mensais", v:"durante a obra" });
+    if (pl.pA) r.push({ p:pc(pl.pA), l:pl.qA + " anuais", v:"balões" });
+    return r;
+  }
+  var PG_COPIA = {
+    c254:      ["lanc", { pctEntrada:10, venEntrada:"Atos", pctObra:10, venObra:"mar./2027", pctChave:10, venChave:"mar./2031", pctMensal:40, qtMensal:84, pctAnual:30, qtAnual:6 }],
+    atl:       ["lanc", { pctEntrada:10, venEntrada:"Atos", pctObra:10, venObra:"", pctChave:10, venChave:"", pctMensal:40, qtMensal:60, pctAnual:30, qtAnual:5 }],
+    altos:     ["pronto", { tipo:"pct", pctEntrada:30, venEntrada:"Atos", qtMensal:60, reajuste:"CUB/SC -1,05%" }],
+    flats:     ["pronto", { tipo:"fixo", entrada:350000, chave:0, qtMensal:48, qtAnual:6, reajuste:"CUB/SC -1,05%" }],
+    duetto:    ["pronto", { tipo:"pct", pctEntrada:30, venEntrada:"Atos", qtMensal:48, reajuste:"CUB/SC" }],
+    tropical:  ["pronto", { tipo:"fixo", entrada:400000, qtMensal:48, reajuste:"" }],
+    haute:     ["pronto", { tipo:"pct", pctEntrada:30, pctChave:0, qtMensal:48, qtAnual:6, reajuste:"" }],
+    lafayette: ["pronto", { tipo:"fixo", entrada:1204200, qtMensal:60, reajuste:"" }],
+    costamare: ["pronto", { tipo:"fixo", entrada:602100, qtMensal:72, reajuste:"IPCA 0,6%" }],
+    tekoa:     ["op", { tipo:"pct", pctEntrada:10, qtMensal:80, reajuste:"" }],
+    villa:     ["op", { tipo:"pct", pctEntrada:25, qtMensal:50, reajuste:"" }],
+    cota:      ["op", { tipo:"fixo", entrada:100000, qtMensal:12, reajuste:"" }]
+  };
+  Object.keys(PG_COPIA).forEach(function(id){
+    var d = acha(id); if (!d) return;
+    d.plano = planoDe(PG_COPIA[id][0], PG_COPIA[id][1]); d.planoFonte = PG_COPIA[id][0];
+  });
+  (function(){ var a = acha("atl"); if (a && a.terceiros) a.terceiros.plano = planoDe("op", { tipo:"pct", pctEntrada:30, qtMensal:48, reajuste:"" }); })();
+
   /* ---------------- leitura ao vivo do servidor da HLiving ----------------
      Os dados abaixo (DEVS) são a cópia de 21/10/2026 e funcionam sozinhos.
      Se o servidor responder, preços, status, CUB e condições são substituídos pelos atuais.
@@ -1165,6 +1289,7 @@ a.ucard:hover{background:var(--accent-soft)}
       return { n:n, v:numero(y.v)||null, s:ST_SERV[y.s] || "F", area:numero(y.area)||0, desc:y.desc || antes[n] || "" };
     });
     var c = condTexto(x.pgto); if (c) t.cond = c;
+    var pl = planoDe("op", x.pgto); if (pl) t.plano = pl;
   }
   /* a condição com as mesmas regras da proposta de oportunidade no Portal: entrada e saldo nas mensais */
   function condTexto(p){
@@ -1195,21 +1320,27 @@ a.ucard:hover{background:var(--accent-soft)}
                  {p:p.pctChave+"%", l:"Chaves", v:p.venChave},
                  {p:p.pctMensal+"%", l:p.qtMensal+" mensais", v:"durante a obra"},
                  {p:p.pctAnual+"%", l:p.qtAnual+" anuais", v:"balões"} ];
+      var plc = planoDe("lanc", p); if (plc){ c.plano = plc; c.planoFonte = "lanc"; }
     }
     // lançamentos, prontos e oportunidades vêm em listas
     var vis = dados.visibilidade || {};
     var ocultos = [];
-    [].concat(dados.lancamentos||[], dados.prontos||[], dados.pre||[]).forEach(function(x){
-      if (TERCEIROS[x.id]){ aplicaTerceiros(acha(TERCEIROS[x.id]), x, x.ativo !== false && vis[x.id] !== false); return; }
-      var meu = DE_PARA[x.id];
-      if (!meu) return;
-      var d = acha(meu);
-      if (!d) return;
-      var ligado = x.ativo !== false && vis[x.id] !== false;
-      if (!ligado){ ocultos.push(meu); return; }
-      if (x.local && !d.localFixo) d.local = x.local;   // endereço confirmado no book prevalece
-      if (x.cub) d.cub = textoCub(x.cub, x.cubData);
-      aplicaUnidades(d, x.unidades, !d.tipos);
+    [["lanc", dados.lancamentos], ["pronto", dados.prontos], ["op", dados.pre]].forEach(function(par){
+      (par[1] || []).forEach(function(x){
+        if (TERCEIROS[x.id]){ aplicaTerceiros(acha(TERCEIROS[x.id]), x, x.ativo !== false && vis[x.id] !== false); return; }
+        var meu = DE_PARA[x.id];
+        if (!meu) return;
+        var d = acha(meu);
+        if (!d) return;
+        var ligado = x.ativo !== false && vis[x.id] !== false;
+        if (!ligado){ ocultos.push(meu); return; }
+        if (x.local && !d.localFixo) d.local = x.local;   // endereço confirmado no book prevalece
+        if (x.cub) d.cub = textoCub(x.cub, x.cubData);
+        aplicaUnidades(d, x.unidades, !d.tipos);
+        // condição de pagamento do Admin: é com ela que a proposta é feita (e a tabela do lançamento a mostra)
+        var pl = planoDe(par[0], x.pgto);
+        if (pl){ d.plano = pl; d.planoFonte = par[0]; if (pl.k === "pct" && d.id !== "c254") d.pgto = pgtoTela(pl); }
+      });
     });
     Object.keys(FIXOS).forEach(function(k){
       var d = acha(k); if (!d) return;
@@ -1955,21 +2086,288 @@ a.ucard:hover{background:var(--accent-soft)}
         '</div>'+
       '</div>';
   }
-  /* A proposta abre aqui dentro, num quadro sobre o portfolio. O conteudo e a
-     propria tela do Portal (mesma origem, so que com ?emb=1 para esconder o voltar
-     dele): assim o corretor nao sai da pagina e a regra comercial continua existindo
-     num lugar so, em vez de virar uma segunda copia que pode divergir. */
-  function pintaPropUni(href, n){
-    prop.innerHTML =
-      '<div class="sheet sheet-prop sheet-prop-uni" role="document" aria-label="Proposta da unidade '+esc(n)+'">'+
-        '<div class="prop-top prop-top-uni">'+
-          '<button class="fechar" data-pfechar aria-label="Fechar">'+XIS+'</button>'+
-          '<button class="prop-voltar" data-pvoltar>\u2039 Todas as unidades</button>'+
-        '</div>'+
-        '<iframe class="prop-frame" src="'+href.replace("#", "?emb=1#")+'" title="Proposta da unidade '+esc(n)+'"></iframe>'+
+  /* ---------------- proposta da unidade ----------------
+     Montada aqui mesmo (antes abria a tela do Portal antigo num quadro, que demorava sincronizando).
+     A conta segue as regras do Portal, com a condi\u00e7\u00e3o de pagamento do Admin (d.plano), e duas decis\u00f5es
+     da Marketing em 06/11/2026: o Atlantia usa a condi\u00e7\u00e3o do Admin, e nos prontos s\u00f3 entra refor\u00e7o anual
+     onde ele est\u00e1 cadastrado. Modos Padr\u00e3o e Personalizada; a personalizada vai para aprova\u00e7\u00e3o do comercial. */
+  var PP = null;   // proposta aberta: { d, x, pl, ter, modo, doc }
+  var IMPRIME = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4.4 5.6V2h7.2v3.6" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="M4.4 11.4H2.8a1 1 0 0 1-1-1V6.6a1 1 0 0 1 1-1h10.4a1 1 0 0 1 1 1v3.8a1 1 0 0 1-1 1h-1.6" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/><path d="M4.4 9.2h7.2V14H4.4z" stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/></svg>';
+  function brl2(v){ return "R$ " + (+v || 0).toLocaleString("pt-BR", { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+  function pct(v){ return (Math.round(v * 100) / 100).toLocaleString("pt-BR") + "%"; }
+  function hojeBR(){ return new Date().toLocaleDateString("pt-BR"); }
+  function vencTxt(v){ return /^atos?$/i.test(String(v).trim()) ? "nos atos" : v; }
+  /* nome e CRECI do corretor ficam salvos neste aparelho (a mesma chave do Portal antigo) */
+  var CORRETOR_KEY = "hliving_corretor";
+  function corretorSalvo(){ try { return JSON.parse(localStorage.getItem(CORRETOR_KEY)) || {}; } catch(e){ return {}; } }
+  function salvaCorretor(nome, creci){ try { localStorage.setItem(CORRETOR_KEY, JSON.stringify({ nome:nome || "", creci:creci || "" })); } catch(e){} }
+  function mascaraCPF(v){
+    v = String(v).replace(/\D/g, "").slice(0, 11);
+    return v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+  function ppUnidade(d, x, ter){
+    var lanc = !ter && d.tipos, partes = [];
+    if (lanc){
+      var andar = Math.floor(parseInt(x.n, 10) / 100);
+      if (andar > 0) partes.push(andar + "\u00ba andar");
+      partes.push("Tipo " + x.t);
+      var tp = d.tipos.filter(function(t){ return t.n == x.t; })[0];
+      if (tp && tp.area) partes.push(area(tp.area));
+    } else {
+      if (x.area) partes.push(area(x.area));
+      if (x.desc) partes.push(x.desc);
+    }
+    return { rotulo:(lanc || ter ? "Apto " : "Unidade ") + x.n, det:partes.join(" \u00b7 ") };
+  }
+  /* As parcelas da proposta: [{label, qtd, valor, venc, pct}] e o VGV. c = valores da Personalizada (null na Padr\u00e3o). */
+  function ppCalcula(pl, vgv, c){
+    var it = [];
+    if (pl.k === "pct"){
+      var pE = c ? c.pE : pl.pE, pO = c ? c.pO : pl.pO, pC = c ? c.pC : pl.pC;
+      var qm = c ? c.qM : pl.qM, qa = c ? c.qA : pl.qA, pm, pa;
+      if (c){
+        var resto = 100 - pE - pO - pC;
+        if (pE < 0 || pO < 0 || pC < 0) return { erro:"Os percentuais n\u00e3o podem ser negativos." };
+        if (resto < -0.001) return { erro:"Entrada, obra e chaves somam mais de 100%." };
+        var base = (pl.pM + pl.pA) > 0 ? pl.pM / (pl.pM + pl.pA) : 1;   // mesma propor\u00e7\u00e3o mensais/refor\u00e7os do Admin
+        pm = qa > 0 ? resto * base : resto; pa = qa > 0 ? resto - pm : 0;
+      } else { pm = pl.pM; pa = pl.pA; }
+      if (pm > 0.001 && !(qm > 0)) return { erro:"Informe o n\u00famero de mensais." };
+      it.push({ label:"Entrada", qtd:1, valor:vgv * pE / 100, venc:pl.venE || "Atos", pct:pE });
+      if (pO > 0) it.push({ label:"Obra", qtd:1, valor:vgv * pO / 100, venc:pl.venO || "durante a obra", pct:pO });
+      if (pm > 0.001) it.push({ label:"Mensais", qtd:qm, valor:vgv * pm / 100 / qm, pct:pm });
+      if (pa > 0.001 && qa > 0) it.push({ label:"Refor\u00e7os anuais", qtd:qa, valor:vgv * pa / 100 / qa, pct:pa });
+      if (pC > 0) it.push({ label:"Chaves", qtd:1, valor:vgv * pC / 100, venc:pl.venC || "na entrega", pct:pC });
+      return { itens:it, vgv:vgv };
+    }
+    // entrada (e chaves) e o saldo nas mensais; com refor\u00e7o, o saldo vai 40/70 nas mensais e 30/70 nos refor\u00e7os (regra do Portal)
+    var e = c ? c.entrada : (pl.fixo ? pl.entrada : vgv * pl.pE / 100);
+    var ch = c ? c.chave : (pl.semChave ? 0 : (pl.fixo ? pl.chave : vgv * pl.pC / 100));
+    var qM = c ? c.qM : pl.qM, qA = c ? c.qA : pl.qA, saldo = vgv - e - ch;
+    if (e < 0 || ch < 0) return { erro:"Entrada e chaves n\u00e3o podem ser negativas." };
+    if (saldo < -0.005) return { erro:"Entrada e chaves passam do VGV." };
+    if (saldo > 0.005 && !(qM > 0)) return { erro:"Informe o n\u00famero de mensais." };
+    it.push({ label:"Entrada", qtd:1, valor:e, venc:pl.venE || "Atos", pct:(!c && !pl.fixo) ? pl.pE : null });
+    if (ch > 0) it.push({ label:"Chaves", qtd:1, valor:ch, venc:pl.venC || "na entrega", pct:(!c && !pl.fixo) ? pl.pC : null });
+    if (saldo > 0.005){
+      if (qA > 0){
+        it.push({ label:"Mensais", qtd:qM, valor:saldo * (40 / 70) / qM });
+        it.push({ label:"Refor\u00e7os anuais", qtd:qA, valor:saldo * (30 / 70) / qA });
+      } else it.push({ label:"Mensais", qtd:qM, valor:saldo / qM });
+    }
+    return { itens:it, vgv:vgv };
+  }
+  function ppMemoria(r){
+    var soma = 0, partes = [];
+    var linhas = r.itens.map(function(i){
+      var sub = i.qtd * i.valor; soma += sub; partes.push(Math.round(sub).toLocaleString("pt-BR"));
+      return { label:i.label, sub:sub,
+        meio: i.qtd === 1 ? (i.venc ? vencTxt(i.venc) : "parcela \u00fanica") : i.qtd + " \u00d7 " + brl2(i.valor) };
+    });
+    return { linhas:linhas, soma:soma, somaTxt:partes.join(" + "), bate:Math.abs(soma - r.vgv) < 1 };
+  }
+  function ppNomeItem(i, comPct){
+    if (i.qtd > 1) return i.qtd + (i.label === "Mensais" ? " mensais" : " refor\u00e7os anuais");
+    return i.label + (comPct && i.pct != null ? " " + pct(i.pct) : "");
+  }
+  function ppValorItem(i){ return brl2(i.valor) + (i.qtd > 1 ? (i.label === "Mensais" ? "/m\u00eas" : "/ano") : ""); }
+  function ppReajuste(){
+    if (PP.pl.k === "pct") return PP.d.cub ? "Saldo corrigido pelo CUB/SC \u00b7 " + PP.d.cub : "";
+    return PP.pl.reaj ? "Reajuste: " + PP.pl.reaj : "";
+  }
+  function ppRodape(){
+    var d = PP.d, reaj = ppReajuste(), fim = " Validade 5 dias \u00fateis.";
+    if (PP.ter) return "Unidade de terceiros (revenda do propriet\u00e1rio), com condi\u00e7\u00e3o pr\u00f3pria. Sujeito \u00e0 disponibilidade." + (reaj ? " " + reaj + "." : "") + fim;
+    if (d.planoFonte === "pronto") return "Im\u00f3vel pronto, entrega imediata." + (reaj ? " " + reaj + "." : "") + fim;
+    if (d.planoFonte === "op") return "Oportunidade sujeita \u00e0 disponibilidade." + (reaj ? " " + reaj + "." : "") + fim;
+    var ri = riCapa(d);
+    return "Sujeito \u00e0 disponibilidade. Vendas ap\u00f3s incorpora\u00e7\u00e3o." + (ri ? " " + ri + "." : "") + (d.cub ? " " + d.cub + "." : "") + fim;
+  }
+  function ppCond(){
+    var r = ppCalcula(PP.pl, PP.x.v, null);
+    if (r.erro) return "";
+    var reaj = ppReajuste();
+    return '<div class="pp-cond"><h3>Condi\u00e7\u00e3o de pagamento'+(PP.ter ? ' \u00b7 unidade de terceiros' : '')+'</h3><ul>'+
+      r.itens.map(function(i){
+        var det = [i.pct != null ? pct(i.pct) : "", i.qtd === 1 && i.venc ? vencTxt(i.venc) : ""].filter(Boolean).join(" \u00b7 ");
+        return '<li><span>'+esc(ppNomeItem(i, false))+(det ? ' <em>'+esc(det)+'</em>' : '')+'</span><b class="num">'+ppValorItem(i)+'</b></li>';
+      }).join("")+'</ul>'+(reaj ? '<p class="pp-reaj">'+esc(reaj)+'</p>' : '')+'</div>';
+  }
+  function ppForm(){
+    var pl = PP.pl, x = PP.x, c = corretorSalvo(), padrao = ppCalcula(pl, x.v, null);
+    var v0 = function(lbl){ var f = (padrao.itens || []).filter(function(i){ return i.label === lbl; })[0]; return f ? Math.round(f.valor) : 0; };
+    var campo = function(id, rot, val, attrs, cheio){
+      return '<label class="pp-f'+(cheio ? ' full' : '')+'"><span>'+rot+'</span><input id="'+id+'" '+attrs+' value="'+esc(String(val))+'"></label>';
+    };
+    var NUM = 'type="number" inputmode="decimal" ', R = 'type="number" inputmode="numeric" min="0" step="1000" ';
+    var pers = pl.k === "pct"
+      ? campo("pp-pe", 'Entrada % <em>(padr\u00e3o '+pct(pl.pE)+')</em>', pl.pE, NUM+'min="0" max="100" step="0.5"')+
+        campo("pp-po", 'Obra % <em>(padr\u00e3o '+pct(pl.pO)+')</em>', pl.pO, NUM+'min="0" max="100" step="0.5"')+
+        campo("pp-pc", 'Chaves % <em>(padr\u00e3o '+pct(pl.pC)+')</em>', pl.pC, NUM+'min="0" max="100" step="0.5"')+
+        campo("pp-qm", 'Mensais n\u00ba <em>(padr\u00e3o '+pl.qM+'x)</em>', pl.qM, 'type="number" inputmode="numeric" min="1" max="240"')+
+        campo("pp-qa", 'Refor\u00e7os anuais n\u00ba <em>(padr\u00e3o '+pl.qA+'x)</em>', pl.qA, 'type="number" inputmode="numeric" min="0" max="20"')
+      : campo("pp-e", 'Entrada R$ <em>(padr\u00e3o '+brl2(v0("Entrada"))+')</em>', v0("Entrada"), R)+
+        (pl.semChave ? '' : campo("pp-c", 'Chaves R$ <em>(padr\u00e3o '+brl2(v0("Chaves"))+')</em>', v0("Chaves"), R))+
+        campo("pp-qm", 'Mensais n\u00ba <em>(padr\u00e3o '+pl.qM+'x)</em>', pl.qM, 'type="number" inputmode="numeric" min="1" max="240"')+
+        campo("pp-qa", 'Refor\u00e7os anuais n\u00ba <em>(padr\u00e3o '+(pl.qA ? pl.qA + 'x' : 'nenhum')+')</em>', pl.qA || 0, 'type="number" inputmode="numeric" min="0" max="20"');
+    pers += campo("pp-vgv", 'VGV negociado <em>(tabela '+brl2(x.v)+')</em>', Math.round(x.v), R, true)+
+            campo("pp-obs", "Observa\u00e7\u00e3o para o time comercial", "", 'type="text" placeholder="Ex.: cliente pede a entrada em 3x"', true);
+    return '<form class="pp-form" novalidate>'+
+      '<div class="pp-g">'+
+        campo("pp-nome", "Nome do cliente", "", 'type="text" autocomplete="name" placeholder="Nome completo"', true)+
+        campo("pp-cpf", "CPF", "", 'type="text" inputmode="numeric" maxlength="14" placeholder="000.000.000-00"', true)+
+        campo("pp-corretor", "Corretor respons\u00e1vel", c.nome || "", 'type="text" placeholder="Seu nome"')+
+        campo("pp-creci", "CRECI", c.creci || "", 'type="text" placeholder="00000-F"')+
+      '</div>'+
+      '<div class="pp-modo" role="group" aria-label="Tipo de proposta">'+
+        '<button type="button" data-pp-modo="padrao" aria-pressed="true">Padr\u00e3o</button>'+
+        '<button type="button" data-pp-modo="pers" aria-pressed="false">Personalizada \u2726</button>'+
+      '</div>'+
+      '<div class="pp-pers" hidden>'+
+        '<p class="pp-aviso"><b>Proposta personalizada:</b> edite os valores abaixo. Ela vai para aprova\u00e7\u00e3o do time comercial antes de ser confirmada ao cliente.</p>'+
+        '<div class="pp-g">'+pers+'</div>'+
+      '</div>'+
+      '<button type="submit" class="btn btn-main pp-gerar">'+DOC+'Gerar proposta</button>'+
+      '<p class="pp-erro" role="alert" hidden></p>'+
+    '</form>'+
+    '<div class="pp-saida" aria-live="polite"></div>';
+  }
+  function ppLeCampos(){
+    var pl = PP.pl;
+    var num = function(id, padrao){
+      var el = prop.querySelector("#" + id); if (!el) return padrao;
+      var s = String(el.value).trim(); if (s === "") return padrao;
+      var v = parseFloat(s.replace(",", ".")); return isFinite(v) ? v : padrao;
+    };
+    var padrao = ppCalcula(pl, PP.x.v, null), v0 = function(lbl){ var f = (padrao.itens || []).filter(function(i){ return i.label === lbl; })[0]; return f ? f.valor : 0; };
+    var c = { qM:Math.round(num("pp-qm", pl.qM)), qA:Math.max(0, Math.round(num("pp-qa", pl.qA || 0))), vgv:num("pp-vgv", PP.x.v) };
+    if (pl.k === "pct"){ c.pE = num("pp-pe", pl.pE); c.pO = num("pp-po", pl.pO); c.pC = num("pp-pc", pl.pC); }
+    else { c.entrada = num("pp-e", v0("Entrada")); c.chave = pl.semChave ? 0 : num("pp-c", v0("Chaves")); }
+    return c;
+  }
+  function ppDoc(r, dd){
+    var d = PP.d, u = ppUnidade(d, PP.x, PP.ter), m = ppMemoria(r);
+    var tipo = PP.ter ? "UNIDADE DE TERCEIROS" : ({ pronto:"IM\u00d3VEL PRONTO", op:"OPORTUNIDADE" })[d.planoFonte] || "";
+    return '<div class="pp-doc">'+
+      (dd.pers ? '<p class="pp-carimbo pers">\u26a0 SUJEITA \u00c0 APROVA\u00c7\u00c3O COMERCIAL</p>'
+               : '<p class="pp-carimbo ok">\u2713 PROPOSTA PADR\u00c3O'+(tipo ? ' \u00b7 ' + tipo : '')+'</p>')+
+      '<div class="pp-doc-cab"><div><p class="pp-doc-et">H Living \u00b7 Proposta</p><p class="pp-doc-emp">'+esc(d.nome)+'</p>'+
+        '<p class="pp-doc-data">'+hojeBR()+' \u00b7 '+esc(dd.corretor)+'</p></div>'+
+        '<div class="pp-doc-uni"><b>'+esc(u.rotulo)+'</b>'+(u.det ? '<span>'+esc(u.det)+'</span>' : '')+'</div></div>'+
+      '<div class="pp-doc-cli"><div><span>Cliente</span><b>'+esc(dd.nome)+'</b></div><div><span>CPF</span><b>'+esc(dd.cpf)+'</b></div></div>'+
+      '<p class="pp-doc-sec">Mem\u00f3ria de c\u00e1lculo</p>'+
+      '<table>'+m.linhas.map(function(l){ return '<tr><td>'+esc(l.label)+'</td><td class="m">'+esc(l.meio)+'</td><td class="v">'+brl2(l.sub)+'</td></tr>'; }).join("")+'</table>'+
+      '<div class="pp-doc-soma'+(m.bate ? '' : ' dif')+'"><span>'+esc(m.somaTxt)+'</span><b>= '+brl2(m.soma)+(m.bate ? ' \u2713' : ' \u2260 VGV')+'</b></div>'+
+      '<div class="pp-doc-vgv"><span>'+(dd.pers ? 'VGV negociado' : 'VGV total')+'</span><b>'+brl2(r.vgv)+'</b></div>'+
+      (dd.obs ? '<p class="pp-doc-obs"><b>Obs.:</b> '+esc(dd.obs)+'</p>' : '')+
+      '<p class="pp-doc-rod">'+esc(ppRodape())+'</p>'+
+    '</div>';
+  }
+  function ppMensagem(r, dd){
+    var d = PP.d, u = ppUnidade(d, PP.x, PP.ter), m = ppMemoria(r), L = [];
+    if (dd.pers) L.push("*\u26a0 PROPOSTA PERSONALIZADA \u2014 AGUARDANDO APROVA\u00c7\u00c3O*", "");
+    L.push("*" + d.nome + " \u00b7 " + u.rotulo + "*");
+    if (u.det) L.push(u.det);
+    L.push("", "*Cliente:* " + dd.nome, "*CPF:* " + dd.cpf, "*Corretor:* " + dd.corretor, "*Data:* " + hojeBR(), "");
+    if (dd.pers){
+      L.push("*Condi\u00e7\u00f5es solicitadas:*");
+      r.itens.forEach(function(i, k){ L.push("- " + i.label + (i.qtd > 1 ? " (" + i.qtd + " \u00d7 " + brl2(i.valor) + ")" : "") + ": " + brl2(m.linhas[k].sub)); });
+      L.push("- Soma: " + m.somaTxt + " = " + brl2(m.soma), "- *VGV negociado: " + brl2(r.vgv) + "*");
+      if (dd.obs) L.push("", "*Obs. do corretor:* " + dd.obs);
+      L.push("", "_Esta proposta precisa de aprova\u00e7\u00e3o antes de ser confirmada ao cliente._");
+    } else {
+      L.push("*Condi\u00e7\u00f5es:*");
+      r.itens.forEach(function(i){ L.push("\u2022 " + ppNomeItem(i, true) + (i.qtd === 1 && i.venc ? " (" + vencTxt(i.venc) + ")" : "") + ": " + ppValorItem(i)); });
+      L.push("\u2022 *VGV total: " + brl2(r.vgv) + "*");
+      var reaj = ppReajuste(); if (reaj) L.push(reaj);
+      L.push("", "_" + d.nome + " \u00b7 HLiving_");
+    }
+    return L.join("\n");
+  }
+  function ppLimpa(){
+    var s = prop.querySelector(".pp-saida"); if (s) s.innerHTML = "";
+    var er = prop.querySelector(".pp-erro"); if (er) er.hidden = true;
+    if (PP) PP.doc = null;
+  }
+  function ppGerar(){
+    if (!PP) return;
+    var val = function(id){ var el = prop.querySelector("#" + id); return el ? String(el.value).trim() : ""; };
+    var limpa = function(s){ return s.replace(/[\\"<>]/g, ""); };
+    var nomeC = limpa(val("pp-corretor")), creci = limpa(val("pp-creci"));
+    salvaCorretor(nomeC, creci);
+    var dd = { nome:val("pp-nome") || "[Nome do cliente]", cpf:val("pp-cpf") || "[CPF]",
+      corretor:nomeC ? (creci ? nomeC + " \u00b7 CRECI " + creci : nomeC) : "[Corretor]",
+      pers:PP.modo === "pers", obs:PP.modo === "pers" ? val("pp-obs") : "" };
+    var c = dd.pers ? ppLeCampos() : null;
+    var r = ppCalcula(PP.pl, c ? c.vgv : PP.x.v, c);
+    var er = prop.querySelector(".pp-erro"), saida = prop.querySelector(".pp-saida");
+    if (r.erro || !(r.vgv > 0)){ er.textContent = r.erro || "Informe o VGV negociado."; er.hidden = false; saida.innerHTML = ""; return; }
+    er.hidden = true;
+    PP.doc = ppDoc(r, dd);
+    saida.innerHTML = PP.doc +
+      '<div class="pp-acoes">'+
+        '<button type="button" class="btn" data-pp-imprimir>'+IMPRIME+'Imprimir / salvar PDF</button>'+
+        '<a class="btn btn-wa" href="'+esc("https://wa.me/?text=" + encodeURIComponent(ppMensagem(r, dd)))+'" target="_blank" rel="noopener">'+WA+(dd.pers ? 'Enviar para aprova\u00e7\u00e3o' : 'Enviar no WhatsApp')+'</a>'+
       '</div>';
+    try { saida.scrollIntoView({ behavior:"smooth", block:"start" }); } catch(e){ saida.scrollIntoView(); }
+  }
+  function ppImprimir(html){
+    var box = document.getElementById("impressao");
+    if (!box){ box = document.createElement("div"); box.id = "impressao"; document.body.appendChild(box); }
+    box.innerHTML = html;
+    document.body.classList.add("imprimindo");
+    var fim = function(){ document.body.classList.remove("imprimindo"); window.removeEventListener("afterprint", fim); };
+    window.addEventListener("afterprint", fim);
+    window.print();
+  }
+  function pintaPropUni(href, n){
+    var m = String(href || "").match(/#u=([^:]+):(.+)$/);
+    var sid = m ? decodeURIComponent(m[1]) : "", num = m ? decodeURIComponent(m[2]) : String(n);
+    var ter = !!TERCEIROS[sid], d = acha(DE_PARA[sid] || TERCEIROS[sid]);
+    var lista = d ? (ter ? (d.terceiros ? d.terceiros.units : []) : d.units) : [];
+    var x = lista.filter(function(y){ return String(y.n) === String(num); })[0];
+    var pl = d ? (ter ? (d.terceiros && d.terceiros.plano) : d.plano) : null;
+    PP = d && x && pl && x.v ? { d:d, x:x, pl:pl, ter:ter, modo:"padrao", doc:null } : null;
+    var topo = '<div class="prop-top prop-top-uni"><button class="fechar" data-pfechar aria-label="Fechar">'+XIS+'</button>'+
+               '<button class="prop-voltar" data-pvoltar>\u2039 Todas as unidades</button></div>';
+    if (!PP){
+      prop.innerHTML = '<div class="sheet sheet-prop" role="document" aria-label="Proposta">'+topo+
+        '<p class="prop-vazio">N\u00e3o deu para montar a proposta desta unidade'+(x && !x.v ? ': ela est\u00e1 sem valor na tabela' : ' agora')+'.'+
+        (href ? ' <a href="'+esc(href)+'" target="_blank" rel="noopener">Abrir no Portal</a>' : '')+'</p></div>';
+    } else {
+      var u = ppUnidade(d, x, ter);
+      prop.innerHTML =
+        '<div class="sheet sheet-prop sheet-prop-uni" role="document" aria-labelledby="prop-titulo">'+topo+
+          '<div class="pp">'+
+            '<div class="pp-cab"><p class="prop-et">Proposta'+(ter ? ' \u00b7 unidade de terceiros' : '')+'</p>'+
+              '<h2 id="prop-titulo">'+esc(d.nome)+' \u00b7 '+esc(u.rotulo)+'</h2>'+
+              (u.det ? '<p class="pp-det">'+esc(u.det)+'</p>' : '')+
+              '<p class="pp-vgv"><span>VGV de tabela</span><b class="num">'+brl2(x.v)+'</b></p></div>'+
+            (FONTE.vivo ? '' : '<p class="pp-aviso">O servidor n\u00e3o respondeu: valores e condi\u00e7\u00f5es s\u00e3o da c\u00f3pia de '+esc(FONTE.quando)+'. Confirme com o comercial antes de enviar.</p>')+
+            ppCond() + ppForm()+
+          '</div>'+
+        '</div>';
+    }
     var b = prop.querySelector(".prop-voltar"); if (b) b.focus();
   }
+  prop.addEventListener("submit", function(e){
+    if (e.target.closest && e.target.closest(".pp-form")){ e.preventDefault(); ppGerar(); }
+  });
+  prop.addEventListener("click", function(e){
+    var mb = e.target.closest("[data-pp-modo]");
+    if (mb && PP){
+      PP.modo = mb.getAttribute("data-pp-modo");
+      [].forEach.call(prop.querySelectorAll("[data-pp-modo]"), function(b){ b.setAttribute("aria-pressed", b === mb ? "true" : "false"); });
+      var ps = prop.querySelector(".pp-pers"); if (ps) ps.hidden = PP.modo !== "pers";
+      ppLimpa();
+      return;
+    }
+    if (e.target.closest("[data-pp-imprimir]") && PP && PP.doc) ppImprimir(PP.doc);
+  });
+  prop.addEventListener("input", function(e){
+    if (e.target.id === "pp-cpf") e.target.value = mascaraCPF(e.target.value);
+    if (e.target.closest(".pp-form")) ppLimpa();   // mudou algo: a proposta precisa ser gerada de novo
+  });
 
   function abrirProp(id){
     var d = DEVS.filter(function(x){ return x.id===id; })[0];
