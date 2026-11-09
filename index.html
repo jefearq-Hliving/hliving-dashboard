@@ -485,6 +485,63 @@ a.ucard:hover{background:var(--accent-soft)}
 .lprev{left:18px} .lnext{right:18px}
 .lclose{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;
   background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
+.lbaixar{position:absolute;top:18px;right:66px;height:38px;border-radius:999px;padding:0 15px;display:inline-flex;align-items:center;gap:7px;
+  background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:12.5px;font-weight:600}
+.lbaixar:hover{background:rgba(255,255,255,.22)}
+.lbaixar[disabled]{opacity:.6;cursor:progress}
+
+/* ---------- baixar fotos e vídeos (seleção) ---------- */
+.mtabs-l{display:contents}
+.mtab-dl{margin-left:auto;display:inline-flex;align-items:center;gap:7px;background:var(--dark);border:1px solid var(--dark);border-radius:999px;
+  padding:7px 14px;font-size:12.5px;font-weight:600;color:#fff}
+.mtab-dl:hover{background:var(--dark-2);border-color:var(--dark-2)}
+.mtab-dl[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.ck{display:none}
+#modal.sel-on .ck{display:flex}
+.gitem .ck,.ck-pasta{position:absolute;top:8px;left:8px;z-index:2;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;
+  background:rgba(15,20,26,.38);border:2px solid #fff;color:transparent;box-shadow:0 1px 5px rgba(0,0,0,.35);padding:0}
+.gitem.on .ck,.ck-pasta.on,.ck-pasta.meio{background:var(--accent);border-color:var(--accent);color:#fff}
+.ck-pasta .ck-meio{display:none;width:10px;height:2px;border-radius:2px;background:#fff}
+.ck-pasta.meio svg{display:none} .ck-pasta.meio .ck-meio{display:block}
+#modal.sel-on .gitem{cursor:pointer}
+#modal.sel-on .gitem.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+#modal.sel-on .gitem.on img{opacity:.8}
+.vitem .ck{flex:none;width:20px;height:20px;border-radius:6px;align-items:center;justify-content:center;border:1.5px solid var(--line-2);background:var(--card);color:transparent}
+.vitem .ck svg{color:inherit}
+#modal.sel-on .vitem.on{border-color:var(--accent);background:var(--accent-soft)}
+#modal.sel-on .vitem.on .ck{background:var(--accent);border-color:var(--accent);color:#fff}
+.pasta-w{position:relative}
+.pasta-w .pasta{width:100%;height:100%}
+#modal.sel-on .pasta-w:has(.ck-pasta.on) .pasta,#modal.sel-on .pasta-w:has(.ck-pasta.meio) .pasta{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+#modal.sel-on .sheet{margin-bottom:96px}
+.dlbar{position:fixed;z-index:65;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));
+  width:min(760px, calc(100% - 24px));background:var(--dark);color:#fff;border-radius:16px;box-shadow:0 18px 44px -14px rgba(0,0,0,.6);
+  border:1px solid rgba(255,255,255,.1)}
+.dlbar[hidden]{display:none!important}
+.dlbar-in{display:flex;align-items:center;gap:12px;padding:11px 12px 11px 18px;flex-wrap:wrap}
+.dlbar-txt{flex:1 1 180px;min-width:0;display:flex;flex-direction:column;gap:2px}
+.dlbar-txt b{font-size:13.5px;font-weight:700}
+.dlbar-txt span{font-size:11.5px;color:rgba(255,255,255,.7)}
+.dlbar-bts{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.dlbar-b{display:inline-flex;align-items:center;gap:7px;border-radius:10px;padding:9px 13px;font-size:12.5px;font-weight:600;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:#fff;white-space:nowrap}
+.dlbar-b:hover{background:rgba(255,255,255,.16)}
+.dlbar-main{background:var(--accent);border-color:var(--accent);color:#1d2430}
+.dlbar-main:hover{background:#c2a881;border-color:#c2a881}
+.dlbar-b[disabled]{opacity:.45;cursor:not-allowed}
+.dlbar-prog{display:block;height:5px;border-radius:5px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:6px}
+.dlbar-prog i{display:block;height:100%;background:var(--accent);border-radius:5px;transition:width .2s}
+.dlbar-lista{flex:1 1 100%;display:flex;flex-direction:column;gap:6px;max-height:34vh;overflow:auto}
+.dlbar-lista a{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:10px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.14);color:#fff;text-decoration:none;font-size:12.5px;font-weight:600}
+.dlbar-lista a:hover{background:rgba(255,255,255,.14)}
+.dlbar-lista a svg{flex:none;color:var(--accent)}
+@media (max-width:560px){
+  .dlbar-in{padding:11px 12px}
+  .dlbar-bts{flex:1 1 100%}
+  .dlbar-bts .dlbar-b{flex:1 1 auto;justify-content:center}
+  .lbaixar span{display:none} .lbaixar{padding:0 11px}
+}
 
 @media (max-width:920px){ .grid{grid-template-columns:1fr} }
 @media (max-width:620px){
@@ -674,6 +731,7 @@ a.ucard:hover{background:var(--accent-soft)}
 
   <div class="bn" id="bn" hidden role="dialog" aria-modal="true" aria-label="Black November: oportunidades especiais H Living"></div>
   <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div>
+  <div class="dlbar" id="dlbar" hidden role="region" aria-label="Baixar fotos e vídeos" aria-live="polite"></div>
   <div class="lbox" id="lbox" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada"></div>
   <div class="modal" id="prop" hidden role="dialog" aria-modal="true" aria-labelledby="prop-titulo"></div>
   <div class="ed" id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="ed-titulo"></div>
@@ -1859,6 +1917,8 @@ a.ucard:hover{background:var(--accent-soft)}
   /* ---------------- tela de detalhe ---------------- */
   var modal = document.getElementById("modal"), lbox = document.getElementById("lbox");
   var mDev = null, mAba = "fotos", mUnidade = null, lFotos = [], lIdx = 0, voltarFoco = null;
+  /* seleção para baixar (ver "baixar fotos e vídeos" mais abaixo) */
+  var dlbar = document.getElementById("dlbar"), SEL = {}, selModo = false, DL = null;
 
   function abas(d){
     var m = d.midia;
@@ -1896,14 +1956,14 @@ a.ucard:hover{background:var(--accent-soft)}
     var ok = comImg(itens), fora = semImg(itens);
     var html = ok.length ? '<div class="galeria">'+ ok.map(function(s, i){
       var p = parts(s);
-      return '<button class="gitem" data-foto="'+i+'">'+
+      return '<button class="gitem'+(SEL[p.id]?' on':'')+'" data-foto="'+i+'" data-sid="'+esc(p.id)+'">'+ CKI +
         '<img loading="lazy" src="'+img(p.id, 700)+'" alt="'+esc(p.t)+'">'+
         '<span>'+esc(p.t)+'</span></button>';
     }).join("") +'</div>' : '';
     if (fora.length) html += '<div class="alta'+(ok.length?'':' alta-so')+'"><p class="grupo-t">'+GALERIA+'Em alta resolução no Drive <span>· '+fora.length+(fora.length===1?' arquivo':' arquivos')+', abrem em nova aba</span></p>'+
       '<div class="vlist">'+ fora.map(function(s){
         var p = parts(s);
-        return '<a class="vitem" href="'+dv(p.id)+'" target="_blank" rel="noopener">'+GALERIA+'<span>'+esc(p.t)+'</span></a>';
+        return '<a class="vitem'+(SEL[p.id]?' on':'')+'" href="'+dv(p.id)+'" target="_blank" rel="noopener" data-sid="'+esc(p.id)+'">'+CKI+GALERIA+'<span>'+esc(p.t)+'</span></a>';
       }).join("") +'</div></div>';
     return html;
   }
@@ -1923,11 +1983,13 @@ a.ucard:hover{background:var(--accent-soft)}
                     '<p class="grupo-t">Unidade '+esc(g.u)+' · '+g.fotos.length+' fotos</p>'+ galeria(g.fotos);
       return '<div class="pastas">'+ m.unidades.map(function(x){
         var cf = comImg(x.fotos)[0], cp = cf ? parts(cf) : null;
-        return '<button class="pasta" data-pasta="'+esc(x.u)+'">'+
+        return '<div class="pasta-w"><button class="pasta" data-pasta="'+esc(x.u)+'">'+
           (cp ? '<img loading="lazy" src="'+img(cp.id, 600)+'" alt="Unidade '+esc(x.u)+'">'
               : '<span class="pasta-vazia">'+PASTA+'</span>')+
           '<span class="pasta-i">'+PASTA+'<b>Unidade '+esc(x.u)+'</b>'+
-          '<em class="num">'+x.fotos.length+' fotos</em></span></button>';
+          '<em class="num">'+x.fotos.length+' fotos</em></span></button>'+
+          '<button class="ck ck-pasta" data-sel-pasta="'+esc(x.u)+'" aria-pressed="false" aria-label="Selecionar todas as fotos da unidade '+esc(x.u)+'">'+
+          CK+'<i class="ck-meio"></i></button></div>';
       }).join("") +'</div>';
     }
 
@@ -1936,7 +1998,7 @@ a.ucard:hover{background:var(--accent-soft)}
       var ic = mAba === "videos" ? PLAY : DOC;
       return '<div class="vlist">'+ itens.map(function(s){
         var p = parts(s);
-        return '<a class="vitem" href="'+lnk(p.id)+'" target="_blank" rel="noopener">'+ic+'<span>'+esc(p.t)+'</span></a>';
+        return '<a class="vitem'+(SEL[p.id]?' on':'')+'" href="'+lnk(p.id)+'" target="_blank" rel="noopener" data-sid="'+esc(p.id)+'">'+CKI+ic+'<span>'+esc(p.t)+'</span></a>';
       }).join("") +'</div>';
     }
     return galeria(itens);
@@ -1956,9 +2018,11 @@ a.ucard:hover{background:var(--accent-soft)}
           '<div class="t"><h2 id="modal-titulo">'+esc(d.nome)+'</h2>'+
           '<p>'+PIN+'<span>'+esc(d.local)+'</span></p></div>'+
         '</div>'+
-        '<div class="mtabs" role="tablist">'+ abas(d).map(function(a){
-          return '<button class="mtab" role="tab" data-aba="'+a.k+'" aria-selected="'+(a.k===mAba)+'">'+a.l+'<em class="num">'+a.n+'</em></button>';
-        }).join("") +'</div>'+
+        '<div class="mtabs"><div class="mtabs-l" role="tablist">'+ abas(d).map(function(a){
+          return '<button class="mtab" role="tab" data-aba="'+a.k+'" aria-selected="'+(a.k===mAba)+'">'+a.l+'<em class="num"'+(ABAS_DL[a.k]?' data-cnt="'+a.k+'"':'')+'>'+a.n+'</em></button>';
+        }).join("") + '</div>' +
+        (temDl(d) ? '<button class="mtab-dl" data-dl-modo aria-pressed="'+selModo+'" title="Selecionar fotos e vídeos para baixar">'+BAIXAR+'Baixar</button>' : '')+
+        '</div>'+
         '<div class="mbody">'+ conteudoAba(d) +
           '<p class="fonte">Entrega '+esc(d.entrega)+' · '+s.D+' de '+s.total+' '+(s.total===1?"unidade disponível":"unidades disponíveis")+
           ' · a partir de '+val+'. '+(MODO === "local"
@@ -1978,11 +2042,14 @@ a.ucard:hover{background:var(--accent-soft)}
     } else {
       lFotos = (mAba === "videos" || mAba === "docs") ? [] : comImg(m[mAba] || []);
     }
+    pintaSel();
   }
 
   function abrir(id){
     var d = DEVS.filter(function(x){ return x.id===id; })[0];
     if (!d || !d.midia) return;
+    if (mDev !== d){ SEL = {}; selModo = false; modal.classList.remove("sel-on"); }
+    if (DL && DL.fase === "fim") DL = null;
     mDev = d;
     mUnidade = null;
     var as = abas(d);
@@ -1994,6 +2061,9 @@ a.ucard:hover{background:var(--accent-soft)}
   }
   function fechar(){
     modal.hidden = true; lbox.hidden = true;
+    SEL = {}; selModo = false; modal.classList.remove("sel-on");
+    if (DL && DL.fase === "fim") DL = null;
+    pintaBarra();      // esconde a barra; um download em andamento continua e salva ao terminar
     document.body.style.overflow = "";
     if (voltarFoco && voltarFoco.focus) voltarFoco.focus();
     voltarFoco = null;
@@ -2002,6 +2072,7 @@ a.ucard:hover{background:var(--accent-soft)}
   function pintaLbox(){
     var p = parts(lFotos[lIdx]);
     lbox.innerHTML =
+      '<button class="lbaixar" data-lbaixar aria-label="Baixar esta foto em alta">'+BAIXAR+'<span>Baixar</span></button>'+
       '<button class="lclose" data-lfechar aria-label="Fechar">'+XIS+'</button>'+
       (lFotos.length > 1 ? '<button class="lnav lprev" data-lpasso="-1" aria-label="Anterior">&#8249;</button>' : '')+
       '<img src="'+img(p.id, 1600)+'" alt="'+esc(p.t)+'">'+
@@ -2014,9 +2085,23 @@ a.ucard:hover{background:var(--accent-soft)}
     if (ab){ voltarFoco = ab; abrir(ab.dataset.abrir); return; }
 
     if (e.target.closest("[data-lfechar]")){ lbox.hidden = true; return; }
+    var lb = e.target.closest("[data-lbaixar]");
+    if (lb){ if (lFotos[lIdx]) baixarUma(parts(lFotos[lIdx]), lb); return; }
     var passo = e.target.closest("[data-lpasso]");
     if (passo){ lIdx = (lIdx + (+passo.dataset.lpasso) + lFotos.length) % lFotos.length; pintaLbox(); return; }
     if (e.target === lbox){ lbox.hidden = true; return; }
+
+    /* baixar: seleção e barra */
+    if (e.target.closest("[data-dl-modo]")){ entraSel(!selModo); return; }
+    if (e.target.closest("[data-dl-cancelar]")){ entraSel(false); return; }
+    if (e.target.closest("[data-sel-todos]")){ selTodos(); return; }
+    if (e.target.closest("[data-dl-baixar]")){ baixarSel(); return; }
+    if (e.target.closest("[data-dl-parar]")){ pararDl(); return; }
+    if (e.target.closest("[data-dl-fechar]")){ DL = null; pintaBarra(); return; }
+    var sp = e.target.closest("[data-sel-pasta]");
+    if (sp){ togglePasta(sp.dataset.selPasta); return; }
+    var si = selModo && e.target.closest("[data-sid]");
+    if (si && modal.contains(si)){ e.preventDefault(); toggleSel(si.dataset.sid); return; }
 
     var aba = e.target.closest("[data-aba]");
     if (aba){ mAba = aba.dataset.aba; mUnidade = null; pintaModal(); return; }
@@ -2031,7 +2116,12 @@ a.ucard:hover{background:var(--accent-soft)}
   });
 
   document.addEventListener("keydown", function(e){
-    if (e.key === "Escape"){ if (!lbox.hidden) lbox.hidden = true; else if (!modal.hidden) fechar(); return; }
+    if (e.key === "Escape"){
+      if (!lbox.hidden) lbox.hidden = true;
+      else if (!modal.hidden && selModo) entraSel(false);
+      else if (!modal.hidden) fechar();
+      return;
+    }
     if (!lbox.hidden && lFotos.length > 1){
       if (e.key === "ArrowRight"){ lIdx = (lIdx+1) % lFotos.length; pintaLbox(); }
       if (e.key === "ArrowLeft"){ lIdx = (lIdx-1+lFotos.length) % lFotos.length; pintaLbox(); }
@@ -2039,6 +2129,349 @@ a.ucard:hover{background:var(--accent-soft)}
     var ab = e.target.closest && e.target.closest("[data-abrir]");
     if (ab && (e.key === "Enter" || e.key === " ")){ e.preventDefault(); voltarFoco = ab; abrir(ab.dataset.abrir); }
   });
+
+  /* ---------------- baixar fotos e vídeos ----------------
+     Na tela do empreendimento, o botão "Baixar" liga a seleção: o corretor marca as fotos, plantas,
+     vídeos e catálogos que quer (ou "Selecionar todos" da aba aberta; a seleção vale entre as abas)
+     e baixa tudo de uma vez. A foto aberta em tela cheia também tem o seu botão "Baixar".
+     • Fotos e plantas saem no tamanho original do Drive (pelo lh3.googleusercontent.com, que libera o
+       download no navegador) e vão juntas num único .zip, separadas em pastas quando vêm de abas
+       diferentes. Uma só sai solta. Sem acesso ao Drive, usam as cópias publicadas em f/g.
+     • Vídeos e catálogos do Drive o navegador não consegue empacotar: baixam direto do Drive, um por
+       um, e ficam listados na barra com link, caso algum não comece sozinho. */
+  var CK = '<svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3.4 8.4 6.6 11.5 12.6 4.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var CKI = '<i class="ck" aria-hidden="true">' + CK + '</i>';
+  var BAIXAR = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M8 2.2v8M4.8 7.2 8 10.4l3.2-3.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.6 11v1.6a1.4 1.4 0 0 0 1.4 1.4h8a1.4 1.4 0 0 0 1.4-1.4V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  var ABAS_DL = { fotos:1, unidades:1, plantas:1, videos:1, docs:1 };
+
+  function idsLista(l){ return l.map(function(s){ return parts(s).id; }); }
+  function idsUnidade(u){
+    var g = mDev && mDev.midia.unidades.filter(function(x){ return x.u === u; })[0];
+    return g ? idsLista(g.fotos) : [];
+  }
+  function idsAba(k){
+    var m = mDev && mDev.midia; if (!m) return [];
+    if (k === "unidades") return m.unidades.reduce(function(a, g){ return a.concat(idsLista(g.fotos)); }, []);
+    return idsLista(m[k] || []);
+  }
+  /* o que "Selecionar todos" pega: a aba aberta (ou só a unidade aberta) */
+  function idsVista(){
+    if (!mDev || !ABAS_DL[mAba]) return [];
+    if (mAba === "unidades" && mUnidade) return idsUnidade(mUnidade);
+    return idsAba(mAba);
+  }
+  function temDl(d){
+    var m = d.midia;
+    return !!m && (m.fotos.length + contaUni(m) + m.plantas.length + m.videos.length + m.docs.length) > 0;
+  }
+  /* tudo o que está marcado, na ordem das abas, sem repetir arquivo */
+  function selecionados(d){
+    var m = d.midia, vistos = {}, out = [];
+    var grupos = [{ nome: m.unidades.length ? "Lazer" : "Fotos", itens: m.fotos, tipo: "foto" }]
+      .concat(m.unidades.map(function(g){ return { nome: "Unidade " + g.u, itens: g.fotos, tipo: "foto" }; }))
+      .concat([{ nome: "Plantas", itens: m.plantas, tipo: "foto" },
+               { nome: "Vídeos", itens: m.videos, tipo: "video" },
+               { nome: "Catálogo", itens: m.docs, tipo: "doc" }]);
+    grupos.forEach(function(g){
+      g.itens.forEach(function(s){
+        var p = parts(s);
+        if (!SEL[p.id] || vistos[p.id]) return;
+        vistos[p.id] = 1;
+        out.push({ id: p.id, t: p.t, pasta: g.nome, tipo: g.tipo });
+      });
+    });
+    return out;
+  }
+  function plural(n, um, varios){ return n + " " + (n === 1 ? um : varios); }
+  function resumoSel(l){
+    var c = { foto: 0, video: 0, doc: 0 };
+    l.forEach(function(x){ c[x.tipo]++; });
+    var r = [];
+    if (c.foto) r.push(plural(c.foto, "foto", "fotos"));
+    if (c.video) r.push(plural(c.video, "vídeo", "vídeos"));
+    if (c.doc) r.push(plural(c.doc, "catálogo", "catálogos"));
+    return r.join(" · ");
+  }
+
+  function entraSel(on){
+    if (!mDev) return;
+    selModo = !!on;
+    if (!selModo) SEL = {};
+    else if (DL && DL.fase === "fim") DL = null;
+    modal.classList.toggle("sel-on", selModo);
+    if (selModo && !ABAS_DL[mAba]){   // ex.: estava em "Unidades de terceiros": vai para a primeira aba com mídia
+      var a = abas(mDev).filter(function(x){ return ABAS_DL[x.k]; })[0];
+      if (a){ mAba = a.k; mUnidade = null; pintaModal(); return; }
+    }
+    pintaSel();
+  }
+  function toggleSel(id){
+    if (SEL[id]) delete SEL[id]; else SEL[id] = 1;
+    pintaSel();
+  }
+  function marca(ids){
+    var todos = ids.length && ids.every(function(i){ return SEL[i]; });
+    ids.forEach(function(i){ if (todos) delete SEL[i]; else SEL[i] = 1; });
+  }
+  function togglePasta(u){
+    if (!selModo){ selModo = true; modal.classList.add("sel-on"); }
+    marca(idsUnidade(u)); pintaSel();
+  }
+  function selTodos(){ marca(idsVista()); pintaSel(); }
+
+  /* atualiza marcas, contadores das abas e a barra, sem redesenhar a galeria */
+  function pintaSel(){
+    if (!mDev){ pintaBarra(); return; }
+    Array.prototype.forEach.call(modal.querySelectorAll("[data-sid]"), function(el){
+      var on = !!SEL[el.dataset.sid];
+      el.classList.toggle("on", on);
+      if (el.tagName === "BUTTON"){ if (selModo) el.setAttribute("aria-pressed", on); else el.removeAttribute("aria-pressed"); }
+    });
+    Array.prototype.forEach.call(modal.querySelectorAll("[data-sel-pasta]"), function(el){
+      var ids = idsUnidade(el.dataset.selPasta), n = ids.filter(function(i){ return SEL[i]; }).length;
+      el.classList.toggle("on", n > 0 && n === ids.length);
+      el.classList.toggle("meio", n > 0 && n < ids.length);
+      el.setAttribute("aria-pressed", n === 0 ? "false" : (n === ids.length ? "true" : "mixed"));
+    });
+    Array.prototype.forEach.call(modal.querySelectorAll("[data-cnt]"), function(el){
+      var ids = idsAba(el.dataset.cnt), n = ids.filter(function(i){ return SEL[i]; }).length;
+      el.textContent = selModo && n ? n + "/" + ids.length : ids.length;
+    });
+    var b = modal.querySelector("[data-dl-modo]");
+    if (b) b.setAttribute("aria-pressed", selModo);
+    pintaBarra();
+  }
+
+  function pintaBarra(){
+    var vis = !modal.hidden && (selModo || !!DL);
+    dlbar.hidden = !vis;
+    if (!vis) return;
+    var foco = document.activeElement && dlbar.contains(document.activeElement) ? document.activeElement.getAttribute("data-k") : null;
+    var h;
+    if (DL && DL.fase === "baixando"){
+      var pct = DL.total ? Math.round(DL.feitos / DL.total * 100) : 100;
+      h = '<div class="dlbar-in"><div class="dlbar-txt"><b>Preparando '+DL.feitos+' de '+plural(DL.total, "arquivo", "arquivos")+'…</b>'+
+          '<span>Fotos no tamanho original. Não feche esta página.</span><span class="dlbar-prog"><i style="width:'+pct+'%"></i></span></div>'+
+          '<div class="dlbar-bts"><button class="dlbar-b" data-dl-parar data-k="parar">Cancelar</button></div></div>';
+    } else if (DL && DL.fase === "fim"){
+      h = '<div class="dlbar-in"><div class="dlbar-txt"><b>'+esc(DL.titulo)+'</b>'+(DL.sub ? '<span>'+esc(DL.sub)+'</span>' : '')+'</div>'+
+          '<div class="dlbar-bts"><button class="dlbar-b" data-dl-fechar data-k="ok">OK</button></div>'+
+          (DL.diretos.length ? '<div class="dlbar-lista">'+ DL.diretos.map(function(x){
+            return '<a href="'+urlDireto(x.id)+'" target="_blank" rel="noopener">'+BAIXAR+'<span>'+esc(x.t)+'</span></a>';
+          }).join("") +'</div>' : '')+
+          '</div>';
+    } else {
+      var lista = selecionados(mDev), n = lista.length;
+      var vista = idsVista(), todos = vista.length > 0 && vista.every(function(i){ return SEL[i]; });
+      h = '<div class="dlbar-in"><div class="dlbar-txt">'+
+          (n ? '<b>'+plural(n, "selecionado", "selecionados")+'</b><span>'+resumoSel(lista)+'</span>'
+             : '<b>Selecione o que quer baixar</b><span>Toque nas fotos e vídeos, ou em Selecionar todos</span>')+'</div>'+
+          '<div class="dlbar-bts">'+
+          (vista.length ? '<button class="dlbar-b" data-sel-todos data-k="todos">'+(todos ? 'Desmarcar todos' : 'Selecionar todos')+'</button>' : '')+
+          '<button class="dlbar-b" data-dl-cancelar data-k="cancelar">Cancelar</button>'+
+          '<button class="dlbar-b dlbar-main" data-dl-baixar data-k="baixar"'+(n ? '' : ' disabled')+'>'+BAIXAR+'Baixar'+(n ? ' ('+n+')' : '')+'</button>'+
+          '</div></div>';
+    }
+    dlbar.innerHTML = h;
+    if (foco){ var f = dlbar.querySelector('[data-k="'+foco+'"]'); if (f) f.focus(); }
+  }
+
+  /* de onde baixar: originais do Drive (lh3 libera para o navegador) e, sem Drive, as cópias publicadas */
+  function fontesDl(x){
+    var id = x.id;
+    if (id.indexOf("/") >= 0) return [id];                    // arquivo publicado junto (ex.: f/villa-de-capri.pdf)
+    if (x.tipo !== "foto") return [];                         // vídeo/catálogo do Drive: só direto pelo Drive
+    if (/^v-/.test(id)) return ["f/g/" + id + ".jpg"];
+    var l = [];
+    if (okDrive(id)) l.push("https://lh3.googleusercontent.com/d/" + id + "=s0");
+    if (LOCAL[id]) l.push("f/g/" + id + ".jpg");
+    return l;
+  }
+  function urlDireto(id){
+    return id.indexOf("/") >= 0 ? id : "https://drive.usercontent.google.com/download?id=" + encodeURIComponent(id) + "&export=download&confirm=t";
+  }
+  function busca(urls, sinal){
+    var i = 0;
+    function tenta(){
+      if (i >= urls.length) return Promise.reject(new Error("sem fonte"));
+      var u = urls[i++];
+      return fetch(u, sinal ? { signal: sinal } : undefined).then(function(r){
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        if (/text\/html/i.test(r.headers.get("content-type") || "")) throw new Error("html");
+        return r.blob();
+      }).then(function(b){ return { blob: b, url: u }; }, function(err){
+        if (sinal && sinal.aborted) throw err;
+        return tenta();
+      });
+    }
+    return tenta();
+  }
+  var EXT = { "image/jpeg":"jpg", "image/jpg":"jpg", "image/png":"png", "image/webp":"webp", "image/gif":"gif", "image/heic":"heic",
+              "image/tiff":"tif", "application/pdf":"pdf", "video/mp4":"mp4", "video/quicktime":"mov" };
+  function extDe(blob, url){
+    var t = (blob.type || "").split(";")[0].trim().toLowerCase();
+    if (EXT[t]) return EXT[t];
+    var m = /\.([a-z0-9]{2,4})$/i.exec(url.split(/[?#]/)[0]);
+    return m ? m[1].toLowerCase() : "jpg";
+  }
+  function nomeArq(s){
+    var n = String(s).replace(/[\\\/:*?"<>|\u0000-\u001f]+/g, "-").replace(/\s+/g, " ").replace(/^[\s.\-]+|[\s.]+$/g, "").slice(0, 90);
+    return n || "arquivo";
+  }
+  function salva(blob, nome){
+    var u = URL.createObjectURL(blob), a = document.createElement("a");
+    a.href = u; a.download = nome; a.style.display = "none";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(u); }, 120000);
+  }
+  /* vídeos e catálogos: o Drive manda o arquivo direto; um iframe escondido por arquivo, com intervalo */
+  function disparaDiretos(l){
+    l.forEach(function(x, i){
+      setTimeout(function(){
+        var f = document.createElement("iframe");
+        f.style.display = "none"; f.setAttribute("aria-hidden", "true"); f.tabIndex = -1;
+        f.src = urlDireto(x.id);
+        document.body.appendChild(f);
+        setTimeout(function(){ if (f.parentNode) f.parentNode.removeChild(f); }, 180000);
+      }, i * 1500);
+    });
+  }
+
+  /* .zip sem compressão (fotos já vêm comprimidas): cabeçalhos ZIP + CRC-32, nomes em UTF-8 */
+  var CRC_T = null;
+  function crc32(u8){
+    if (!CRC_T){
+      CRC_T = new Uint32Array(256);
+      for (var n = 0; n < 256; n++){ var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC_T[n] = c >>> 0; }
+    }
+    var x = 0xFFFFFFFF;
+    for (var i = 0; i < u8.length; i++) x = CRC_T[(x ^ u8[i]) & 0xFF] ^ (x >>> 8);
+    return (x ^ 0xFFFFFFFF) >>> 0;
+  }
+  function montaZip(arqs){   // arqs: [{ nome, dados: Uint8Array }]
+    var enc = new TextEncoder(), partes = [], central = [], off = 0, cdTam = 0;
+    var d = new Date();
+    var hora = ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1)) & 0xFFFF;
+    var dia = (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF;
+    arqs.forEach(function(a){
+      var nm = enc.encode(a.nome), crc = crc32(a.dados), tam = a.dados.length;
+      var h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true);
+      h.setUint16(10, hora, true); h.setUint16(12, dia, true); h.setUint32(14, crc, true);
+      h.setUint32(18, tam, true); h.setUint32(22, tam, true); h.setUint16(26, nm.length, true); h.setUint16(28, 0, true);
+      partes.push(h.buffer, nm, a.dados);
+      var c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true); c.setUint16(8, 0x0800, true);
+      c.setUint16(10, 0, true); c.setUint16(12, hora, true); c.setUint16(14, dia, true); c.setUint32(16, crc, true);
+      c.setUint32(20, tam, true); c.setUint32(24, tam, true); c.setUint16(28, nm.length, true);
+      c.setUint32(42, off, true);
+      central.push(c.buffer, nm);
+      cdTam += 46 + nm.length;
+      off += 30 + nm.length + tam;
+    });
+    var e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, arqs.length, true); e.setUint16(10, arqs.length, true);
+    e.setUint32(12, cdTam, true); e.setUint32(16, off, true);
+    return new Blob(partes.concat(central, [e.buffer]), { type: "application/zip" });
+  }
+  function bytes(blob){
+    return (blob.arrayBuffer ? blob.arrayBuffer() : new Response(blob).arrayBuffer()).then(function(b){ return new Uint8Array(b); });
+  }
+
+  function pararDl(){
+    if (!DL || DL.fase !== "baixando") return;
+    DL.cancelado = true;
+    if (DL.ctrl) DL.ctrl.abort();
+    DL = null;
+    pintaBarra();
+  }
+
+  function baixarSel(){
+    var d = mDev;
+    if (!d || (DL && DL.fase === "baixando")) return;
+    var lista = selecionados(d);
+    if (!lista.length) return;
+    var aBuscar = [], diretos = [];
+    lista.forEach(function(x){ (fontesDl(x).length ? aBuscar : diretos).push(x); });
+    var est = DL = { fase: "baixando", total: aBuscar.length, feitos: 0, diretos: diretos, perdidos: 0,
+                     ctrl: window.AbortController ? new AbortController() : null };
+    pintaBarra();
+
+    var res = new Array(aBuscar.length), prox = 0;
+    function trabalha(){
+      if (est.cancelado || prox >= aBuscar.length) return Promise.resolve();
+      var i = prox++;
+      return busca(fontesDl(aBuscar[i]), est.ctrl && est.ctrl.signal)
+        .then(function(r){ res[i] = r; }, function(){ res[i] = null; })
+        .then(function(){ if (est.cancelado) return; est.feitos++; if (DL === est) pintaBarra(); return trabalha(); });
+    }
+    var fila = [];
+    for (var k = 0; k < Math.min(4, aBuscar.length); k++) fila.push(trabalha());
+
+    Promise.all(fila).then(function(){
+      if (est.cancelado) return;
+      var ok = [];
+      aBuscar.forEach(function(x, i){
+        if (res[i]) ok.push({ x: x, r: res[i] });
+        else if (okDrive(x.id)) est.diretos.push(x);   // não veio pelo navegador: tenta direto do Drive
+        else est.perdidos++;
+      });
+      var pastas = {};
+      ok.forEach(function(o){ pastas[o.x.pasta] = 1; });
+      var variasPastas = Object.keys(pastas).length > 1, usados = {};
+      function nomeDe(o){
+        var base = (variasPastas ? nomeArq(o.x.pasta) + "/" : "") + nomeArq(o.x.t), ext = "." + extDe(o.r.blob, o.r.url);
+        var nm = base + ext, n = 2;
+        while (usados[nm.toLowerCase()]) nm = base + " (" + (n++) + ")" + ext;
+        usados[nm.toLowerCase()] = 1;
+        return nm;
+      }
+      var soFotos = ok.every(function(o){ return o.x.tipo === "foto"; });
+      var zipNome = nomeArq(d.nome) + (soFotos ? " - fotos" : " - material") + ".zip";
+      var passo;
+      if (ok.length === 1){
+        passo = Promise.resolve().then(function(){ salva(ok[0].r.blob, nomeArq(ok[0].x.t) + "." + extDe(ok[0].r.blob, ok[0].r.url)); });
+      } else if (ok.length > 1){
+        passo = Promise.all(ok.map(function(o){ return bytes(o.r.blob).then(function(b){ return { nome: nomeDe(o), dados: b }; }); }))
+          .then(function(arqs){ if (!est.cancelado) salva(montaZip(arqs), zipNome); });
+      } else passo = Promise.resolve();
+      return passo.then(function(){
+        if (est.cancelado) return;
+        if (est.diretos.length) disparaDiretos(est.diretos);
+        var nv = est.diretos.length, t, s = [];
+        var soVid = est.diretos.every(function(x){ return x.tipo === "video"; });
+        var um = soVid ? "vídeo" : "arquivo", varios = soVid ? "vídeos" : "arquivos";
+        if (ok.length > 1){
+          t = "Pronto! " + plural(ok.length, soFotos ? "foto" : "arquivo", soFotos ? "fotos" : "arquivos") + " no ZIP";
+          s.push("Arquivo “" + zipNome + "” salvo nos downloads.");
+        } else if (ok.length === 1) t = "Pronto! " + (ok[0].x.tipo === "foto" ? "Foto baixada" : "Arquivo baixado");
+        else t = nv ? (nv === 1 ? "Baixando o " + um : "Baixando " + nv + " " + varios) + " do Google Drive" : "Não foi possível baixar";
+        if (nv) s.push((ok.length ? (nv === 1 ? "O " + um + " restante vem" : "Os " + nv + " " + varios + " restantes vêm")
+                                  : (nv === 1 ? "Ele vem" : "Eles vêm")) +
+                       " direto do Google Drive" + (nv > 1 ? ", um de cada vez. Se o navegador perguntar, permita baixar vários arquivos" : "") +
+                       ". Se algum não começar, toque nele abaixo.");
+        if (est.perdidos) s.push(plural(est.perdidos, "arquivo não pôde ser baixado", "arquivos não puderam ser baixados") + ".");
+        est.fase = "fim"; est.titulo = t; est.sub = s.join(" ");
+        if (DL === est){
+          SEL = {}; selModo = false; modal.classList.remove("sel-on");
+          pintaSel();
+          if (!nv && !est.perdidos) setTimeout(function(){ if (DL === est){ DL = null; pintaBarra(); } }, 8000);
+        }
+      });
+    }).catch(function(){
+      if (DL === est){ est.fase = "fim"; est.titulo = "Não foi possível baixar"; est.sub = "Tente de novo com menos arquivos."; pintaBarra(); }
+    });
+  }
+
+  /* botão "Baixar" da foto em tela cheia */
+  function baixarUma(p, bt){
+    var x = { id: p.id, t: p.t, tipo: "foto" };
+    var sp = bt && bt.querySelector("span");
+    if (bt){ bt.disabled = true; if (sp) sp.textContent = "Baixando…"; }
+    busca(fontesDl(x)).then(function(r){ salva(r.blob, nomeArq(p.t) + "." + extDe(r.blob, r.url)); },
+      function(){ if (okDrive(p.id)) disparaDiretos([x]); })
+      .then(function(){ if (bt){ bt.disabled = false; if (sp) sp.textContent = "Baixar"; } });
+  }
 
 
   /* ---------------- enviar proposta ----------------
