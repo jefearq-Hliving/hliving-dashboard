@@ -485,10 +485,13 @@ a.ucard:hover{background:var(--accent-soft)}
 .lprev{left:18px} .lnext{right:18px}
 .lclose{position:absolute;top:18px;right:18px;width:38px;height:38px;border-radius:50%;
   background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
-.lbaixar{position:absolute;top:18px;right:66px;height:38px;border-radius:999px;padding:0 15px;display:inline-flex;align-items:center;gap:7px;
+.lacoes{position:absolute;top:18px;right:66px;display:flex;gap:8px}
+.lbaixar,.lwa{height:38px;border-radius:999px;padding:0 15px;display:inline-flex;align-items:center;gap:7px;
   background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:12.5px;font-weight:600}
 .lbaixar:hover{background:rgba(255,255,255,.22)}
-.lbaixar[disabled]{opacity:.6;cursor:progress}
+.lwa{background:#25d366;border-color:#25d366;color:#052e16}
+.lwa:hover{background:#3ee07c;border-color:#3ee07c}
+.lbaixar[disabled],.lwa[disabled]{opacity:.6;cursor:progress}
 
 /* ---------- baixar fotos e vídeos (seleção) ---------- */
 .mtabs-l{display:contents}
@@ -496,6 +499,9 @@ a.ucard:hover{background:var(--accent-soft)}
   padding:7px 14px;font-size:12.5px;font-weight:600;color:#fff}
 .mtab-dl:hover{background:var(--dark-2);border-color:var(--dark-2)}
 .mtab-dl[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+.mtab-wa{background:var(--card);border-color:var(--wa-ink);color:var(--wa-ink)}
+.mtab-wa:hover{background:var(--card);border-color:var(--wa-ink);color:var(--wa-ink);box-shadow:inset 0 0 0 1px var(--wa-ink)}
+.mtab-wa + .mtab-dl{margin-left:0}
 .ck{display:none}
 #modal.sel-on .ck{display:flex}
 .gitem .ck,.ck-pasta{position:absolute;top:8px;left:8px;z-index:2;width:26px;height:26px;border-radius:50%;align-items:center;justify-content:center;
@@ -529,6 +535,9 @@ a.ucard:hover{background:var(--accent-soft)}
 .dlbar-main{background:var(--accent);border-color:var(--accent);color:#1d2430}
 .dlbar-main:hover{background:#c2a881;border-color:#c2a881}
 .dlbar-b[disabled]{opacity:.45;cursor:not-allowed}
+.dlbar-wa{background:#25d366;border-color:#25d366;color:#052e16}
+.dlbar-wa:hover{background:#3ee07c;border-color:#3ee07c}
+a.dlbar-b{text-decoration:none}
 .dlbar-prog{display:block;height:5px;border-radius:5px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:6px}
 .dlbar-prog i{display:block;height:100%;background:var(--accent);border-radius:5px;transition:width .2s}
 .dlbar-lista{flex:1 1 100%;display:flex;flex-direction:column;gap:6px;max-height:34vh;overflow:auto}
@@ -540,7 +549,7 @@ a.ucard:hover{background:var(--accent-soft)}
   .dlbar-in{padding:11px 12px}
   .dlbar-bts{flex:1 1 100%}
   .dlbar-bts .dlbar-b{flex:1 1 auto;justify-content:center}
-  .lbaixar span{display:none} .lbaixar{padding:0 11px}
+  .lacoes span{display:none} .lbaixar,.lwa{padding:0 11px}
 }
 
 @media (max-width:920px){ .grid{grid-template-columns:1fr} }
@@ -731,7 +740,7 @@ a.ucard:hover{background:var(--accent-soft)}
 
   <div class="bn" id="bn" hidden role="dialog" aria-modal="true" aria-label="Black November: oportunidades especiais H Living"></div>
   <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-titulo"></div>
-  <div class="dlbar" id="dlbar" hidden role="region" aria-label="Baixar fotos e vídeos" aria-live="polite"></div>
+  <div class="dlbar" id="dlbar" hidden role="region" aria-label="Enviar ou baixar fotos e vídeos" aria-live="polite"></div>
   <div class="lbox" id="lbox" hidden role="dialog" aria-modal="true" aria-label="Foto ampliada"></div>
   <div class="modal" id="prop" hidden role="dialog" aria-modal="true" aria-labelledby="prop-titulo"></div>
   <div class="ed" id="editor" hidden role="dialog" aria-modal="true" aria-labelledby="ed-titulo"></div>
@@ -2023,7 +2032,8 @@ a.ucard:hover{background:var(--accent-soft)}
         '<div class="mtabs"><div class="mtabs-l" role="tablist">'+ abas(d).map(function(a){
           return '<button class="mtab" role="tab" data-aba="'+a.k+'" aria-selected="'+(a.k===mAba)+'">'+a.l+'<em class="num"'+(ABAS_DL[a.k]?' data-cnt="'+a.k+'"':'')+'>'+a.n+'</em></button>';
         }).join("") + '</div>' +
-        (temDl(d) ? '<button class="mtab-dl" data-dl-modo aria-pressed="'+selModo+'" title="Selecionar fotos e vídeos para baixar">'+BAIXAR+'Baixar</button>' : '')+
+        (temDl(d) ? '<button class="mtab-dl mtab-wa" data-dl-modo aria-pressed="'+selModo+'" title="Selecionar fotos e vídeos para enviar pelo WhatsApp">'+WA+'WhatsApp</button>'+
+                    '<button class="mtab-dl" data-dl-modo aria-pressed="'+selModo+'" title="Selecionar fotos e vídeos para baixar">'+BAIXAR+'Baixar</button>' : '')+
         '</div>'+
         '<div class="mbody">'+ conteudoAba(d) +
           '<p class="fonte">Entrega '+esc(d.entrega)+' · '+s.D+' de '+s.total+' '+(s.total===1?"unidade disponível":"unidades disponíveis")+
@@ -2065,6 +2075,8 @@ a.ucard:hover{background:var(--accent-soft)}
     modal.hidden = true; lbox.hidden = true;
     SEL = {}; selModo = false; modal.classList.remove("sel-on");
     if (DL && DL.fase === "fim") DL = null;
+    if (DL && DL.modo === "wa"){ DL.cancelado = true; if (DL.ctrl) DL.ctrl.abort(); DL = null; }   // envio pelo WhatsApp só vale com a tela aberta
+    LWA = null;
     pintaBarra();      // esconde a barra; um download em andamento continua e salva ao terminar
     document.body.style.overflow = "";
     if (voltarFoco && voltarFoco.focus) voltarFoco.focus();
@@ -2074,7 +2086,10 @@ a.ucard:hover{background:var(--accent-soft)}
   function pintaLbox(){
     var p = parts(lFotos[lIdx]);
     lbox.innerHTML =
-      '<button class="lbaixar" data-lbaixar aria-label="Baixar esta foto em alta">'+BAIXAR+'<span>Baixar</span></button>'+
+      '<div class="lacoes">'+
+        '<button class="lwa" data-lwa aria-label="Enviar esta foto pelo WhatsApp">'+WA+'<span>'+(LWA && LWA.id === p.id ? 'Enviar' : 'WhatsApp')+'</span></button>'+
+        '<button class="lbaixar" data-lbaixar aria-label="Baixar esta foto em alta">'+BAIXAR+'<span>Baixar</span></button>'+
+      '</div>'+
       '<button class="lclose" data-lfechar aria-label="Fechar">'+XIS+'</button>'+
       (lFotos.length > 1 ? '<button class="lnav lprev" data-lpasso="-1" aria-label="Anterior">&#8249;</button>' : '')+
       '<img src="'+img(p.id, 1600)+'" alt="'+esc(p.t)+'">'+
@@ -2089,6 +2104,8 @@ a.ucard:hover{background:var(--accent-soft)}
     if (e.target.closest("[data-lfechar]")){ lbox.hidden = true; return; }
     var lb = e.target.closest("[data-lbaixar]");
     if (lb){ if (lFotos[lIdx]) baixarUma(parts(lFotos[lIdx]), lb); return; }
+    var lw = e.target.closest("[data-lwa]");
+    if (lw){ if (lFotos[lIdx]) waUma(parts(lFotos[lIdx]), lw); return; }
     var passo = e.target.closest("[data-lpasso]");
     if (passo){ lIdx = (lIdx + (+passo.dataset.lpasso) + lFotos.length) % lFotos.length; pintaLbox(); return; }
     if (e.target === lbox){ lbox.hidden = true; return; }
@@ -2100,6 +2117,16 @@ a.ucard:hover{background:var(--accent-soft)}
     if (e.target.closest("[data-dl-baixar]")){ baixarSel(); return; }
     if (e.target.closest("[data-dl-parar]")){ pararDl(); return; }
     if (e.target.closest("[data-dl-fechar]")){ DL = null; pintaBarra(); return; }
+    /* WhatsApp */
+    if (e.target.closest("[data-wa]")){ compartilharSel(); return; }
+    if (e.target.closest("[data-wa-enviar]")){ waEnviar(); return; }
+    if (e.target.closest("[data-wa-voltar]")){ DL = null; pintaBarra(); return; }
+    if (e.target.closest("[data-wa-fim]")){ DL = null; entraSel(false); return; }
+    if (e.target.closest("[data-wa-link]")){   // o link abre o WhatsApp; a barra muda depois do clique
+      var est = DL;
+      if (est){ est.enviado = true; est.erro = ""; setTimeout(function(){ if (DL === est) pintaBarra(); }, 0); }
+      return;
+    }
     var sp = e.target.closest("[data-sel-pasta]");
     if (sp){ togglePasta(sp.dataset.selPasta); return; }
     var si = selModo && e.target.closest("[data-sid]");
@@ -2198,6 +2225,7 @@ a.ucard:hover{background:var(--accent-soft)}
   function entraSel(on){
     if (!mDev) return;
     selModo = !!on;
+    if (DL && DL.fase === "pronto") DL = null;   // envio pelo WhatsApp que ficou esperando o toque
     if (!selModo) SEL = {};
     else if (DL && DL.fase === "fim") DL = null;
     modal.classList.toggle("sel-on", selModo);
@@ -2209,9 +2237,11 @@ a.ucard:hover{background:var(--accent-soft)}
   }
   function toggleSel(id){
     if (SEL[id]) delete SEL[id]; else SEL[id] = 1;
+    if (DL && DL.fase === "pronto") DL = null;   // mudou a seleção: as fotos preparadas para o WhatsApp já não valem
     pintaSel();
   }
   function marca(ids){
+    if (DL && DL.fase === "pronto") DL = null;
     var todos = ids.length && ids.every(function(i){ return SEL[i]; });
     ids.forEach(function(i){ if (todos) delete SEL[i]; else SEL[i] = 1; });
   }
@@ -2239,8 +2269,7 @@ a.ucard:hover{background:var(--accent-soft)}
       var ids = idsAba(el.dataset.cnt), n = ids.filter(function(i){ return SEL[i]; }).length;
       el.textContent = selModo && n ? n + "/" + ids.length : ids.length;
     });
-    var b = modal.querySelector("[data-dl-modo]");
-    if (b) b.setAttribute("aria-pressed", selModo);
+    Array.prototype.forEach.call(modal.querySelectorAll("[data-dl-modo]"), function(b){ b.setAttribute("aria-pressed", selModo); });
     pintaBarra();
   }
 
@@ -2251,10 +2280,29 @@ a.ucard:hover{background:var(--accent-soft)}
     var foco = document.activeElement && dlbar.contains(document.activeElement) ? document.activeElement.getAttribute("data-k") : null;
     var h;
     if (DL && DL.fase === "baixando"){
-      var pct = DL.total ? Math.round(DL.feitos / DL.total * 100) : 100;
-      h = '<div class="dlbar-in"><div class="dlbar-txt"><b>Preparando '+DL.feitos+' de '+plural(DL.total, "arquivo", "arquivos")+'…</b>'+
-          '<span>Fotos no tamanho original. Não feche esta página.</span><span class="dlbar-prog"><i style="width:'+pct+'%"></i></span></div>'+
+      var pct = DL.total ? Math.round(DL.feitos / DL.total * 100) : 100, ewa = DL.modo === "wa";
+      h = '<div class="dlbar-in"><div class="dlbar-txt"><b>Preparando '+DL.feitos+' de '+plural(DL.total, ewa ? "foto" : "arquivo", ewa ? "fotos" : "arquivos")+'…</b>'+
+          '<span>'+(ewa ? 'Para enviar pelo WhatsApp. Não feche esta página.' : 'Fotos no tamanho original. Não feche esta página.')+'</span>'+
+          '<span class="dlbar-prog"><i style="width:'+pct+'%"></i></span></div>'+
           '<div class="dlbar-bts"><button class="dlbar-b" data-dl-parar data-k="parar">Cancelar</button></div></div>';
+    } else if (DL && DL.fase === "pronto"){   // WhatsApp: fotos prontas, esperando o toque que abre o menu de compartilhar
+      var t, s, bt;
+      if (DL.pacote){
+        t = DL.enviado ? "Pronto!" : plural(DL.nFotos, "foto pronta", "fotos prontas") + (DL.nLinks ? " + " + plural(DL.nLinks, "link", "links") : "");
+        s = DL.erro || (DL.enviado ? "Para mandar a outro cliente, toque em Enviar de novo."
+          : "Toque em Enviar e escolha o WhatsApp." + (DL.nLinks ? " Vídeos e catálogos vão como link na mensagem." : ""));
+        bt = '<button class="dlbar-b dlbar-wa" data-wa-enviar data-k="enviar"'+(DL.abrindo ? ' disabled' : '')+'>'+WA+(DL.enviado ? 'Enviar de novo' : 'Enviar')+'</button>';
+      } else {
+        t = DL.enviado ? "WhatsApp aberto" : "Mensagem pronta";
+        s = DL.erro || (DL.enviado ? "Para mandar a outro cliente, toque em Abrir WhatsApp de novo."
+          : "Vai com os links do que você marcou. Toque em Abrir WhatsApp e escolha a conversa.");
+        bt = '<a class="dlbar-b dlbar-wa" href="'+esc(DL.link)+'" target="_blank" rel="noopener" data-wa-link data-k="enviar">'+WA+'Abrir WhatsApp</a>';
+      }
+      h = '<div class="dlbar-in"><div class="dlbar-txt"><b>'+esc(t)+'</b><span>'+esc(s)+'</span></div>'+
+          '<div class="dlbar-bts">'+
+          (DL.enviado ? '<button class="dlbar-b" data-wa-fim data-k="fim">Concluir</button>'
+                      : '<button class="dlbar-b" data-wa-voltar data-k="voltar">Voltar</button>')+
+          bt+'</div></div>';
     } else if (DL && DL.fase === "fim"){
       h = '<div class="dlbar-in"><div class="dlbar-txt"><b>'+esc(DL.titulo)+'</b>'+(DL.sub ? '<span>'+esc(DL.sub)+'</span>' : '')+'</div>'+
           '<div class="dlbar-bts"><button class="dlbar-b" data-dl-fechar data-k="ok">OK</button></div>'+
@@ -2267,10 +2315,11 @@ a.ucard:hover{background:var(--accent-soft)}
       var vista = idsVista(), todos = vista.length > 0 && vista.every(function(i){ return SEL[i]; });
       h = '<div class="dlbar-in"><div class="dlbar-txt">'+
           (n ? '<b>'+plural(n, "selecionado", "selecionados")+'</b><span>'+resumoSel(lista)+'</span>'
-             : '<b>Selecione o que quer baixar</b><span>Toque nas fotos e vídeos, ou em Selecionar todos</span>')+'</div>'+
+             : '<b>Selecione o que quer enviar ou baixar</b><span>Toque nas fotos e vídeos, ou em Selecionar todos</span>')+'</div>'+
           '<div class="dlbar-bts">'+
           (vista.length ? '<button class="dlbar-b" data-sel-todos data-k="todos">'+(todos ? 'Desmarcar todos' : 'Selecionar todos')+'</button>' : '')+
           '<button class="dlbar-b" data-dl-cancelar data-k="cancelar">Cancelar</button>'+
+          '<button class="dlbar-b dlbar-wa" data-wa data-k="wa"'+(n ? '' : ' disabled')+'>'+WA+'WhatsApp</button>'+
           '<button class="dlbar-b dlbar-main" data-dl-baixar data-k="baixar"'+(n ? '' : ' disabled')+'>'+BAIXAR+'Baixar'+(n ? ' ('+n+')' : '')+'</button>'+
           '</div></div>';
     }
@@ -2473,6 +2522,176 @@ a.ucard:hover{background:var(--accent-soft)}
     busca(fontesDl(x)).then(function(r){ salva(r.blob, nomeArq(p.t) + "." + extDe(r.blob, r.url)); },
       function(){ if (okDrive(p.id)) disparaDiretos([x]); })
       .then(function(){ if (bt){ bt.disabled = false; if (sp) sp.textContent = "Baixar"; } });
+  }
+
+  /* ---------------- enviar pelo WhatsApp ----------------
+     Na seleção (ao lado do "Baixar") e na foto em tela cheia há o botão "WhatsApp".
+     • No celular, as fotos e plantas marcadas vão como imagens pelo menu de compartilhar do aparelho:
+       o corretor escolhe o WhatsApp e a conversa. Saem com até 2560 px no lado maior (o WhatsApp não
+       usa mais que isso), para ficarem prontas rápido. Vídeos e catálogos vão como link na legenda,
+       junto com o nome e o endereço do empreendimento.
+     • No computador, ou se o aparelho não envia arquivos, abre o WhatsApp com uma mensagem que lista
+       os links de tudo o que foi marcado.
+     O menu de compartilhar só abre a partir de um toque: se as fotos ficam prontas logo, ele abre
+     sozinho; se demoram, a barra mostra "Enviar" e o toque seguinte abre o menu. */
+  var WA_LADO = 2560;
+  var LWA = null;   // foto da tela cheia já preparada: { id, pacote } ou { id, link }
+
+  /* celular que envia arquivos pelo menu de compartilhar (no computador vai a mensagem com links) */
+  function waArquivos(){
+    try {
+      var toque = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
+      return toque && !!(navigator.share && navigator.canShare && window.File) &&
+        navigator.canShare({ files: [new File(["x"], "foto.jpg", { type: "image/jpeg" })] });
+    } catch(e){ return false; }
+  }
+  function abs(u){ try { return new URL(u, location.href).href; } catch(e){ return u; } }
+  /* link que o cliente abre: arquivo do Drive ou publicado junto com o portal */
+  function linkWa(x){
+    var id = x.id;
+    if (id.indexOf("/") >= 0) return abs(id);
+    if (!okDrive(id)) return abs("f/g/" + id + ".jpg");   // material enviado direto (v-...) e cópias locais
+    return dv(id);
+  }
+  /* fotos para a conversa: mais leves que o original, que fica para o "Baixar" */
+  function fontesWa(x){
+    if (x.tipo !== "foto") return [];
+    var id = x.id;
+    if (id.indexOf("/") >= 0) return [id];
+    if (/^v-/.test(id)) return ["f/g/" + id + ".jpg"];
+    var l = [];
+    if (okDrive(id)) l.push("https://lh3.googleusercontent.com/d/" + id + "=s" + WA_LADO);
+    if (LOCAL[id]) l.push("f/g/" + id + ".jpg");
+    return l;
+  }
+  /* legenda / mensagem: nome e endereço do empreendimento e, por pasta, os links */
+  function textoWa(d, links){
+    var l = ["*" + d.nome + "*"], grupo = null;
+    if (d.local) l.push(d.local);
+    links.forEach(function(x){
+      if (x.pasta !== grupo){ grupo = x.pasta; l.push("", grupo + ":"); }
+      l.push("• " + x.t + ": " + linkWa(x));
+    });
+    return l.join("\n");
+  }
+  function waUrl(txt){ return "https://wa.me/?text=" + encodeURIComponent(txt); }
+  function abreWa(url){
+    var w = window.open(url, "_blank");
+    if (!w) return false;
+    try { w.opener = null; } catch(e){}
+    return true;
+  }
+  function arquivoWa(r, nome){
+    var tipo = (r.blob.type || "").split(";")[0].trim() || "image/jpeg";
+    return new File([r.blob], nome, { type: tipo });
+  }
+  function podeEnviar(p){ try { return !!navigator.canShare(p); } catch(e){ return false; } }
+  function compartilha(p){ try { return navigator.share(p); } catch(e){ return Promise.reject(e); } }
+  /* o toque que começou o envio ainda vale para abrir o menu de compartilhar? */
+  function aindaVale(){ return !!(navigator.userActivation && navigator.userActivation.isActive); }
+
+  /* barra da seleção: botão "WhatsApp" */
+  function compartilharSel(){
+    var d = mDev;
+    if (!d || (DL && DL.fase === "baixando")) return;
+    var lista = selecionados(d);
+    if (!lista.length) return;
+    var aBuscar = waArquivos() ? lista.filter(function(x){ return fontesWa(x).length; }) : [];
+    if (!aBuscar.length){   // computador, ou só vídeos e catálogos: mensagem com os links
+      var url = waUrl(textoWa(d, lista));
+      DL = { modo: "wa", fase: "pronto", link: url, enviado: abreWa(url) };
+      pintaBarra();
+      return;
+    }
+    var est = DL = { modo: "wa", fase: "baixando", total: aBuscar.length, feitos: 0,
+                     ctrl: window.AbortController ? new AbortController() : null };
+    pintaBarra();
+
+    var res = new Array(aBuscar.length), prox = 0;
+    function trabalha(){
+      if (est.cancelado || prox >= aBuscar.length) return Promise.resolve();
+      var i = prox++;
+      return busca(fontesWa(aBuscar[i]), est.ctrl && est.ctrl.signal)
+        .then(function(r){ res[i] = r; }, function(){ res[i] = null; })
+        .then(function(){ if (est.cancelado) return; est.feitos++; if (DL === est) pintaBarra(); return trabalha(); });
+    }
+    var fila = [];
+    for (var k = 0; k < Math.min(4, aBuscar.length); k++) fila.push(trabalha());
+
+    Promise.all(fila).then(function(){
+      if (est.cancelado || DL !== est) return;
+      var files = [], foi = {}, usados = {};
+      aBuscar.forEach(function(x, i){
+        var r = res[i]; if (!r) return;
+        var base = nomeArq(x.t), ext = "." + extDe(r.blob, r.url), nm = base + ext, n = 2;
+        while (usados[nm.toLowerCase()]) nm = base + " (" + (n++) + ")" + ext;
+        usados[nm.toLowerCase()] = 1;
+        files.push(arquivoWa(r, nm));
+        foi[x.id] = 1;
+      });
+      var links = lista.filter(function(x){ return !foi[x.id]; });   // vídeos, catálogos e o que não veio
+      var pac = { files: files, text: textoWa(d, links) };
+      est.fase = "pronto"; est.d = d; est.lista = lista;
+      if (!files.length || !podeEnviar(pac)){   // sem fotos para mandar: vai tudo como link
+        est.link = waUrl(textoWa(d, lista));
+        est.erro = (files.length ? "O aparelho não aceitou estas fotos" : "Não deu para preparar as fotos agora") +
+                   "; elas vão como link. Toque em Abrir WhatsApp.";
+        pintaBarra();
+        return;
+      }
+      est.pacote = pac; est.nFotos = files.length; est.nLinks = links.length;
+      pintaBarra();
+      if (aindaVale()) waEnviar();   // ainda dentro do toque em "WhatsApp": abre o menu direto
+    }).catch(function(){
+      if (DL !== est) return;
+      est.fase = "pronto"; est.pacote = null; est.link = waUrl(textoWa(d, lista));
+      est.erro = "Não deu para preparar as fotos agora; elas vão como link. Toque em Abrir WhatsApp.";
+      pintaBarra();
+    });
+  }
+  /* abre o menu de compartilhar com as fotos preparadas */
+  function waEnviar(){
+    var est = DL;
+    if (!est || est.modo !== "wa" || est.fase !== "pronto" || !est.pacote || est.abrindo) return;
+    est.abrindo = true; est.erro = "";
+    var pr = compartilha(est.pacote);
+    pintaBarra();
+    pr.then(function(){
+      est.abrindo = false; est.enviado = true;
+      if (DL === est) pintaBarra();
+    }, function(err){
+      est.abrindo = false;
+      var n = err && err.name;
+      // AbortError: fechou o menu · NotAllowedError: precisa de um toque (o botão Enviar resolve) · InvalidStateError: já estava aberto
+      if (n !== "AbortError" && n !== "NotAllowedError" && n !== "InvalidStateError"){
+        est.pacote = null; est.link = waUrl(textoWa(est.d, est.lista));
+        est.erro = "O aparelho não conseguiu enviar as fotos; elas vão como link. Toque em Abrir WhatsApp.";
+      }
+      if (DL === est) pintaBarra();
+    });
+  }
+
+  /* botão "WhatsApp" da foto em tela cheia */
+  function waUma(p, bt){
+    var d = mDev;
+    if (!d || (bt && bt.disabled)) return;
+    var x = { id: p.id, t: p.t, pasta: "Foto", tipo: "foto" };
+    var pronto = LWA && LWA.id === p.id ? LWA : null;
+    if (pronto && pronto.pacote){ compartilha(pronto.pacote).then(null, function(){}); return; }
+    if (pronto && pronto.link){ abreWa(pronto.link); return; }
+    if (!waArquivos() || !fontesWa(x).length){ abreWa(waUrl(textoWa(d, [x]))); return; }
+    var sp = bt && bt.querySelector("span");
+    if (bt){ bt.disabled = true; if (sp) sp.textContent = "Preparando…"; }
+    busca(fontesWa(x)).then(function(r){
+      var pac = { files: [arquivoWa(r, nomeArq(p.t) + "." + extDe(r.blob, r.url))], text: textoWa(d, []) };
+      if (!podeEnviar(pac)) throw new Error("tipo");
+      return { id: p.id, pacote: pac };
+    }).then(null, function(){ return { id: p.id, link: waUrl(textoWa(d, [x])) }; })
+    .then(function(o){
+      LWA = o;
+      if (bt){ bt.disabled = false; if (sp) sp.textContent = "Enviar"; }
+      if (o.pacote && aindaVale()) compartilha(o.pacote).then(null, function(){});
+    });
   }
 
 
