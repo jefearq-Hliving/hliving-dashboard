@@ -2280,17 +2280,18 @@ a.dlbar-b{text-decoration:none}
     var foco = document.activeElement && dlbar.contains(document.activeElement) ? document.activeElement.getAttribute("data-k") : null;
     var h;
     if (DL && DL.fase === "baixando"){
-      var pct = DL.total ? Math.round(DL.feitos / DL.total * 100) : 100, ewa = DL.modo === "wa";
-      h = '<div class="dlbar-in"><div class="dlbar-txt"><b>Preparando '+DL.feitos+' de '+plural(DL.total, ewa ? "foto" : "arquivo", ewa ? "fotos" : "arquivos")+'…</b>'+
-          '<span>'+(ewa ? 'Para enviar pelo WhatsApp. Não feche esta página.' : 'Fotos no tamanho original. Não feche esta página.')+'</span>'+
+      var pct = DL.total ? Math.round(DL.feitos / DL.total * 100) : 100, ewa = DL.modo === "wa", soFt = ewa && !DL.temVideo;
+      h = '<div class="dlbar-in"><div class="dlbar-txt"><b>Preparando '+DL.feitos+' de '+plural(DL.total, soFt ? "foto" : "arquivo", soFt ? "fotos" : "arquivos")+'…</b>'+
+          '<span>'+(ewa ? 'Para enviar pelo WhatsApp'+(DL.temVideo ? '; os vídeos levam um pouco mais' : '')+'. Não feche esta página.'
+                        : 'Fotos no tamanho original. Não feche esta página.')+'</span>'+
           '<span class="dlbar-prog"><i style="width:'+pct+'%"></i></span></div>'+
           '<div class="dlbar-bts"><button class="dlbar-b" data-dl-parar data-k="parar">Cancelar</button></div></div>';
     } else if (DL && DL.fase === "pronto"){   // WhatsApp: fotos prontas, esperando o toque que abre o menu de compartilhar
       var t, s, bt;
       if (DL.pacote){
-        t = DL.enviado ? "Pronto!" : plural(DL.nFotos, "foto pronta", "fotos prontas") + (DL.nLinks ? " + " + plural(DL.nLinks, "link", "links") : "");
+        t = DL.enviado ? "Pronto!" : prontos(DL.nFotos, DL.nVideos) + (DL.nLinks ? " + " + plural(DL.nLinks, "link", "links") : "");
         s = DL.erro || (DL.enviado ? "Para mandar a outro cliente, toque em Enviar de novo."
-          : "Toque em Enviar e escolha o WhatsApp." + (DL.nLinks ? " Vídeos e catálogos vão como link na mensagem." : ""));
+          : "Toque em Enviar e escolha o WhatsApp." + (DL.nLinks ? " " + (DL.nLinks === 1 ? "O link vai" : "Os links vão") + " na mensagem." : ""));
         bt = '<button class="dlbar-b dlbar-wa" data-wa-enviar data-k="enviar"'+(DL.abrindo ? ' disabled' : '')+'>'+WA+(DL.enviado ? 'Enviar de novo' : 'Enviar')+'</button>';
       } else {
         t = DL.enviado ? "WhatsApp aberto" : "Mensagem pronta";
@@ -2528,13 +2529,16 @@ a.dlbar-b{text-decoration:none}
      Na seleção (ao lado do "Baixar") e na foto em tela cheia há o botão "WhatsApp".
      • No celular, as fotos e plantas marcadas vão como imagens pelo menu de compartilhar do aparelho:
        o corretor escolhe o WhatsApp e a conversa. Saem com até 2560 px no lado maior (o WhatsApp não
-       usa mais que isso), para ficarem prontas rápido. Vídeos e catálogos vão como link na legenda,
-       junto com o nome e o endereço do empreendimento.
+       usa mais que isso), para ficarem prontas rápido. Os vídeos também vão como vídeo, na versão leve
+       (720p, até 25 MB) que o repositório hliving-videos gera todo dia a partir do Drive e publica no
+       GitHub Pages. Vídeo ainda sem versão leve e catálogos vão como link na legenda, junto com o nome
+       e o endereço do empreendimento.
      • No computador, ou se o aparelho não envia arquivos, abre o WhatsApp com uma mensagem que lista
        os links de tudo o que foi marcado.
      O menu de compartilhar só abre a partir de um toque: se as fotos ficam prontas logo, ele abre
      sozinho; se demoram, a barra mostra "Enviar" e o toque seguinte abre o menu. */
   var WA_LADO = 2560;
+  var VID_WA = "https://jefearq-hliving.github.io/hliving-videos/";   // <id do Drive>.mp4 (ver comentário acima)
   var LWA = null;   // foto da tela cheia já preparada: { id, pacote } ou { id, link }
 
   /* celular que envia arquivos pelo menu de compartilhar (no computador vai a mensagem com links) */
@@ -2553,8 +2557,9 @@ a.dlbar-b{text-decoration:none}
     if (!okDrive(id)) return abs("f/g/" + id + ".jpg");   // material enviado direto (v-...) e cópias locais
     return dv(id);
   }
-  /* fotos para a conversa: mais leves que o original, que fica para o "Baixar" */
+  /* fotos e vídeos para a conversa: mais leves que o original, que fica para o "Baixar" */
   function fontesWa(x){
+    if (x.tipo === "video") return okDrive(x.id) ? [VID_WA + x.id + ".mp4"] : [];
     if (x.tipo !== "foto") return [];
     var id = x.id;
     if (id.indexOf("/") >= 0) return [id];
@@ -2575,6 +2580,14 @@ a.dlbar-b{text-decoration:none}
     return l.join("\n");
   }
   function waUrl(txt){ return "https://wa.me/?text=" + encodeURIComponent(txt); }
+  /* "3 fotos prontas", "1 vídeo pronto", "3 fotos e 1 vídeo prontos" */
+  function prontos(nf, nv){
+    var p = [];
+    if (nf) p.push(plural(nf, "foto", "fotos"));
+    if (nv) p.push(plural(nv, "vídeo", "vídeos"));
+    var um = nf + nv === 1;
+    return p.join(" e ") + (nv ? (um ? " pronto" : " prontos") : (um ? " pronta" : " prontas"));
+  }
   function abreWa(url){
     var w = window.open(url, "_blank");
     if (!w) return false;
@@ -2604,6 +2617,7 @@ a.dlbar-b{text-decoration:none}
       return;
     }
     var est = DL = { modo: "wa", fase: "baixando", total: aBuscar.length, feitos: 0,
+                     temVideo: aBuscar.some(function(x){ return x.tipo === "video"; }),
                      ctrl: window.AbortController ? new AbortController() : null };
     pintaBarra();
 
@@ -2639,7 +2653,9 @@ a.dlbar-b{text-decoration:none}
         pintaBarra();
         return;
       }
-      est.pacote = pac; est.nFotos = files.length; est.nLinks = links.length;
+      est.pacote = pac; est.nLinks = links.length;
+      est.nVideos = files.filter(function(f){ return /^video\//.test(f.type); }).length;
+      est.nFotos = files.length - est.nVideos;
       pintaBarra();
       if (aindaVale()) waEnviar();   // ainda dentro do toque em "WhatsApp": abre o menu direto
     }).catch(function(){
